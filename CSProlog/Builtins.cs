@@ -1344,7 +1344,7 @@ namespace Prolog
 
           if (t0.IsVar) // first call only, Arg(0) contains State info
           {
-            configEnum = ConfigurationSettings.AppSettings.AllKeys.GetEnumerator ();
+            configEnum = ConfigurationManager.AppSettings.AllKeys.GetEnumerator ();
             term.Arg (0).Unify (new UserClassTerm<IEnumerator> (configEnum), varStack);
 
             break;
@@ -1366,7 +1366,7 @@ namespace Prolog
             StringTerm st;
 
             if ((term.Arg (1).IsUnifiableWith (at = new AtomTerm (key.ToAtom ()), varStack)) &&
-                 term.Arg (2).IsUnifiableWith (st = new StringTerm (ConfigurationSettings.AppSettings [key]), varStack))
+                 term.Arg (2).IsUnifiableWith (st = new StringTerm (ConfigurationManager.AppSettings [key]), varStack))
             {
               term.Arg (1).Unify (at, varStack);
               term.Arg (2).Unify (st, varStack);
