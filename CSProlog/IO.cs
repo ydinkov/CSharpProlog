@@ -14,10 +14,8 @@
 -------------------------------------------------------------------------------------------*/
 
 using System;
-using System.Text;
-using System.ComponentModel;
-using System.Windows.Forms;
 using System.IO;
+using System.Text;
 
 namespace Prolog
 {
