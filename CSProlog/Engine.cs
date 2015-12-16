@@ -2087,6 +2087,12 @@ namespace Prolog
       }
     }
 
+    public void ConsultFromString (string prologCode, string codeTitle = null)
+    {
+      using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(prologCode)))
+        Consult(ms, codeTitle);
+    }
+
     public void CreateFact (string functor, BaseTerm [] args)
     {
       predTable.Assert (new CompoundTerm (functor, args), true);
