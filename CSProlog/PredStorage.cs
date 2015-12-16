@@ -22,6 +22,7 @@ using System.Resources;
 using System.Reflection;
 using System.Collections.Specialized;
 using System.Text;
+using System.IO;
 
 namespace Prolog
 {
@@ -236,10 +237,15 @@ namespace Prolog
         return predTable.ToString ();
       }
 
+      public int Consult(string fileName)
+      {
+        return Consult(null, fileName);
+      }
 
-      public int Consult (string fileName)
+      public int Consult (Stream stream, string streamName = null)
       {
         // string as ISO-style charcode lists or as C# strings
+        var fileName = streamName ?? Guid.NewGuid().ToString("N");
         consultFileStack.Push (fileName);
         consultParserStack.Push (Globals.CurrentParser);
         PrologParser parser = Globals.CurrentParser = new PrologParser (engine);
@@ -254,7 +260,7 @@ namespace Prolog
           //Globals.ConsultModuleName = null;
           parser.Prefix = "&program\r\n";
           IO.Write ("--- Consulting {0} ... ", fileName);
-          parser.LoadFromFile (fileName);
+          parser.LoadFromStream (stream, fileName);
           IO.WriteLine ("{0} lines read", parser.LineCount);
           InvalidateCrossRef ();
         }
