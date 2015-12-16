@@ -134,6 +134,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="CSProlog.nuspec" />
     <None Include="PG\go.bat" />
     <None Include="PG\JSON.grm" />
     <None Include="PG\Parser.tpl" />
@@ -145,6 +146,12 @@
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>if not "$(ConfigurationName)" == "LibraryRelease" goto END
+pushd "$(ProjectDir)"
+"$(SolutionDir).nuget\nuget.exe" pack "$(ProjectPath)" -Prop Configuration=LibraryRelease;Platform=AnyCPU -o $(OutDir)
+:END</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>John Pool, Amersfoort, Netherlands, J.Sakamoto</authors>
+    <owners>John Pool</owners>
+    <licenseUrl>https://github.com/jsakamoto/CSharpProlog/blob/dev/v5/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/jsakamoto/CSharpProlog/tree/dev/v5</projectUrl>
+    <!--
+    <iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>
+    -->
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>C#Prolog -- A Prolog interpreter written in managed C#</summary>
+    <description>C#Prolog -- A Prolog interpreter written in C#.
+    Can easily be integrated in C# programs.
+    Characteristics: reliable and fairly fast interpreter, command line interface, builtin DCG, XML- and JSON-predicates, SQL-predicates, extendible.</description>
+    <releaseNotes>
+      <![CDATA[
+      v.5.0.0
+      - BREAKING CHANGE: Remove dependency of "System.Windows.Forms".
+      - NuGet package release
+      ]]>
+    </releaseNotes>
+    <copyright>Copyright (C) 2007-2015 John Pool -- j.pool@ision.nl</copyright>
+    <tags>Prolog interpreter</tags>
+  </metadata>
+</package>
