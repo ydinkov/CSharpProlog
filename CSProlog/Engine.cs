@@ -531,13 +531,22 @@ namespace Prolog
     {
     }
 
-
-    public PrologEngine (BasicIo io)
+    public PrologEngine(BasicIo io) 
+      : this(io, persistentCommandHistory: true)
     {
-      IO.BasicIO = this.io = io;
-      Reset ();
-      cmdBuf = new CommandHistory ();
-      PostBootstrap ();
+    }
+
+    public PrologEngine(bool persistentCommandHistory)
+      : this(new DosIO(), persistentCommandHistory)
+    {
+    }
+
+    public PrologEngine(BasicIo io, bool persistentCommandHistory)
+    {
+        IO.BasicIO = this.io = io;
+        Reset();
+        cmdBuf = new CommandHistory(persistentCommandHistory);
+        PostBootstrap();
     }
 
     public int CmdNo { get { return cmdBuf.cmdNo; } }
@@ -1745,24 +1754,32 @@ namespace Prolog
       public int cmdNo { get { return Count + 1; } }
       int maxNo; // maximum number of commands to be retained
 
-      public CommandHistory ()
+      public CommandHistory()
+          : this(enablePersistence: true)
       {
-        maxNo = Math.Abs (ConfigSettings.HistorySize);
-        persistentSettings = new ApplicationStorage ();
-        List<string> history;
+      }
 
-        try
-        {
-          history = persistentSettings.Get<List<string>> ("CommandHistory", null);
-        }
-        catch
-        {
-          history = null;
-        }
+      public CommandHistory (bool enablePersistence)
+      {
+          maxNo = Math.Abs (ConfigSettings.HistorySize);
+          if (enablePersistence)
+          {
+              persistentSettings = new ApplicationStorage();
+              List<string> history;
 
-        if (history == null) return;
-
-        foreach (string cmd in history) Add (cmd);
+              try
+              {
+                  history = persistentSettings.Get<List<string>>("CommandHistory", null);
+              }
+              catch
+              {
+                  history = null;
+              }
+          
+              if (history == null) return;
+          
+              foreach (string cmd in history) Add(cmd);
+          }
       }
 
 
@@ -1904,14 +1921,14 @@ namespace Prolog
       void ClearHistory ()
       {
         Clear ();
-        persistentSettings ["CommandHistory"] = null;
+        if (persistentSettings != null) persistentSettings["CommandHistory"] = null;
       }
 
 
       public void Persist ()
       {
         int maxNum = Math.Min (Count, maxNo);
-        persistentSettings ["CommandHistory"] = GetRange (Count - maxNum, maxNum);
+        if (persistentSettings != null) persistentSettings["CommandHistory"] = GetRange(Count - maxNum, maxNum);
       }
     }
 
