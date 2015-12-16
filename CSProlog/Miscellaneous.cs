@@ -111,25 +111,25 @@ namespace Prolog
 
       public static string GetConfigSetting (string key, string defaultValue)
       {
-        return (ConfigurationSettings.AppSettings [key] == null)
+        return (ConfigurationManager.AppSettings [key] == null)
           ? defaultValue
-          : ConfigurationSettings.AppSettings [key];
+          : ConfigurationManager.AppSettings [key];
       }
 
       static bool GetConfigSetting (string key, bool defaultValue)
       {
-        return (ConfigurationSettings.AppSettings [key] == null)
+        return (ConfigurationManager.AppSettings [key] == null)
           ? defaultValue
-          : (ConfigurationSettings.AppSettings [key] == "1");
+          : (ConfigurationManager.AppSettings [key] == "1");
       }
 
       static int GetConfigSetting (string key, int defaultValue)
       {
-        if (ConfigurationSettings.AppSettings [key] == null) return defaultValue;
+        if (ConfigurationManager.AppSettings [key] == null) return defaultValue;
 
         try
         {
-          return int.Parse (ConfigurationSettings.AppSettings [key]);
+          return int.Parse (ConfigurationManager.AppSettings [key]);
         }
         catch (Exception e)
         {
