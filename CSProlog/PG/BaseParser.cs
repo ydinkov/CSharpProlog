@@ -1,4 +1,4 @@
-#define showToken
+ï»¿#define showToken
 
 namespace Prolog
 {
@@ -1340,10 +1340,10 @@ namespace Prolog
 
                 De volgende properties zijn gedefinieerd:
 
-                • CMatch   = (KeyChar == keyChar[i])
-                • IsTerm   = (CachedTerm != null)
-                • IsLeaf   = (SubTrie == null)
-                • IsKeyEnd = (i == imax)
+                ãƒ»CMatch   = (KeyChar == keyChar[i])
+                ãƒ»IsTerm   = (CachedTerm != null)
+                ãƒ»IsLeaf   = (SubTrie == null)
+                ãƒ»IsKeyEnd = (i == imax)
 
                 De vraag is nu bij welke combinaties van de bovenstaande properties een
                 CacheTrieNode gedelete mag worden, dus dat een referentie ernaar in de CacheTrieNode
