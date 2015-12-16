@@ -14,22 +14,21 @@
 -------------------------------------------------------------------------------------------*/
 
 using System;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Collections;
-using System.Diagnostics;
-#if mswindows
-using System.Security.Principal;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Resources;
-using System.Reflection;
-using System.IO;
-using System.Globalization;
-using System.Data.Common;
 using System.Data;
+using System.Data.Common;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
+using System.Text.RegularExpressions;
+#if mswindows
+using System.Security.Principal;
+using System.Resources;
 #endif
 
 namespace Prolog
@@ -1872,7 +1871,7 @@ namespace Prolog
           if (SendMail (smtp, port, to, subj, text)) break;
 
           return false;
-
+#if mswindows
         case BI.clipboard:
           try
           {
@@ -1885,7 +1884,7 @@ namespace Prolog
             return false;
           };
           break;
-
+#endif
         case BI.today: // date( ?Y, ?M, ?D)
           y = DateTime.Today.Year;
           m = DateTime.Today.Month;
@@ -2868,14 +2867,14 @@ namespace Prolog
           if (!t0.IsInteger || (queryTimeout = t0.To<int> ()) < 0) return false;
 
           break;
-
+#if mswindows
         case BI.make_help_resx:
           string resxFileName;
           Utils.CreateHelpResourceFile (out resxFileName);
           IO.WriteLine ("\r\n  Resource file '{0}' created.", Path.GetFullPath (resxFileName));
           IO.WriteLine ("\r\n  Exclude the previous version from the project, add it again, and build.");
           break;
-
+#endif
         case BI.get_counter:
           globalTermsTable.getctr (term.Arg (0).FunctorToString, out cntrValue);
 

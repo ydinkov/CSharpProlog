@@ -14,21 +14,21 @@
 -------------------------------------------------------------------------------------------*/
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Globalization;
 using System.IO;
+using System.IO.IsolatedStorage;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Collections;
-using System.Globalization;
-#if mswindows
-using System.Runtime.InteropServices;
-using System.Configuration;
-using System.Runtime.Serialization;
-using System.IO.IsolatedStorage;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Collections.Generic;
-using System.Resources;
-using System.Windows.Forms;
 using System.Threading;
+#if mswindows
+using System.Resources;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
 #endif
 
 namespace Prolog
@@ -62,7 +62,7 @@ namespace Prolog
           string wd;
 
           if (String.IsNullOrEmpty (workingDirectory) || workingDirectory == "%exedir")
-            wd = Path.GetDirectoryName (Application.ExecutablePath);
+            wd = AppDomain.CurrentDomain.BaseDirectory;
           else if (workingDirectory == "%desktop")
             wd = Environment.GetFolderPath (Environment.SpecialFolder.DesktopDirectory);
           else
@@ -221,13 +221,10 @@ namespace Prolog
         {
           if (queue.Count == 0)
           {
-            MessageBox.Show ("TryDequeue Monitor wait");
             Monitor.Wait (this);
-            MessageBox.Show ("TryDequeue Monitor enter");
           }
 
           T item = queue.Dequeue ();
-          MessageBox.Show (string.Format ("TryDequeue keyValue {0}", item));
           Monitor.Pulse (this);
 
           return item;
@@ -464,6 +461,7 @@ namespace Prolog
       static bool showMode = true;
       enum readStatus { Content }
 
+#if mswindows
       public static bool CreateHelpResourceFile (out string resxFileName)
       {
         Regex header = new Regex (@"^_+\s*(?<functor>[^/]+)\s*/\s*(?<arity>[^ _]+)\s*_*\s*$",
@@ -603,7 +601,7 @@ namespace Prolog
 
         return true;
       }
-
+#endif
 
       public static string AtomFromVarChar (string s)
       {
@@ -836,7 +834,7 @@ namespace Prolog
         return null;
       }
 
-
+#if mswindows
       public static void SetClipboardData (string data)
       {
         ThreadStart CopyToClipboardThreadStart = delegate ()
@@ -854,7 +852,7 @@ namespace Prolog
           thread.Join ();
         }
       }
-
+#endif
 
       public static string WrapWithMargin (string s, string margin, int lenMax)
       // Break up a string into pieces that are at most lenMax characters long, by
@@ -1233,7 +1231,7 @@ namespace Prolog
       return new string (' ', n);
     }
 
-    #region Combination
+#region Combination
     public class Combination // without repetition
     {
       int k;
@@ -1262,9 +1260,9 @@ namespace Prolog
         }
       }
     }
-    #endregion Combination
+#endregion Combination
 
-    #region Permutation
+#region Permutation
     public class Permutation
     {
       BaseTerm [] configuration;
@@ -1333,7 +1331,7 @@ namespace Prolog
         while (NextPermutation ());
       }
     }
-    #endregion Permutation
+#endregion Permutation
   }
 
   public static class Extensions

@@ -1,8 +1,7 @@
 using System;
-using System.Windows.Forms;
+using System.Net;
 using System.Net.Mail;
 using System.Security.Cryptography.X509Certificates;
-using System.Net;
 
 namespace Prolog
 {

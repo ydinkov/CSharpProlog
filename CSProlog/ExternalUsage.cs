@@ -14,12 +14,12 @@
 -------------------------------------------------------------------------------------------*/
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
-#if mswindows
-using System.Collections.Generic;
-using System.Windows.Forms;
 using System.Xml;
+#if mswindows
+using System.Windows.Forms;
 #endif
 
 namespace Prolog
@@ -169,6 +169,7 @@ namespace Prolog
 
   public partial class PrologEngine
   {
+#if mswindows
     #region Batch Processing
     public bool ProcessArgs (string [] args, bool windowsMode)
     {
@@ -223,7 +224,7 @@ namespace Prolog
       return true;
     }
     #endregion Batch Processing
-
+#endif
 
     #region GetAllSolutionsXml
     // Store solutions in an xml structure
