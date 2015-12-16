@@ -564,15 +564,20 @@ namespace Prolog
 
       public void LoadFromFile (string fileName)
       {
+        LoadFromStream(null, fileName);
+      }
+
+      public void LoadFromStream(Stream stream, string streamName)
+      {
         try
         {
-          inStream = new FileReadBuffer (fileName);
+          inStream = new FileReadBuffer(stream, streamName);
           streamInLen = inStream.Length;
         }
         catch
         {
           Prefix = "";
-          throw new Exception ("*** Unable to read file \"" + fileName + "\"");
+          throw new Exception ("*** Unable to read file \"" + streamName + "\"");
         }
 
         Parse ();
@@ -2547,7 +2552,7 @@ namespace Prolog
     #region FileBuffer
     public class FileBuffer : Buffer
     {
-      protected FileStream fs;
+      protected Stream fs;
     }
 
     #region FileReadBuffer
@@ -2561,19 +2566,25 @@ namespace Prolog
       StringBuilder sb;
 
       public FileReadBuffer (string fileName)
+        : this(null, fileName)
       {
-        name = fileName;
+      }
 
+      public FileReadBuffer(Stream stream, string streamName)
+      {
+        name = streamName;
+        
         try
         {
-          fs = new FileStream (fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+          if (stream == null) stream = new FileStream (streamName, FileMode.Open, FileAccess.Read, FileShare.Read);
+          fs = stream;
           sb = new StringBuilder ();
           cacheOfs = 0;
           cacheLen = 0;
         }
         catch
         {
-          throw new ParserException (String.Format ("*** Could not open file '{0}' for reading", fileName));
+          throw new ParserException (String.Format ("*** Could not open file '{0}' for reading", streamName));
         }
 
         if (fs.Length >= 2) // try to work out type of file (primitive approach)

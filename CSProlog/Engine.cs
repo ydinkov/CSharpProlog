@@ -2072,6 +2072,20 @@ namespace Prolog
       }
     }
 
+    public void Consult (Stream stream, string streamName = null)
+    {
+      bool csharpStringsSave = csharpStrings;
+      // string as ISO-style charcode lists or as C# strings
+
+      try
+      {
+        predTable.Consult (stream, streamName);
+      }
+      finally
+      {
+        csharpStrings = csharpStringsSave;
+      }
+    }
 
     public void CreateFact (string functor, BaseTerm [] args)
     {
