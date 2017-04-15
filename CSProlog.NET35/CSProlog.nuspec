@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>$id$</id>
-    <version>$version$</version>
+    <version>$version$-alpha</version>
     <title>$title$</title>
     <authors>John Pool, Amersfoort, Netherlands, J.Sakamoto</authors>
     <owners>John Pool</owners>
@@ -26,4 +26,7 @@
     <copyright>Copyright (C) 2007-2015 John Pool -- j.pool@ision.nl</copyright>
     <tags>Prolog interpreter</tags>
   </metadata>
+  <files>
+    <file src="..\CSProlog\bin\Release\netstandard1.4\CSProlog.dll" target="lib\netstandard1.4" />
+  </files>
 </package>

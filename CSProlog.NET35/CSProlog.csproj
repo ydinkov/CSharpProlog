@@ -10,6 +10,8 @@
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -172,7 +174,7 @@
   <PropertyGroup>
     <PostBuildEvent>if not "$(ConfigurationName)" == "LibraryRelease" goto END
 pushd "$(ProjectDir)"
-"$(SolutionDir).nuget\nuget.exe" pack "$(ProjectPath)" -Prop Configuration=LibraryRelease;Platform=AnyCPU -o $(OutDir)
+"$(SolutionDir).nuget\nuget.exe" pack "$(ProjectPath)" -Prop Configuration=LibraryRelease;Platform=AnyCPU -o $(SolutionDir)Dist\
 :END</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

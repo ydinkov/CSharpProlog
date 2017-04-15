@@ -5,6 +5,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{435BB1A6-EBA7-4F55-BF99-AF1C65FC43E2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSProlog", "CSProlog.NET35\CSProlog.csproj", "{721E06EF-2BE2-44BF-A0B7-BBE163A29F26}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6A947B78-96D1-45F2-BB9F-036586BAB544} = {6A947B78-96D1-45F2-BB9F-036586BAB544}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PLd", "PLd\PLd.csproj", "{B7438FBF-6E46-4065-A60B-1B1CA2AC9875}"
 EndProject
