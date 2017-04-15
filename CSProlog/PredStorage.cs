@@ -402,14 +402,14 @@ namespace Prolog
         {
           PredicateDescr pd = this [key];
 
-          if (definedInCurrFile [key] == null) //  very first clause of this predicate in this file -- reset at start of consult
+          if (!definedInCurrFile.Contains (key)) //  very first clause of this predicate in this file -- reset at start of consult
           {
             if (pd != null && pd.DefinitionFile != ConsultFileName)
               IO.Error ("Predicate '{0}' is already defined in {1}", index, pd.DefinitionFile);
 
             definedInCurrFile [key] = true;
             pd = SetClauseList (head.FunctorToString, head.Arity, clause); // implicitly erases all previous definitions
-            pd.IsDiscontiguous = (isDiscontiguous [key] != null || allDiscontiguous);
+            pd.IsDiscontiguous = (isDiscontiguous.Contains (key) || allDiscontiguous);
             prevIndex = key;
           }
           else // not the first clause. First may be from another definitionFile (which is an error).
