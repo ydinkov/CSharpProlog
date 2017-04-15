@@ -16,9 +16,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -29,6 +26,11 @@ using System.Text.RegularExpressions;
 #if mswindows
 using System.Security.Principal;
 using System.Resources;
+#endif
+#if !NETSTANDARD
+using System.Configuration;
+using System.Data;
+using System.Data.Common;
 #endif
 
 namespace Prolog
@@ -190,7 +192,6 @@ namespace Prolog
       findFirstClause = false;
       BaseTerm term = goalListHead.Term;
       BaseTerm t0, t1, t2, t3, t4, t5;
-      SqlTerm sqlt;
       int n, y, m, d, h, s;
       int arity;
       string functor;
@@ -201,24 +202,28 @@ namespace Prolog
       TermType type;
       string a, x;
       string fileName;
-      string cmd = null;
       int cntrValue;
       DateTime dati;
       TimeSpan ti;
-      Process proc;
+#if !NETSTANDARD
+      string cmd = null;
       bool mustWait = false;
+      SqlTerm sqlt;
+      Process proc;
       DbConnectionTerm cnt;
       DbCommand dbCommand;
-
+#endif
       predicateCallOptions.Clear ();
 
       #region switch
       switch (biId)
       {
+#if !NETSTANDARD
         case BI.license:
           Process.Start (Bootstrap.LicenseUrl);
           IO.Message ("Opening your browser ...");
           break;
+#endif
         case BI.consult: // individual file or list of files
           t0 = term.Arg (0);
 
@@ -1139,11 +1144,11 @@ namespace Prolog
 
           if (n > 0) Write (Spaces (n));
           break;
-
+#if !NETSTANDARD
         case BI.errorlevel: // errorlevel( +N) % sets DOS ERRORLEVEL (0..255)
           Environment.ExitCode = term.Arg<int> (0);
           break;
-
+#endif
         case BI.print: // print( X)
           Write (term.Arg (0), true);
           break;
@@ -1212,6 +1217,7 @@ namespace Prolog
         #endregion IO
 
         #region SQL
+#if !NETSTANDARD
         case BI.sql_connect: // sql_connect( +Provider, +Args, -ConnectionInfo)
           t0 = term.Arg (0); // msaccess, sqlserver, ...
           t1 = term.Arg (1); // Uid, Pwd, Server, Dataset, ..., depending on provider
@@ -1335,8 +1341,9 @@ namespace Prolog
           }
 
           break;
+#endif
         #endregion SQL
-
+#if !NETSTANDARD
         case BI.config_setting:
           IEnumerator configEnum = null;
           t0 = term.Arg (0);
@@ -1374,7 +1381,7 @@ namespace Prolog
             }
           }
           break;
-
+#endif
         case BI.between:
           IntRangeTerm irt;
 
@@ -1634,6 +1641,7 @@ namespace Prolog
           break;
 
 
+#if !NETSTANDARD
         case BI.username: // username( X)
           if (!term.Arg (0).Unify (new AtomTerm (Environment.UserName), varStack))
             return false;
@@ -1735,7 +1743,7 @@ namespace Prolog
               return false;
           }
           break;
-
+#endif
         case BI.predicatePN: // predicate( +P/N)
           t0 = term.Arg (0);
           result = true;
@@ -1820,7 +1828,7 @@ namespace Prolog
           exceptionMessage = (t1 == null) ? t0.FunctorToString : Utils.Format (t0, t1);
           Throw (exceptionClass, exceptionMessage);
           break;
-
+#if !NETSTANDARD
         case BI.sendmail:
           string smtp = null;
           string to = null;
@@ -1871,6 +1879,7 @@ namespace Prolog
           if (SendMail (smtp, port, to, subj, text)) break;
 
           return false;
+#endif
 #if mswindows
         case BI.clipboard:
           try
@@ -2202,7 +2211,7 @@ namespace Prolog
 
           break;
 
-
+#if !NETSTANDARD
         case BI.xml_term: // xml_term( ?X, ?P [,C]) converts between XML and Prolog representation
           BaseTerm ss = null;
           bool settings = (term.Arity == 3);
@@ -2278,7 +2287,7 @@ namespace Prolog
               XmlTransform (xmlFileName, xslFileName, term.Arg (2).FunctorToString);
           }
           break;
-
+#endif
 
         case BI.json_term: // json_term( ?J, ?T) converts between JSON file/string and Prolog representation
           int indentDelta = 2;
@@ -2652,7 +2661,7 @@ namespace Prolog
 
           break;
 
-
+#if !NETSTANDARD
         case BI.xmltrace: // xmltrace( X) -- send the execution tree of the next command to file X
           // Must be the first goal of a command, in order to avoid problems that
           // arise when it gets involved in backtracking.
@@ -2676,7 +2685,7 @@ namespace Prolog
           XmlTraceOpen (term.FunctorToString, n);
 
           break;
-
+#endif
 
         case BI.numcols: // numcols( N) -- Number of columns in the DOS-box
 #if mswindows
@@ -2748,7 +2757,7 @@ namespace Prolog
             IO.Error (":- stacktrace: illegal argument '{0}'; use 'on' or 'off' instead", mode);
 
           break;
-
+#if !NETSTANDARD
         case BI.ip_address: // return local IP-address
           IPHostEntry host = Dns.GetHostEntry (Dns.GetHostName ());
 
@@ -2775,7 +2784,8 @@ namespace Prolog
             }
           }
           break;
-
+#endif
+#if !NETSTANDARD
         case BI.environment: // environment( X, Y) -- unify Y with Atom value of environment variable X
           t0 = term.Arg (0);
           string es;
@@ -2852,7 +2862,7 @@ namespace Prolog
           if (!term.Arg (1).Unify (new StringTerm (es), varStack)) return false;
 
           break;
-
+#endif
 
         case BI.query_timeout:
           t0 = term.Arg (0);
@@ -2922,7 +2932,7 @@ namespace Prolog
             return false;
           }
 
-          a = Environment.GetEnvironmentVariable (t0.FunctorToString, EnvironmentVariableTarget.Machine);
+          a = Environment.GetEnvironmentVariable (t0.FunctorToString);
           decimal ev;
 
           if (Decimal.TryParse (a, out ev))
@@ -2944,7 +2954,7 @@ namespace Prolog
           }
 
           Environment.SetEnvironmentVariable (
-            t0.FunctorToString, term.Arg (1).ToString (), EnvironmentVariableTarget.Machine);
+            t0.FunctorToString, term.Arg (1).ToString ());
           break;
 
         case BI.getvar:

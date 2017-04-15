@@ -8,7 +8,6 @@ namespace Prolog
   using System.Xml;
   using System.Collections;
   using System.Globalization;
-  using System.Security.Principal;
   using System.Diagnostics;
 
   /* _______________________________________________________________________________________________

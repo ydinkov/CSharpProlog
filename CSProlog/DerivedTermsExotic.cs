@@ -17,10 +17,12 @@ using System;
 using System.Text;
 using System.IO;
 using System.Collections.Generic;
-using System.Data.Common;
-using System.Data;
 using System.Collections;
 using System.Linq;
+#if !NETSTANDARD
+using System.Data.Common;
+using System.Data;
+#endif
 
 namespace Prolog
 {
@@ -389,6 +391,7 @@ namespace Prolog
     #endregion IntRangeTerm
 
     #region DbConnectionTerm
+    #if !NETSTANDARD
     // to store database connection info before and between calls to sql_select/2 and sql_command/2/3
     public class DbConnectionTerm : StringTerm
     {
@@ -416,10 +419,12 @@ namespace Prolog
           Connectstring, CommandText);
       }
     }
+    #endif
     #endregion DbConnectionTerm
 
     // Auxiliary code for supporting the SQL predicates
     #region DbCommandSet
+    #if !NETSTANDARD
     public class DbCommandSet : List<DbCommand>
     {
       const int maxConnections = 64; // arbitray choice
@@ -497,6 +502,7 @@ System message : {2}",
         }
       }
     }
+    #endif
     #endregion DbCommandSet
 
     #region ComplexTerm // can be used with the is-operator

@@ -16,12 +16,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Globalization;
 using System.IO;
-using System.IO.IsolatedStorage;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -30,9 +26,20 @@ using System.Resources;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 #endif
+#if !NETSTANDARD
+using System.Configuration;
+using System.IO.IsolatedStorage;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+#endif
 
 namespace Prolog
 {
+#if NETSTANDARD
+  using ArrayList = System.Collections.Generic.List<object>;
+  using Hashtable = System.Collections.Generic.Dictionary<object, object>;
+#endif
+
   public partial class PrologEngine
   {
     #region ConfigSettings
@@ -60,14 +67,21 @@ namespace Prolog
         get
         {
           string wd;
-
+#if NETSTANDARD
+          if (String.IsNullOrEmpty(workingDirectory))
+            wd = Directory.GetCurrentDirectory();
+          else if (workingDirectory == "%desktop" || workingDirectory == "%exedir")
+            throw new NotImplementedException();
+          else
+            wd = workingDirectory;
+#else
           if (String.IsNullOrEmpty (workingDirectory) || workingDirectory == "%exedir")
             wd = AppDomain.CurrentDomain.BaseDirectory;
           else if (workingDirectory == "%desktop")
             wd = Environment.GetFolderPath (Environment.SpecialFolder.DesktopDirectory);
           else
             wd = workingDirectory;
-
+#endif
           if (!wd.EndsWith (Path.DirectorySeparatorChar.ToString ()))
             wd = wd + Path.DirectorySeparatorChar;
 
@@ -111,20 +125,31 @@ namespace Prolog
 
       public static string GetConfigSetting (string key, string defaultValue)
       {
+#if NETSTANDARD
+        return defaultValue;
+#else
         return (ConfigurationManager.AppSettings [key] == null)
           ? defaultValue
           : ConfigurationManager.AppSettings [key];
+#endif
       }
 
       static bool GetConfigSetting (string key, bool defaultValue)
       {
+#if NETSTANDARD
+        return defaultValue;
+#else
         return (ConfigurationManager.AppSettings [key] == null)
           ? defaultValue
           : (ConfigurationManager.AppSettings [key] == "1");
+#endif
       }
 
       static int GetConfigSetting (string key, int defaultValue)
       {
+#if NETSTANDARD
+        return defaultValue;
+#else
         if (ConfigurationManager.AppSettings [key] == null) return defaultValue;
 
         try
@@ -138,6 +163,7 @@ namespace Prolog
 
           return 0;
         }
+#endif
       }
 
 
@@ -276,6 +302,7 @@ namespace Prolog
     #endregion Globals
 
     #region PersistentSettings
+#if !NETSTANDARD
     [Serializable]
     public class ApplicationStorage : Hashtable
     {
@@ -339,7 +366,7 @@ namespace Prolog
           }
           finally
           {
-            stream.Close ();
+            stream.Dispose ();
           }
         }
       }
@@ -365,7 +392,7 @@ namespace Prolog
           }
           finally
           {
-            stream.Close ();
+            stream.Dispose ();
           }
         }
       }
@@ -452,6 +479,7 @@ namespace Prolog
     }
 #endif
     }
+#endif
     #endregion PersistentSettings
 
     public static class Utils
@@ -1162,7 +1190,7 @@ namespace Prolog
 
       public static void OpenLog ()
       {
-        logFile = new StreamWriter (logFileName);
+        logFile = new StreamWriter(new FileStream(logFileName, FileMode.OpenOrCreate, FileAccess.ReadWrite));
       }
 
 
@@ -1221,7 +1249,7 @@ namespace Prolog
       public static void CloseLog ()
       {
         logFile.Flush ();
-        logFile.Close ();
+        logFile.Dispose ();
       }
     }
 

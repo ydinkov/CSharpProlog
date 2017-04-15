@@ -8,9 +8,19 @@ namespace Prolog
   using System.Xml;
   using System.Collections;
   using System.Collections.Generic;
-  using System.Security.Principal;
   using System.Diagnostics;
   using System.Globalization;
+
+#if NETSTANDARD
+    using ApplicationException = System.Exception;
+    using Stack = System.Collections.Generic.Stack<object>;
+    using ArrayList = System.Collections.Generic.List<object>;
+    using Hashtable = System.Collections.Generic.Dictionary<object, object>;
+
+    internal static class ArrayListExtension {
+        public static void TrimToSize(this ArrayList value) => value.TrimExcess();
+    }
+#endif
 
   /* _______________________________________________________________________________________________
     |                                                                                               |
@@ -649,7 +659,7 @@ namespace Prolog
         public int LineNo;
         public int LineStart;
         public bool EndLine;
-        public bool FOnLine;  /// if the coming symbol is the first one on the current line
+        public bool FOnLine;  // if the coming symbol is the first one on the current line
       }
       #endregion
 
@@ -1953,18 +1963,10 @@ namespace Prolog
 
       protected void Parse ()
       {
-        WindowsPrincipal principal = new WindowsPrincipal (WindowsIdentity.GetCurrent ());
-        bool isadmin = principal.IsInRole (WindowsBuiltInRole.Administrator);
-
-        // TimeOfDay is less precise
-        TimeSpan startProcTime = isadmin ?
-          Process.GetCurrentProcess ().TotalProcessorTime : DateTime.Now.TimeOfDay;
-
+        var stopwatch = Stopwatch.StartNew();
         ParseEx ();
-
-        actRuntime = ((isadmin ?
-          Process.GetCurrentProcess ().TotalProcessorTime : DateTime.Now.TimeOfDay) -
-          startProcTime).Milliseconds;
+        stopwatch.Stop();
+        actRuntime =  (int)stopwatch.ElapsedMilliseconds;
       }
 
 
@@ -2055,7 +2057,7 @@ namespace Prolog
       }
 
 
-      public void ClipFinalTrim ()  /// exclude any text (i.e. comment) after last symbol
+      public void ClipFinalTrim ()  // exclude any text (i.e. comment) after last symbol
       {
         clipEnd = symbol.PrevFinal;
       }
@@ -2535,9 +2537,11 @@ namespace Prolog
 
       public override void SaveToFile (string fileName)
       {
-        StreamWriter sw = new StreamWriter (fileName);
-        sw.Write (sb.ToString ());
-        sw.Close ();
+        using(var fs = new FileStream (fileName, FileMode.Create, FileAccess.Write))
+        using(var sw = new StreamWriter(fs))
+        {
+          sw.Write (sb.ToString ());
+        }
       }
 
 
@@ -2604,7 +2608,7 @@ namespace Prolog
 
       public override void Close ()
       {
-        fs.Close ();
+        fs.Dispose ();
       }
 
 
@@ -2705,11 +2709,12 @@ namespace Prolog
 
       public override void SaveToFile (string fileName)
       {
-        FileStream f = new FileStream (fileName, FileMode.Create);
-        byte [] b = new byte [fs.Length];
-        fs.Read (b, 0, b.Length);
-        f.Write (b, 0, b.Length);
-        f.Close ();
+        using(var f = new FileStream (fileName, FileMode.Create))
+        {
+          var b = new byte [fs.Length];
+          fs.Read (b, 0, b.Length);
+          f.Write (b, 0, b.Length);
+        }
       }
 
 
@@ -2733,7 +2738,7 @@ namespace Prolog
 
       public override void Close ()
       {
-        try { sw.Close (); }
+        try { sw.Dispose (); }
         catch { return; }
 
         if (isTemp)
@@ -2852,6 +2857,7 @@ namespace Prolog
     #endregion FileBuffer
 
     #region XmlWriteBuffer
+#if !NETSTANDARD
     public class XmlWriteBuffer
     {
       protected XmlTextWriter tw;
@@ -2960,10 +2966,11 @@ namespace Prolog
         tw.Close ();
       }
     }
+#endif
     #endregion XmlWriteBuffer
 
     #region XmlFileWriter
-
+#if !NETSTANDARD
     public class XmlFileWriter : XmlWriteBuffer
     {
       public XmlFileWriter (string fileName, bool initialPI)
@@ -2979,9 +2986,11 @@ namespace Prolog
         SetInitialValues (true);
       }
     }
+#endif
     #endregion XmlFileWriter
 
     #region XmlStringWriter
+#if !NETSTANDARD
     public class XmlStringWriter : XmlWriteBuffer
     {
       public XmlStringWriter (bool initialPI)
@@ -3016,6 +3025,7 @@ namespace Prolog
         return new ASCIIEncoding ().GetString (((MemoryStream)ms).ToArray ());
       }
     }
+#endif
     #endregion XmlStringWriter
     #endregion Buffer
   }

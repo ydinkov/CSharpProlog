@@ -19,6 +19,10 @@ using System.Text;
 
 namespace Prolog
 {
+#if NETSTANDARD
+  using ApplicationException = System.Exception;
+#endif
+
   #region BasicIo
   public abstract class BasicIo
   {
@@ -104,8 +108,8 @@ namespace Prolog
     public FileIO (string inFileName, string outFileName)
     {
       // no try/catch, as I would not know how to handle the exception caught
-      inFile = new StreamReader (inFileName);
-      outFile = new StreamWriter (outFileName);
+      inFile = new StreamReader (File.OpenRead(inFileName));
+      outFile = new StreamWriter (File.OpenWrite(outFileName));
       outFile.AutoFlush = true; // file will contain all output even if not closed explicitly
     }
 
@@ -166,9 +170,9 @@ namespace Prolog
 
     public void Close ()
     {
-      if (inFile != null) inFile.Close ();
+      if (inFile != null) inFile.Dispose ();
 
-      if (outFile != null) outFile.Close ();
+      if (outFile != null) outFile.Dispose ();
     }
   }
   #endregion FileIO

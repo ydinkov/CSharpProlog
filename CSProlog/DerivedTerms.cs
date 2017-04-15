@@ -17,11 +17,14 @@ using System;
 using System.Text;
 using System.IO;
 using System.Collections.Generic;
-using System.Data.Common;
-using System.Data;
 using System.Collections;
 using System.Linq;
 using System.Globalization;
+
+#if !NETSTANDARD
+using System.Data.Common;
+using System.Data;
+#endif
 
 namespace Prolog
 {
@@ -262,6 +265,7 @@ namespace Prolog
     #endregion ClauseTerm
 
     #region SqlTerm
+    #if !NETSTANDARD
     public class SqlTerm : BaseTerm
     {
       DbCommand dbCommand;
@@ -394,6 +398,7 @@ namespace Prolog
         }
       }
     }
+    #endif
     #endregion SqlTerm
 
     #region WrapperTerm
@@ -1134,7 +1139,7 @@ namespace Prolog
         if (p != null) p.ExitParse ();
 
         if (tr != null)
-          tr.Close ();
+          tr.Dispose ();
       }
     }
 
@@ -1205,7 +1210,7 @@ namespace Prolog
       public override void Close ()
       {
         if (tw != null)
-          tw.Close ();
+          tw.Dispose ();
       }
     }
     #endregion FileTerm
@@ -1821,7 +1826,7 @@ namespace Prolog
 
       public override string ToWriteString (int level)
       {
-        return string.Format ("\"(byte[{0}] binary data)\"", data.LongLength);
+        return string.Format ("\"(byte[{0}] binary data)\"", data.Length);
       }
 
     }

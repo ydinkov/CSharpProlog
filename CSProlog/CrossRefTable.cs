@@ -144,7 +144,7 @@ namespace Prolog
 
         try
         {
-          sr = new StreamWriter (fileName);
+          sr = new StreamWriter (File.OpenWrite(fileName));
 
           sr.WriteLine (Enquote ("Call table. Row calls column entries. 'D' stands for direct call, 'I' for indirect call"));
           sr.WriteLine ();
@@ -192,7 +192,7 @@ namespace Prolog
         }
         finally
         {
-          if (sr != null) sr.Close ();
+          if (sr != null) sr.Dispose ();
         }
       }
 
