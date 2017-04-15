@@ -18,6 +18,8 @@
     Characteristics: reliable and fairly fast interpreter, command line interface, builtin DCG, XML- and JSON-predicates, SQL-predicates, extendible.</description>
     <releaseNotes>
       <![CDATA[
+      v.5.0.0.1
+      - Support: .NET Standard 1.4 (.NET Core) and UWP
       v.5.0.0
       - BREAKING CHANGE: Remove dependency of "System.Windows.Forms".
       - NuGet package release
