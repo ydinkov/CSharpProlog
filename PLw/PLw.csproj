@@ -118,7 +118,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CSProlog\CSProlog.csproj">
+    <ProjectReference Include="..\CSProlog.NET35\CSProlog.csproj">
       <Project>{721E06EF-2BE2-44BF-A0B7-BBE163A29F26}</Project>
       <Name>CSProlog</Name>
     </ProjectReference>
