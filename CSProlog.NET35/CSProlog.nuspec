@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>$id$</id>
-    <version>$version$</version>
+    <version>$version$-alpha</version>
     <title>$title$</title>
     <authors>John Pool, Amersfoort, Netherlands, J.Sakamoto</authors>
     <owners>John Pool</owners>
@@ -18,6 +18,8 @@
     Characteristics: reliable and fairly fast interpreter, command line interface, builtin DCG, XML- and JSON-predicates, SQL-predicates, extendible.</description>
     <releaseNotes>
       <![CDATA[
+      v.5.0.0.1
+      - Support: .NET Standard 1.4 (.NET Core) and UWP
       v.5.0.0
       - BREAKING CHANGE: Remove dependency of "System.Windows.Forms".
       - NuGet package release
@@ -26,4 +28,7 @@
     <copyright>Copyright (C) 2007-2015 John Pool -- j.pool@ision.nl</copyright>
     <tags>Prolog interpreter</tags>
   </metadata>
+  <files>
+    <file src="..\CSProlog\bin\Release\netstandard1.4\CSProlog.dll" target="lib\netstandard1.4" />
+  </files>
 </package>

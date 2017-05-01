@@ -2,13 +2,16 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="14.0">
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'LibraryRelease|AnyCPU' ">
     <OutputPath>bin\LibraryRelease\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;net35</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -52,26 +55,29 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;mswindows</DefineConstants>
+    <DefineConstants>DEBUG;mswindows, net35</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <PlatformTarget>x86</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>mswindows</DefineConstants>
+    <DefineConstants>mswindows,net35</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -80,41 +86,52 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Windows.Forms" Condition=" '$(Configuration)' != 'LibraryRelease' " />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BaseTerm.cs" />
-    <Compile Include="Bootstrap.cs" />
-    <Compile Include="DerivedTermsExotic.cs" />
-    <Compile Include="Engine.cs" />
-    <Compile Include="Builtins.cs" />
-    <Compile Include="ExternalUsage.cs" />
-    <Compile Include="Internet.cs" />
-    <Compile Include="IO.cs" />
-    <Compile Include="ListPatternTerm.cs" />
-    <Compile Include="PG\BaseParser.cs">
+    <Compile Include="..\CSProlog\BaseTerm.cs" />
+    <Compile Include="..\CSProlog\Bootstrap.cs" />
+    <Compile Include="..\CSProlog\DerivedTermsExotic.cs" />
+    <Compile Include="..\CSProlog\Engine.cs" />
+    <Compile Include="..\CSProlog\Builtins.cs" />
+    <Compile Include="..\CSProlog\ExternalUsage.cs" />
+    <Compile Include="..\CSProlog\Internet.cs" />
+    <Compile Include="..\CSProlog\IO.cs" />
+    <Compile Include="..\CSProlog\ListPatternTerm.cs" />
+    <Compile Include="..\CSProlog\PG\BaseParser.cs">
+      <SubType>Code</SubType>
+      <Link>PG\BaseParser.cs</Link>
+    </Compile>
+    <Compile Include="..\CSProlog\PG\JSON.cs">
+      <Link>PG\JSON.cs</Link>
+    </Compile>
+    <Compile Include="..\CSProlog\PG\JsonParser.cs">
+      <Link>PG\JsonParser.cs</Link>
+    </Compile>
+    <Compile Include="..\CSProlog\PG\PL.cs">
+      <Link>PG\PL.cs</Link>
+    </Compile>
+    <Compile Include="..\CSProlog\PG\PrologParser.cs">
+      <Link>PG\PrologParser.cs</Link>
+    </Compile>
+    <Compile Include="..\CSProlog\CrossRefTable.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PG\JSON.cs" />
-    <Compile Include="PG\JsonParser.cs" />
-    <Compile Include="PG\PL.cs" />
-    <Compile Include="PG\PrologParser.cs" />
-    <Compile Include="CrossRefTable.cs">
-      <SubType>Code</SubType>
+    <Compile Include="..\CSProlog\TokenSeqToTerm.cs" />
+    <Compile Include="..\CSProlog\Operator.cs" />
+    <Compile Include="..\CSProlog\PredDescr.cs" />
+    <Compile Include="..\CSProlog\PredStorage.cs" />
+    <Compile Include="..\CSProlog\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="TokenSeqToTerm.cs" />
-    <Compile Include="Operator.cs" />
-    <Compile Include="PredDescr.cs" />
-    <Compile Include="PredStorage.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SimpleDOMParser.cs" />
-    <Compile Include="DerivedTerms.cs" />
-    <Compile Include="TermArithmetic.cs" />
-    <Compile Include="TermArray.cs" />
-    <Compile Include="TermNodeList.cs" />
-    <Compile Include="TermSet.cs" />
-    <Compile Include="Miscellaneous.cs" />
+    <Compile Include="..\CSProlog\SimpleDOMParser.cs" />
+    <Compile Include="..\CSProlog\DerivedTerms.cs" />
+    <Compile Include="..\CSProlog\TermArithmetic.cs" />
+    <Compile Include="..\CSProlog\TermArray.cs" />
+    <Compile Include="..\CSProlog\TermNodeList.cs" />
+    <Compile Include="..\CSProlog\TermSet.cs" />
+    <Compile Include="..\CSProlog\Miscellaneous.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
@@ -135,13 +152,21 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="CSProlog.nuspec" />
-    <None Include="PG\go.bat" />
-    <None Include="PG\JSON.grm" />
-    <None Include="PG\Parser.tpl" />
-    <None Include="PG\PL.grm" />
+    <None Include="..\CSProlog\PG\go.bat">
+      <Link>PG\go.bat</Link>
+    </None>
+    <None Include="..\CSProlog\PG\JSON.grm">
+      <Link>PG\JSON.grm</Link>
+    </None>
+    <None Include="..\CSProlog\PG\Parser.tpl">
+      <Link>PG\Parser.tpl</Link>
+    </None>
+    <None Include="..\CSProlog\PG\PL.grm">
+      <Link>PG\PL.grm</Link>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="CsPrologHelp.resx">
+    <EmbeddedResource Include="..\CSProlog\CsPrologHelp.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
@@ -149,7 +174,7 @@
   <PropertyGroup>
     <PostBuildEvent>if not "$(ConfigurationName)" == "LibraryRelease" goto END
 pushd "$(ProjectDir)"
-"$(SolutionDir).nuget\nuget.exe" pack "$(ProjectPath)" -Prop Configuration=LibraryRelease;Platform=AnyCPU -o $(OutDir)
+"$(SolutionDir).nuget\nuget.exe" pack "$(ProjectPath)" -Prop Configuration=LibraryRelease;Platform=AnyCPU -o $(SolutionDir)Dist\
 :END</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

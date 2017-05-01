@@ -11,7 +11,6 @@ namespace Prolog
   using System.Globalization;
   using System.Threading;
   using System.Diagnostics;
-  using System.Security.Principal;
 
 /* _______________________________________________________________________________________________
   |                                                                                               |

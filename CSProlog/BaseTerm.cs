@@ -744,12 +744,14 @@ namespace Prolog
             t = new WrapperTerm ((WrapperTerm)this, a);
           else if (this is IntRangeTerm)
             t = new IntRangeTerm ((IntRangeTerm)this);
-          else if (this is DbConnectionTerm)
-            t = new DbConnectionTerm ((DbConnectionTerm)this);
           else if (this is ListPatternElem)
             t = new ListPatternElem (a, ((ListPatternElem)this).downRepFactor, ((ListPatternElem)this).IsNegSearch);
           else if (this is CompoundTerm)
             t = new CompoundTerm (functor, a);
+#if !NETSTANDARD
+          else if (this is DbConnectionTerm)
+            t = new DbConnectionTerm ((DbConnectionTerm)this);
+#endif
           else
             IO.Error ("CopyEx(): type '{0}' not handled explicitly", this.GetType ());
 

@@ -228,6 +228,7 @@ namespace Prolog
 
     #region GetAllSolutionsXml
     // Store solutions in an xml structure
+#if !NETSTANDARD
     public string GetAllSolutionsXml (string sourceFileName, string destinFileName, string query)
     {
       return GetAllSolutionsXml (sourceFileName, destinFileName, query, 0);
@@ -334,6 +335,7 @@ namespace Prolog
         if (sw != null) sw.Close ();
       }
     }
+#endif
     #endregion GetAllSolutionsXml
 
 

@@ -43,16 +43,16 @@ namespace Prolog
         {
           if (e is NamedVariable)
             IO.Error ("Unable to convert unbound variable {0} to type {1}",
-              ((NamedVariable)e).Name, typeof (T).UnderlyingSystemType.Name);
+              ((NamedVariable)e).Name, typeof (T).Name);
           else if (e is Variable)
             IO.Error ("Unable to convert an unbound variable to type {0}",
-              typeof (T).UnderlyingSystemType.Name);
+              typeof (T).Name);
           else if (e is ListTerm)
             IO.Error ("Unable to convert list {0} to type {1}",
-              e, typeof (T).UnderlyingSystemType.Name);
+              e, typeof (T).Name);
           else
             IO.Error ("Unable to convert '{0}' to type {1}",
-              e.FunctorToString, typeof (T).UnderlyingSystemType.Name);
+              e.FunctorToString, typeof (T).Name);
 
           return default (T); // IO.Error throws error, but compiler insists on a return value
         }

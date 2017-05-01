@@ -25,6 +25,11 @@ using System.Xml;
 
 namespace Prolog
 {
+#if NETSTANDARD
+    using ApplicationException = Exception;
+    using Stack = Stack<object>;
+#endif
+
   #region Exceptions
   enum PrologException { ioException }
 
@@ -365,7 +370,9 @@ namespace Prolog
     static OperatorDescr ColonOpDescr;
     bool halted;
     PredicateCallOptions predicateCallOptions;
+#if !NETSTANDARD
     DbCommandSet dbCommandSet;
+#endif
     OpenFiles openFiles;
     const int INF = Int32.MaxValue;
     VarStack varStack; // stack of variable bindings and choice points
@@ -473,17 +480,22 @@ namespace Prolog
     bool error;
     bool trace;
     bool debug;
-    bool firstGoal; // set in ExecuteGoalList() to be able to check whether a goal in the command is the very first
     bool redo; // set by CanBacktrack if a choice point was found
     bool qskip;
     bool rushToEnd;
-    string xmlFile;
     bool xmlTrace;
-    int xmlElCount; // current approximate Number of elements in the XML trace file
-    int xmlMaxEl;   // maximum allowed value of xmlElCount
     bool reporting;  // debug (also set by 'trace') || xmlTrace
     bool profiling;
+#if !NETSTANDARD
     XmlTextWriter xtw;
+    string xmlFile;
+    int xmlElCount; // current approximate Number of elements in the XML trace file
+    int xmlMaxEl;   // maximum allowed value of xmlElCount
+    bool firstGoal; // set in ExecuteGoalList() to be able to check whether a goal in the command is the very first
+    bool goalListProcessed;
+    bool goalListResult;
+    ManualResetEvent sema;
+#endif
     ClauseNode retractClause;
     int levelMin; // lowest recursion level while spying -- for determining left margin
     int levelMax; // used while spying for determining end of skip
@@ -491,12 +503,9 @@ namespace Prolog
     ChoicePoint currentCp;
     object lastCp;
     long startTime;
-    TimeSpan procTime;
+    Stopwatch procTime;
     CommandHistory cmdBuf;
-    bool goalListProcessed;
-    ManualResetEvent sema;
     static int maxWriteDepth; // Set by maxwritedepth/1. Subterms beyond this depth are written as "..."
-    bool goalListResult;
     int queryTimeout = 0; // maximum Number of milliseconds that a command may run -- 0 means unlimited
     bool findFirstClause; // find the first clause of predicate that matches the current goal goal (-last head)
     bool csharpStrings = ConfigSettings.CSharpStrings;
@@ -590,15 +599,17 @@ namespace Prolog
       halted = false;
       trace = false;
       qskip = false;
-      xmlFile = null;
       xmlTrace = false;
       startTime = -1;
-      procTime = TimeSpan.MinValue;
+      procTime = Stopwatch.StartNew();
       currentFileReader = null;
       currentFileWriter = null;
       maxWriteDepth = -1; // i.e. no max depth
       predicateCallOptions = new PredicateCallOptions ();
+#if !NETSTANDARD
+      xmlFile = null;
       dbCommandSet = null;
+#endif
       terminalTable = new BaseParser<OpDescrTriplet>.BaseTrie (PrologParser.terminalCount, true);
       PrologParser.FillTerminalTable (terminalTable);
       parser = new PrologParser (this); // now this.terminalTable is passed on as well
@@ -688,18 +699,19 @@ namespace Prolog
         userInterrupted = false;
         parser.StreamIn = query;
         rushToEnd = false;
-        xmlFile = null;
-        xmlMaxEl = INF;
         xmlTrace = false;
         levelMin = 0;
         levelMax = INF;
         prevLevel = -1;
-        firstGoal = true;
         lastCp = null;
         gensymInt = 0;
         io.Reset (); // clear input character buffer
         goalListHead = parser.QueryNode;
-
+#if !NETSTANDARD
+        xmlFile = null;
+        xmlMaxEl = INF;
+        firstGoal = true;
+#endif
         if (goalListHead == null) return false;
 
       }
@@ -725,12 +737,16 @@ namespace Prolog
     public void PostQueryTidyUp ()
     {
       openFiles.CloseAllOpenFiles ();
+#if !NETSTANDARD
       XmlTraceClose ();
+#endif
       currentFileReader = null;
       currentFileWriter = null;
 
+#if !NETSTANDARD
       if (dbCommandSet != null)
         dbCommandSet.CloseAllConnections ();
+#endif
     }
     #endregion Query execution preparation and finalization
 
@@ -742,7 +758,11 @@ namespace Prolog
 
       try
       {
+#if NETSTANDARD
+        solution.Solved = ExecuteGoalList ();
+#else
         solution.Solved = (queryTimeout == 0) ? ExecuteGoalList () : StartExecuteGoalListThread ();
+#endif
       }
       catch (AbortQueryException x)
       {
@@ -764,7 +784,7 @@ namespace Prolog
       }
     }
 
-
+#if !NETSTANDARD
     bool StartExecuteGoalListThread ()
     {
       ThreadStart startExecuteGoalList = new ThreadStart (RunExecuteGoalList);
@@ -814,6 +834,7 @@ namespace Prolog
         sema.Set ();
       }
     }
+#endif
 
     /*  Although in the code below a number of references is made to 'caching' (storing
         intermediate results of a calculation) this feature is currently not available.
@@ -1102,8 +1123,9 @@ namespace Prolog
         }
         else if (!(redo = CanBacktrack ())) // unify failed - try backtracking
           return false;
-
+#if !NETSTANDARD
         firstGoal = false;
+#endif
       } // end of while
 
       return true;
@@ -1392,6 +1414,7 @@ namespace Prolog
             s = Utils.WrapWithMargin (currClause.ToString (), lmar, free);
             IO.Write ("{0}{1,2:d2} {2}: {3}", lmar, level, "Try ", s);
           }
+#if !NETSTANDARD
           if (xmlTrace)
           {
             if (level > prevLevel)
@@ -1406,6 +1429,7 @@ namespace Prolog
               XmlTraceWriteTerm ("goal", "goal", goal);
             XmlTraceWriteTerm ("try", isFact ? "fact" : "pred", currClause);
           }
+#endif
           break;
         case SpyPort.Redo:
           if (console)
@@ -1413,11 +1437,13 @@ namespace Prolog
             s = Utils.WrapWithMargin (currClause.ToString (), lmar + "|     ", free);
             IO.Write ("{0,2:d2} {1}: {2}", level, "Try ", s); // fact or clause
           }
+#if !NETSTANDARD
           if (xmlTrace)
           {
             if (level < prevLevel) xtw.WriteEndElement ();
             XmlTraceWriteTerm ("try", isFact ? "fact" : "clause", currClause);
           }
+#endif
           break;
         case SpyPort.Fail:
           if (console)
@@ -1425,11 +1451,13 @@ namespace Prolog
             s = Utils.WrapWithMargin (goal.ToString (), lmar + "|     ", free);
             IO.Write ("{0,2:d2} Fail: {1}", level, s);
           }
+#if !NETSTANDARD
           if (xmlTrace)
           {
             if (level < prevLevel) xtw.WriteEndElement ();
             XmlTraceWriteTerm ("fail", "goal", goal);
           }
+#endif
           break;
         case SpyPort.Exit:
           if (console)
@@ -1437,11 +1465,13 @@ namespace Prolog
             s = Utils.WrapWithMargin (goal.ToString (), lmar + "         ", free);
             IO.Write ("{0,2:d2} Exit: {1}", level, s);
           }
+#if !NETSTANDARD
           if (xmlTrace)
           {
             if (level < prevLevel) xtw.WriteEndElement ();
             XmlTraceWriteTerm ("exit", "match", goal);
           }
+#endif
           break;
       }
 
@@ -1540,13 +1570,14 @@ namespace Prolog
             else
             {
               RetryCurrentGoal (level);
-
+#if !NETSTANDARD
               if (xmlTrace)
               {
                 XmlTraceWriteElement ("RETRY",
                   (n == INF) ? "Retry entered by user" : String.Format ("Retry to level {0} entered by user", level));
                 XmlTraceWriteEnds (leap);
               }
+#endif
               return true;
             }
           case "f":  // Fail
@@ -1559,13 +1590,14 @@ namespace Prolog
             else
             {
               if (!CanBacktrack ()) throw new AbortQueryException ();
-
+#if !NETSTANDARD
               if (xmlTrace)
               {
                 XmlTraceWriteElement ("FAILED",
                   (n == INF) ? "Goal failed by user" : String.Format ("Retry to level {0} entered by user", level));
                 XmlTraceWriteEnds (leap);
               }
+#endif
               return true;
             }
           case "i":  // ancestors
@@ -1575,7 +1607,9 @@ namespace Prolog
             SetSwitch ("Debugging", ref debug, false);
             return false;
           case "a":
-            if (xmlTrace) XmlTraceWriteElement ("ABORT", "Session aborted by user");
+#if !NETSTANDARD
+            if (xmlTrace) XmlTraceWriteElement("ABORT", "Session aborted by user");
+#endif
             throw new AbortQueryException ();
           case "+":  // spy this
             goalNode.PredDescr.SetSpy (true, goalNode.Term.FunctorToString, goalNode.Term.Arity, SpyPort.Full, false);
@@ -1666,6 +1700,7 @@ namespace Prolog
       }
     }
 
+#if !NETSTANDARD // Disable XML Trace feature.
 
     void XmlTraceOpen (string tag, int maxEl)
     {
@@ -1728,6 +1763,7 @@ namespace Prolog
       xmlFile = null;
       xmlTrace = false;
     }
+#endif
     #endregion Debugging
 
     #region Command history
@@ -1746,22 +1782,35 @@ namespace Prolog
 
   History commands must not be followed by a '.'
 ";
-
+#if !NETSTANDARD
     [Serializable] // in order to be able to the retain history between sessions
+#endif
     class CommandHistory : List<string>
     {
+#if !NETSTANDARD
       ApplicationStorage persistentSettings;
+#endif
       public int cmdNo { get { return Count + 1; } }
       int maxNo; // maximum number of commands to be retained
 
       public CommandHistory()
+#if NETSTANDARD
+          : this(enablePersistence: false)
+#else
           : this(enablePersistence: true)
+#endif
       {
       }
 
       public CommandHistory (bool enablePersistence)
       {
           maxNo = Math.Abs (ConfigSettings.HistorySize);
+#if NETSTANDARD
+          if (enablePersistence)
+          {
+            throw new NotImplementedException();
+          }
+#else
           if (enablePersistence)
           {
               persistentSettings = new ApplicationStorage();
@@ -1780,6 +1829,7 @@ namespace Prolog
           
               foreach (string cmd in history) Add(cmd);
           }
+#endif
       }
 
 
@@ -1921,14 +1971,18 @@ namespace Prolog
       void ClearHistory ()
       {
         Clear ();
+#if !NETSTANDARD
         if (persistentSettings != null) persistentSettings["CommandHistory"] = null;
+#endif
       }
 
 
       public void Persist ()
       {
+#if !NETSTANDARD
         int maxNum = Math.Min (Count, maxNo);
         if (persistentSettings != null) persistentSettings["CommandHistory"] = GetRange(Count - maxNum, maxNum);
+#endif
       }
     }
 
@@ -2009,9 +2063,10 @@ namespace Prolog
 
     public TimeSpan ProcessorTime () // returns numer of milliseconds since last Call
     {
-      TimeSpan prevProcTime = (procTime == TimeSpan.MinValue) ? Process.GetCurrentProcess ().TotalProcessorTime : procTime;
-
-      return ((procTime = Process.GetCurrentProcess ().TotalProcessorTime) - prevProcTime);
+      var processorTime = procTime.Elapsed;
+      procTime.Reset();
+      procTime.Start();
+      return processorTime;
     }
 
 
@@ -2045,6 +2100,7 @@ namespace Prolog
 
     public void CheckConfigFile ()
     {
+#if !NETSTANDARD
       string configFileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
 
       if (!File.Exists (configFileName))
@@ -2054,6 +2110,7 @@ namespace Prolog
 
         IO.Warning (msg);
       }
+#endif
     }
 
 

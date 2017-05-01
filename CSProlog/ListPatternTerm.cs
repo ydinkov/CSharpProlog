@@ -19,8 +19,6 @@ using System;
 using System.Text;
 using System.IO;
 using System.Collections.Generic;
-using System.Data.Common;
-using System.Data;
 using System.Collections;
 using System.Linq;
 

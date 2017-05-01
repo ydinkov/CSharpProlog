@@ -26,6 +26,16 @@ using System.IO;
 
 namespace Prolog
 {
+#if NETSTANDARD
+  using Hashtable = System.Collections.Generic.Dictionary<object, object>;
+  using SortedList = System.Collections.Generic.SortedList<object, object>;
+  internal static class HashtableExtension
+  {
+    public static bool Contains(this Hashtable value, object key) => value.ContainsKey(key);
+  }
+
+#endif
+
   public partial class PrologEngine
   {
     public enum UndefAction { None, Fail, Succeed, Warning, Error }
@@ -392,14 +402,14 @@ namespace Prolog
         {
           PredicateDescr pd = this [key];
 
-          if (definedInCurrFile [key] == null) //  very first clause of this predicate in this file -- reset at start of consult
+          if (!definedInCurrFile.Contains (key)) //  very first clause of this predicate in this file -- reset at start of consult
           {
             if (pd != null && pd.DefinitionFile != ConsultFileName)
               IO.Error ("Predicate '{0}' is already defined in {1}", index, pd.DefinitionFile);
 
             definedInCurrFile [key] = true;
             pd = SetClauseList (head.FunctorToString, head.Arity, clause); // implicitly erases all previous definitions
-            pd.IsDiscontiguous = (isDiscontiguous [key] != null || allDiscontiguous);
+            pd.IsDiscontiguous = (isDiscontiguous.Contains (key) || allDiscontiguous);
             prevIndex = key;
           }
           else // not the first clause. First may be from another definitionFile (which is an error).
@@ -822,9 +832,9 @@ namespace Prolog
         suggestion = null;
         const string HELPRES = "CsProlog.CsPrologHelp";
 
-        Assembly asm = Assembly.GetExecutingAssembly ();
+        Assembly asm = Assembly.Load(new AssemblyName(GetType().AssemblyQualifiedName));
         //string [] res = asm.GetManifestResourceNames (); // pick the right functor from res and put in in HELPRES
-        ResourceManager rm = new ResourceManager (HELPRES, asm, null);
+        ResourceManager rm = new ResourceManager (HELPRES, asm);
 
         if (functor == null)
         {
@@ -1017,8 +1027,11 @@ namespace Prolog
           FindUndefined (sd, kv.Value);
 
         IO.WriteLine ("The following predicates are undefined:");
-
+#if NETSTANDARD
+        foreach (var kv in sd) IO.WriteLine ("  {0}", kv.Key);
+#else
         foreach (DictionaryEntry kv in sd) IO.WriteLine ("  {0}", kv.Key);
+#endif
       }
 
 
