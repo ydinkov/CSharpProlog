@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>$id$</id>
-    <version>$version$-alpha</version>
+    <version>$version$</version>
     <title>$title$</title>
     <authors>John Pool, Amersfoort, Netherlands, J.Sakamoto</authors>
     <owners>John Pool</owners>
@@ -13,9 +13,11 @@
     -->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>C#Prolog -- A Prolog interpreter written in managed C#</summary>
-    <description>C#Prolog -- A Prolog interpreter written in C#.
-    Can easily be integrated in C# programs.
-    Characteristics: reliable and fairly fast interpreter, command line interface, builtin DCG, XML- and JSON-predicates, SQL-predicates, extendible.</description>
+    <description>
+      C#Prolog -- A Prolog interpreter written in C#.
+      Can easily be integrated in C# programs.
+      Characteristics: reliable and fairly fast interpreter, command line interface, builtin DCG, XML- and JSON-predicates, SQL-predicates, extendible.
+    </description>
     <releaseNotes>
       <![CDATA[
       v.5.0.0.1
