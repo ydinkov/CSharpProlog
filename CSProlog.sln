@@ -3,6 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{435BB1A6-EBA7-4F55-BF99-AF1C65FC43E2}"
+	ProjectSection(SolutionItems) = preProject
+		appveyor.yml = appveyor.yml
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSProlog", "CSProlog.NET35\CSProlog.csproj", "{721E06EF-2BE2-44BF-A0B7-BBE163A29F26}"
 	ProjectSection(ProjectDependencies) = postProject
