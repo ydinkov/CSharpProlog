@@ -261,8 +261,8 @@ namespace Prolog
         PrologParser parser = Globals.CurrentParser = new PrologParser (engine);
         allDiscontiguous = false;
 
-        try
-        {
+       try
+       {
           prevIndex = null;
           definedInCurrFile.Clear ();
           isDiscontiguous.Clear ();
@@ -276,7 +276,9 @@ namespace Prolog
         }
         finally
         {
-          Globals.CurrentParser = consultParserStack.Pop (); ;
+        engine.showSingletonWarnings = true; // set it back to the default value of true
+
+        Globals.CurrentParser = consultParserStack.Pop (); ;
           //Globals.ConsultModuleName = null; // Currently not used
         }
 
@@ -355,7 +357,15 @@ namespace Prolog
            else
               IO.Error (":- stacktrace: illegal argument '{0}'; use 'on' or 'off' instead", argument);
             break;
-          case "initialization":
+          case "style_check_singleton_warning":
+            if (argument == "on")
+                engine.showSingletonWarnings = true;
+            else if (argument == "off")
+                engine.showSingletonWarnings = false;
+            else
+                IO.Error(":- style_check_singleton_warning: illegal argument '{0}'; use 'on' or 'off' instead. It is 'on' by default.", argument);
+            break;
+                    case "initialization":
             IO.Warning ("':- initialization' directive not implemented -- ignored");
             break;
           default:
@@ -857,7 +867,8 @@ namespace Prolog
           IO.WriteLine ("\r\n  (*) contains the description of a feature rather than a predicate.");
           IO.WriteLine ("\r\n  Usage: help <predicate>[/<arity>] or help( <predicate>[/<arity>]).");
           IO.WriteLine ("\r\n  File CsPrologHelp.txt contains the help texts and a description of how to re-create help."); //TODO: I can't seem to find this file. Eliminate the line or create the file???
-      
+          IO.WriteLine("\r\n  Facts must be read from a file before they can be queried. try  help(consult). to see how to read in from a file.");
+
           return true;
         }
         else if (functor == "history")
