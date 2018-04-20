@@ -830,10 +830,25 @@ namespace Prolog
       public bool ShowHelp (string functor, int arity, out string suggestion)
       {
         suggestion = null;
-        const string HELPRES = "CsProlog.CsPrologHelp";
+        string HELPRES = "CsProlog.CsPrologHelp"; // default HELPRES
 
-        Assembly asm = Assembly.Load(new AssemblyName(GetType().AssemblyQualifiedName));
-        //string [] res = asm.GetManifestResourceNames (); // pick the right functor from res and put in in HELPRES
+        Assembly asm = Assembly.Load(new AssemblyName("CSProlog"));
+
+        //TODO: I've hardcoded the assembly name is CSProlog in Assembly.Load rather than using the AssemblyQualifiedName (was getting an error - not sure why and don't want to fight with it)
+        //Assembly asm = Assembly.Load(new AssemblyName(GetType().AssemblyQualifiedName));
+
+        string [] res = asm.GetManifestResourceNames (); // pick the right functor from res and put in in HELPRES
+        foreach (string s in res)
+        {
+            //IO.WriteLine("FunctorInGetManifestResourceNames: " + s); // uncomment to see the resources - maybe help identify which one it should be if having problmes
+            //Could be CSProlog.CSPrologHelp.resources  OR  CSProlog.Core.CSPrologHelp.resources --- the below loop should find the right one and user it
+            if (s.Contains("CsPrologHelp.resources"))
+            {
+              HELPRES = s.Replace(".resources", "");
+              break;
+            }
+        }
+
         ResourceManager rm = new ResourceManager (HELPRES, asm);
 
         if (functor == null)
@@ -841,8 +856,8 @@ namespace Prolog
           IO.WriteLine (rm.GetString ("help$"));
           IO.WriteLine ("\r\n  (*) contains the description of a feature rather than a predicate.");
           IO.WriteLine ("\r\n  Usage: help <predicate>[/<arity>] or help( <predicate>[/<arity>]).");
-          IO.WriteLine ("\r\n  File CsPrologHelp.txt contains the help texts and a description of how to re-create help.");
-
+          IO.WriteLine ("\r\n  File CsPrologHelp.txt contains the help texts and a description of how to re-create help."); //TODO: I can't seem to find this file. Eliminate the line or create the file???
+      
           return true;
         }
         else if (functor == "history")
