@@ -2,9 +2,9 @@ version: 1.0.{build}
 image: Visual Studio 2017
 configuration: Debug
 before_build:
-- cmd: dotnet restore CSProlog.Core.sln
+- cmd: dotnet restore CSProlog.sln
 build:
-  project: CSProlog.Core.sln
+  project: CSProlog.sln
 test_script:
 - cmd: >-
     cd .\CSProlog.Core.Test
