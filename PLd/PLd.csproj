@@ -55,8 +55,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CSProlog.NET35\CSProlog.csproj">
-      <Project>{721E06EF-2BE2-44BF-A0B7-BBE163A29F26}</Project>
+    <ProjectReference Include="..\CSProlog\CSProlog.csproj">
+      <Project>{6a947b78-96d1-45f2-bb9f-036586bab544}</Project>
       <Name>CSProlog</Name>
     </ProjectReference>
   </ItemGroup>
