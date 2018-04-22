@@ -12,7 +12,7 @@
     <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
     <RootNamespace>CSProlog</RootNamespace>
     <Version>5.0.0.1</Version>
-    <Authors>John Pool,Amersfoort,Netherlands,J.Sakamoto</Authors>
+    <Authors>John Pool,Amersfoort,Netherlands,J.Sakamoto,Josh Ahlstrom</Authors>
     <Company>n/a</Company>
     <Description>C#Prolog -- A Prolog interpreter written in C#.
 Can easily be integrated in C# programs.
