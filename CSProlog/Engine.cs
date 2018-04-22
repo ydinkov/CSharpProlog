@@ -1810,7 +1810,7 @@ namespace Prolog
           if (enablePersistence)
           {
             //TODO: enable persistence
-            //throw new NotImplementedException();
+            throw new NotImplementedException();
           }
 #else
           if (enablePersistence)

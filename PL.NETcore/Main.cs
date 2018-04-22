@@ -27,7 +27,7 @@ namespace Prolog
 
       try
       {
-        e = new PrologEngine (new DosIO ());
+        e = new PrologEngine(new DosIO(), persistentCommandHistory: false);
 
         // ProcessArgs -- for batch processing. Can be left out if not used
         //if (e.ProcessArgs (args, false)) return;
