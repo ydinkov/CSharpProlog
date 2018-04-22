@@ -28,23 +28,6 @@ namespace CSProlog.Core.Test
         }
 
         [Fact]
-        public void ConsultFromString_GetAllSolutions_BuiltInExamples()
-        {
-            var prolog = new PrologEngine(persistentCommandHistory: false);
-
-            SolutionSet solutionset1 = prolog.GetAllSolutions(null, "age(P,N)");
-            Assert.True(solutionset1.Success);
-            if (solutionset1.Success)
-            {
-                var s = solutionset1 [0];
-                foreach (Variable v in s.NextVariable)
-                   Console.WriteLine (string.Format ("{0} ({1}) = {2}", v.Name, v.Type, v.Value));
-        
-            }
-
-        }
-
-        [Fact]
         public void ConsultFromString_GetAllSolutions_Adhoc()
         {
             var prolog = new PrologEngine(persistentCommandHistory: false);
