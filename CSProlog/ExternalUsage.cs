@@ -236,7 +236,6 @@ namespace Prolog
 
     public string GetAllSolutionsXml (string sourceFileName, string destinFileName, string query, int maxSolutionCount)
     {
-      Reset ();
       XmlTextWriter xtw = null;
       StreamWriter sw = null;
 
@@ -250,6 +249,9 @@ namespace Prolog
 
       try
       {
+        if (sourceFileName != null) 
+          Reset ();
+
         if (sourceFileName != null)
           Consult (sourceFileName);
 
@@ -348,11 +350,13 @@ namespace Prolog
 
     public SolutionSet GetAllSolutions (string sourceFileName, string query, int maxSolutionCount)
     {
-      Reset ();
+      
       SolutionSet solutions = new SolutionSet ();
 
       try
       {
+        if (sourceFileName != null) Reset ();
+
         if (sourceFileName != null) Consult (sourceFileName);
 
         Query = solutions.Query = query + (query.EndsWith (".") ? null : "."); // append a dot if necessary
