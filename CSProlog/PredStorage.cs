@@ -23,6 +23,7 @@ using System.Reflection;
 using System.Collections.Specialized;
 using System.Text;
 using System.IO;
+using System.Linq;
 
 namespace Prolog
 {
@@ -840,26 +841,12 @@ namespace Prolog
       public bool ShowHelp (string functor, int arity, out string suggestion)
       {
         suggestion = null;
-        string HELPRES = "CsProlog.CsPrologHelp"; // default HELPRES
+        const string HELPRES = "CsProlog.CsPrologHelp";
 
-        Assembly asm = Assembly.Load(new AssemblyName("CSProlog"));
-
-        //TODO: I've hardcoded the assembly name is CSProlog in Assembly.Load rather than using the AssemblyQualifiedName (was getting an error - not sure why and don't want to fight with it)
-        //Assembly asm = Assembly.Load(new AssemblyName(GetType().AssemblyQualifiedName));
-
-        string [] res = asm.GetManifestResourceNames (); // pick the right functor from res and put in in HELPRES
-        foreach (string s in res)
-        {
-            //IO.WriteLine("FunctorInGetManifestResourceNames: " + s); // uncomment to see the resources - maybe help identify which one it should be if having problmes
-            //Could be CSProlog.CSPrologHelp.resources  OR  CSProlog.Core.CSPrologHelp.resources --- the below loop should find the right one and user it
-            if (s.Contains("CsPrologHelp.resources"))
-            {
-              HELPRES = s.Replace(".resources", "");
-              break;
-            }
-        }
-
-        ResourceManager rm = new ResourceManager (HELPRES, asm);
+        // NOTE: .NET3.5+ can retrieve Assembly from a Type object via "Type.Assembly" property, but .NET Standard 1.4 dose not support it.
+        var assemblyName = string.Join(", ", GetType().AssemblyQualifiedName.Split(',').Skip(1).Select(s => s.Trim()).ToArray());
+        var asm = Assembly.Load(new AssemblyName(assemblyName));
+        var rm = new ResourceManager (HELPRES, asm);
 
         if (functor == null)
         {
