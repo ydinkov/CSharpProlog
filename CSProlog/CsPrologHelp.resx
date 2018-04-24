@@ -419,18 +419,6 @@
   
 </value>
   </data>
-  <data name="chat80/*" xml:space="preserve">
-    <value>  
-  CHAT-80 (Fernando Pereira) (http://www.cis.upenn.edu/~pereira/oldies.html)
-  
-  See demo.txt and docu in the CHAT-directory for examples.
-  Start CHAT by entering 'hi.', end by entering 'bye.'
-  
-  The CHAT-software is copyrighted !!!  (although I do not think Fernando
-  Pereira still cares -- unfortunately he never responded to mails)
-  
-</value>
-  </data>
   <data name="batch/*" xml:space="preserve">
     <value>  
   It is possible to call the Prolog engine from within a batch file, using pld.exe. When
@@ -883,14 +871,6 @@
   call( P)
   
     Execute predicate P.
-  
-</value>
-  </data>
-  <data name="chat/0" xml:space="preserve">
-    <value>  
-  chat
-  
-    Run the sample CHAT80 program.
   
 </value>
   </data>
@@ -3462,9 +3442,6 @@
   <data name="writef" xml:space="preserve">
     <value>/2</value>
   </data>
-  <data name="chat" xml:space="preserve">
-    <value>/0</value>
-  </data>
   <data name="get" xml:space="preserve">
     <value>/1</value>
   </data>
@@ -3476,9 +3453,6 @@
   </data>
   <data name="writeln" xml:space="preserve">
     <value>/1/1</value>
-  </data>
-  <data name="chat80" xml:space="preserve">
-    <value>(*)</value>
   </data>
   <data name="get_counter" xml:space="preserve">
     <value>/2</value>
@@ -3580,11 +3554,11 @@
   bool/1                    functions(*)              notrace/0                 spypoints/0               wrap/1/2/3                
   bw_transform/2            functor/3                 now/3                     sql_command/2/3           write/1                   
   call/1                    gensym/1/2                number/1                  sql_connect/3             writef/2                  
-  chat/0                    get/1                     numbervars/3              sql_connection/3          writeln/1/1               
-  chat80(*)                 get_counter/2             numcols/1                 sql_disconnect/1          xml_term/2/3              
-  clause/2                  get0/1                    once/1                    sql_select/3              xml_transform/3/2/1       
-  clearall/0                getenvvar/1               op/3                      sql_select2/3             xmltrace/1/2              
-  clearprofile/0            ground/1                  parser(*)                 stacktrace/1              
-  clipboard/1               halt/0                    permutation/2             statistics/2              </value>
+  clause/2                  get/1                     numbervars/3              sql_connection/3          writeln/1/1               
+  clearall/0                get_counter/2             numcols/1                 sql_disconnect/1          xml_term/2/3              
+  clearprofile/0            get0/1                    once/1                    sql_select/3              xml_transform/3/2/1       
+  clipboard/1               getenvvar/1               op/3                      sql_select2/3             xmltrace/1/2              
+                            ground/1                  parser(*)                 stacktrace/1              
+                            halt/0                    permutation/2             statistics/2              </value>
   </data>
 </root>
