@@ -11,9 +11,9 @@
     <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
     <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
     <RootNamespace>CSProlog</RootNamespace>
-    <Version>5.0.0.1</Version>
+    <Version>6.0.0.0</Version>
     <Authors>John Pool,Amersfoort,Netherlands,J.Sakamoto,Josh Ahlstrom</Authors>
-    <Company>n/a</Company>
+    <Company>N/A</Company>
     <Description>C#Prolog -- A Prolog interpreter written in C#.
 Can easily be integrated in C# programs.
 Characteristics: reliable and fairly fast interpreter, command line interface, builtin DCG, XML- and JSON-predicates, SQL-predicates, extendible.</Description>
@@ -21,7 +21,11 @@ Characteristics: reliable and fairly fast interpreter, command line interface, b
     <PackageLicenseUrl>https://github.com/jsakamoto/CSharpProlog/blob/vnext/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jsakamoto/CSharpProlog/</PackageProjectUrl>
     <PackageTags>Prolog interpreter</PackageTags>
-    <PackageReleaseNotes>v.5.0.0.1
+    <PackageReleaseNotes>v.6.0.0
+- BREAKING CHANGE: Remove "SAMPLES, TESTING &amp; EXPERIMENTAL" predefined predicates. (including CHAT-80 support)
+- Fix: "help" predefined predicate dose not work. 
+- Enhance: GetAllSolutions can work with null file name.
+v.5.0.0.1
 - Support: .NET Standard 1.4 (.NET Core) and UWP
 v.5.0.0
 - BREAKING CHANGE: Remove dependency of "System.Windows.Forms".
