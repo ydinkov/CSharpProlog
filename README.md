@@ -23,6 +23,26 @@ class Program
     }
 }
 ```
+## Solution Layout
+###### CSProlog
+Prolog Engine
+
+###### CSProlog.Core.Test
+Unit Tests
+
+###### PL.NETCore
+Dotnet Core Console Interactive Interpreter (tested in linux and windows)
+
+###### PLd
+DOS Console Interactive Interpreter
+
+###### PLw
+Windows Forms Example
+
+###### PLx
+An example of how to use the engine within another Program
+
+
 
 ## License
 
