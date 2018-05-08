@@ -81,16 +81,6 @@ namespace Prolog
       Console.BackgroundColor = ConsoleColor.White;
       Console.Clear (); // applies the background color to the *entire* window background
       
-      if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-      {
-        try{Console.WindowWidth = 140;}catch{  }
-        try{Console.WindowHeight = 60;}catch{  }
-        try{Console.BufferWidth = 140;}catch{  }  
-        try{Console.BufferHeight = 3000;}catch{  }
-        try{Console.WindowTop = 0;}catch{  }
-        try{Console.WindowLeft = 0;}catch{  }
-      }
-      
       // TODO: The following line is supposed to prevent ^C from exiting the application - it doesn't work for linux
       Console.CancelKeyPress += new ConsoleCancelEventHandler (e.Console_CancelKeyPress);
     }

@@ -79,12 +79,7 @@ namespace Prolog
       Console.ForegroundColor = ConsoleColor.DarkBlue;
       Console.BackgroundColor = ConsoleColor.White;
       Console.Clear (); // applies the background color to the *entire* window background
-      Console.WindowWidth = 140;
-      Console.WindowHeight = 60;
-      Console.BufferWidth = 140;
-      Console.BufferHeight = 3000;
-      Console.WindowTop = 0;
-      Console.WindowLeft = 0;
+      
       // The following line prevents ^C from exiting the application
       Console.CancelKeyPress += new ConsoleCancelEventHandler (e.Console_CancelKeyPress);
     }
