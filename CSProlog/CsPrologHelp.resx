@@ -3522,43 +3522,73 @@
   </data>
   <data name="help$" xml:space="preserve">
     <value>
-  '!if'(*)                  cls/0                     help/0/1                  pp_defines/1              string/1                  
-  @&lt;/2                      combination/3             history(*)                predicate/1               string_datetime/2/4/7     
-  @=&lt;/2                     complexnumber/1           howto_create_predicate(*) print/1                   string_term/2             
-  @&gt;/2                      compound/1                inc_counter/1/2           profile/0                 string_words/2            
-  @&gt;=/2                     config_setting/2          integer/1                 put/1                     stringstyle/1             
-  \+/1                      console/1/2               ip_address/1/2            query_timeout/1           succ/2                    
-  \=/2                      consult/1                 is/2                      read/1                    tab/1                     
-  \==/2                     copy_term/2               json_term/2/3             readatom/1                talk(*)                   
-  &lt;/2                       crossref/1                keysort/2                 readatoms/1               tell/1                    
-  =../2                     csprolog_dll(*)           leapyear/1                readeof/2                 telling/1                 
-  =:=/2                     current_op/3              length/2                  readln/1                  term_pattern/2/3/4/5      
-  =\=/2                     date_part/2               license/0                 regex_match/3/4           throw/2/3                 
-  =&lt;/2                      datetime/1/4/7            list/1                    regex_replace/4           timespan/1/4              
-  ==/2                      dayname/4                 listing/1                 repeat/0                  today/3                   
-  &gt;/2                       dayofweek/4               listing0/1                retract/1                 told/0                    
-  &gt;=/2                      dayofyear/4               listpattern(*)            retractall/1              trace/0                   
-  abolish/1                 debug/0                   make_help_resx/0          reverse/2                 treeprint/1               
-  append/3                  dec_counter/1/2           maplist/3                 see/1                     true/0                    
-  append2/3                 display/1/1               maxwritedepth/1           seeing/1                  try_catch(*)              
-  arg/3                     environment/2             member/2                  seen/0                    undefineds/0              
-  assert/1                  errorlevel/1              memberchk/2               sendmail/3/4/5            unifiable/2               
-  asserta/1                 expand_term/2             name/2                    set_counter/2             username/1                
-  assertz/1                 fail/0                    nl/0                      setenvvar/1               userroles/1               
-  atom/1                    fail_if_undefined/1       nodebug/0                 setof/3                   validdate/3               
-  atom_string/2             fileexists/2              nonvar/1                  shell/0/1/2/3             validtime/3               
-  atomic/1                  findall/3                 noprofile/0               showfile/1                var/1/2                   
-  bagof/3                   flat/2                    nospy/1                   showprofile/0/1           version/2                 
-  batch(*)                  float/1                   nospyall/0                sort/2                    weekno/1/4                
-  between/3                 format/3                  not/1                     spy/1/2                   workingdir/0/1            
-  bool/1                    functions(*)              notrace/0                 spypoints/0               wrap/1/2/3                
-  bw_transform/2            functor/3                 now/3                     sql_command/2/3           write/1                   
-  call/1                    gensym/1/2                number/1                  sql_connect/3             writef/2                  
-  clause/2                  get/1                     numbervars/3              sql_connection/3          writeln/1/1               
-  clearall/0                get_counter/2             numcols/1                 sql_disconnect/1          xml_term/2/3              
-  clearprofile/0            get0/1                    once/1                    sql_select/3              xml_transform/3/2/1       
-  clipboard/1               getenvvar/1               op/3                      sql_select2/3             xmltrace/1/2              
-                            ground/1                  parser(*)                 stacktrace/1              
-                            halt/0                    permutation/2             statistics/2              </value>
+  '!if'(*)                  gensym/1/2                    see/1
+  @&lt;/2                      get/1                         seeing/1
+  @=&lt;/2                     get_counter/2                 seen/0  
+  @&gt;/2                      get0/1                        sendmail/3/4/5
+  @&gt;=/2                     getenvvar/1                   set_counter/2
+  \+/1                      ground/1                      setenvvar/1
+  \=/2                      halt/0                        setof/3
+  \==/2                     help/0/1                      shell/0/1/2/3
+  &lt;/2                       history(*)                    showfile/1
+  =../2                     howto_create_predicate(*)     showprofile/0/1
+  =:=/2                     inc_counter/1/2               sort/2
+  =\=/2                     integer/1                     spy/1/2
+  =&lt;/2                      ip_address/1/2                spypoints/0
+  ==/2                      is/2                          sql_command/2/3
+  &gt;/2                       json_term/2/3                 sql_connect/3
+  &gt;=/2                      keysort/2                     sql_connection/3
+  abolish/1                 leapyear/1                    sql_disconnect/1
+  append/3                  length/2                      sql_select/3
+  append2/3                 license/0                     sql_select2/3
+  arg/3                     list/1                        stacktrace/1
+  assert/1                  listing/1                     statistics/2
+  asserta/1                 listing0/1                    string/1
+  assertz/1                 listpattern(*)                string_datetime/2/4/7
+  atom/1                    make_help_resx/0              string_term/2
+  atom_string/2             maplist/3                     string_words/2
+  atomic/1                  maxwritedepth/1               stringstyle/1
+  bagof/3                   member/2                      succ/2
+  batch(*)                  memberchk/2                   tab/1
+  between/3                 name/2                        talk(*)
+  bool/1                    nl/0                          tell/1
+  bw_transform/2            nodebug/0                     telling/1
+  call/1                    nonvar/1                      term_pattern/2/3/4/5
+  clause/2                  noprofile/0                   throw/2/3
+  clearall/0                nospy/1                       timespan/1/4
+  clearprofile/0            nospyall/0                    today/3
+  clipboard/1               not/1                         told/0
+  cls/0                     notrace/0                     trace/0
+  combination/3             now/3                         treeprint/1
+  complexnumber/1           number/1                      true/0
+  compound/1                numbervars/3                  try_catch(*)
+  config_setting/2          numcols/1                     undefineds/0
+  console/1/2               once/1                        unifiable/2
+  consult/1                 op/3                          username/1
+  copy_term/2               parser(*)                     userroles/1
+  crossref/1                permutation/2                 validdate/3
+  csprolog_dll(*)           pp_defines/1                  validtime/3
+  current_op/3              predicate/1                   var/1/2
+  date_part/2               print/1                       version/2
+  datetime/1/4/7            profile/0                     weekno/1/4
+  dayname/4                 put/1                         workingdir/0/1
+  dayofweek/4               query_timeout/1               wrap/1/2/3
+  dayofyear/4               read/1                        write/1
+  debug/0                   readatom/1                    writef/2
+  dec_counter/1/2           readatoms/1                   writeln/1/1
+  display/1/1               readeof/2                     xml_term/2/3
+  environment/2             readln/1                      xml_transform/3/2/1
+  errorlevel/1              regex_match/3/4               xmltrace/1/2
+  expand_term/2             regex_replace/4
+  fail/0                    repeat/0
+  fail_if_undefined/1       retract/1
+  fileexists/2              retractall/1
+  findall/3                 reverse/2
+  flat/2
+  float/1
+  format/3
+  functions(*)
+  functor/3
+  </value>
   </data>
 </root>
