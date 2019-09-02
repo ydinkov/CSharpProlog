@@ -469,7 +469,7 @@ namespace Prolog
                 if (t is Variable) // t not unified
                 {
                     ((Variable) t).Bind(this);
-                    varStack.Push(item: t);
+                    varStack.Push(t);
 
                     return true;
                 }

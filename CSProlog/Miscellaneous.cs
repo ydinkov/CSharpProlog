@@ -127,45 +127,18 @@ namespace Prolog
 
             public static string GetConfigSetting(string key, string defaultValue)
             {
-#if NETSTANDARD
                 return defaultValue;
-#else
-        return (ConfigurationManager.AppSettings [key] == null)
-          ? defaultValue
-          : ConfigurationManager.AppSettings [key];
-#endif
+
             }
 
             static bool GetConfigSetting(string key, bool defaultValue)
             {
-#if NETSTANDARD
                 return defaultValue;
-#else
-        return (ConfigurationManager.AppSettings [key] == null)
-          ? defaultValue
-          : (ConfigurationManager.AppSettings [key] == "1");
-#endif
             }
 
             static int GetConfigSetting(string key, int defaultValue)
             {
-#if NETSTANDARD
                 return defaultValue;
-#else
-        if (ConfigurationManager.AppSettings [key] == null) return defaultValue;
-
-        try
-        {
-          return int.Parse (ConfigurationManager.AppSettings [key]);
-        }
-        catch (Exception e)
-        {
-          IO.Error ("Error converting the value in the config file.\r\n{0}\r\nUsing the default value '{1}' for '{2}'",
-            e.Message, defaultValue, key);
-
-          return 0;
-        }
-#endif
             }
 
 

@@ -14,11 +14,13 @@
 -------------------------------------------------------------------------------------------*/
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace Prolog
 {
@@ -503,16 +505,7 @@ namespace Prolog
         private bool xmlTrace;
         private bool reporting; // debug (also set by 'trace') || xmlTrace
         private bool profiling;
-#if !NETSTANDARD
-    XmlTextWriter xtw;
-    string xmlFile;
-    int xmlElCount; // current approximate Number of elements in the XML trace file
-    int xmlMaxEl;   // maximum allowed value of xmlElCount
-    bool firstGoal; // set in ExecuteGoalList() to be able to check whether a goal in the command is the very first
-    bool goalListProcessed;
-    bool goalListResult;
-    ManualResetEvent sema;
-#endif
+
         private ClauseNode retractClause;
         private int levelMin; // lowest recursion level while spying -- for determining left margin
         private int levelMax; // used while spying for determining end of skip
@@ -649,10 +642,7 @@ namespace Prolog
             currentFileWriter = null;
             maxWriteDepth = -1; // i.e. no max depth
             predicateCallOptions = new PredicateCallOptions();
-#if !NETSTANDARD
-      xmlFile = null;
-      dbCommandSet = null;
-#endif
+
             terminalTable = new BaseParser<OpDescrTriplet>.BaseTrie(terminalCount: PrologParser.terminalCount, true);
             PrologParser.FillTerminalTable(terminalTable: terminalTable);
             parser = new PrologParser(this); // now this.terminalTable is passed on as well
@@ -753,11 +743,7 @@ namespace Prolog
                 gensymInt = 0;
                 io.Reset(); // clear input character buffer
                 goalListHead = parser.QueryNode;
-#if !NETSTANDARD
-        xmlFile = null;
-        xmlMaxEl = INF;
-        firstGoal = true;
-#endif
+
                 if (goalListHead == null) return false;
             }
             catch (UserException x)
@@ -782,16 +768,9 @@ namespace Prolog
         public void PostQueryTidyUp()
         {
             openFiles.CloseAllOpenFiles();
-#if !NETSTANDARD
-      XmlTraceClose ();
-#endif
             currentFileReader = null;
             currentFileWriter = null;
 
-#if !NETSTANDARD
-      if (dbCommandSet != null)
-        dbCommandSet.CloseAllConnections ();
-#endif
         }
 
         #endregion Query execution preparation and finalization
@@ -805,11 +784,7 @@ namespace Prolog
 
             try
             {
-#if NETSTANDARD
                 solution.Solved = ExecuteGoalList();
-#else
-        solution.Solved = (queryTimeout == 0) ? ExecuteGoalList () : StartExecuteGoalListThread ();
-#endif
             }
             catch (AbortQueryException x)
             {
@@ -831,57 +806,7 @@ namespace Prolog
             }
         }
 
-#if !NETSTANDARD
-    bool StartExecuteGoalListThread ()
-    {
-      ThreadStart startExecuteGoalList = new ThreadStart (RunExecuteGoalList);
-      Thread run = new Thread (startExecuteGoalList);
-      run.SetApartmentState (ApartmentState.MTA);
-      run.Name = "ExecuteGoalList";
-      run.IsBackground = true;
-      sema = new ManualResetEvent (false);
-      goalListProcessed = false;
-      goalListResult = false;
-      run.Start (); // run will fall through to WaitOne
-      sema.WaitOne (queryTimeout, false); // wait for timeOutMSecs (while the RunExecuteGoalList thread runs)
 
-      if (!goalListProcessed) // goalListProcessed is set by RunExecuteGoalList()
-      {
-        run.Abort ();
-        solution.Solved = false;
-
-        return IO.Error ("Query execution timed out after {0} milliseconds", queryTimeout);
-      }
-
-      return goalListResult;
-    }
-
-
-    void RunExecuteGoalList ()
-    {
-      try
-      {
-        goalListResult = ExecuteGoalList ();
-        goalListProcessed = true;
-      }
-      catch (ThreadAbortException) // time-out
-      {
-        return;
-      }
-      catch (Exception e) // any other exception
-      {
-        error = true;
-        goalListProcessed = true;
-        solution.Solved = false;
-
-        throw (e);
-      }
-      finally
-      {
-        sema.Set ();
-      }
-    }
-#endif
 
         /*  Although in the code below a number of references is made to 'caching' (storing
             intermediate results of a calculation) this feature is currently not available.
@@ -1183,9 +1108,7 @@ namespace Prolog
                 {
                     return false;
                 }
-#if !NETSTANDARD
-        firstGoal = false;
-#endif
+
             } // end of while
 
             return true;
@@ -1494,22 +1417,7 @@ namespace Prolog
                         s = Utils.WrapWithMargin(currClause.ToString(), margin: lmar, lenMax: free);
                         IO.Write("{0}{1,2:d2} {2}: {3}", lmar, level, "Try ", s);
                     }
-#if !NETSTANDARD
-          if (xmlTrace)
-          {
-            if (level > prevLevel)
-            {
-              xtw.WriteStartElement ("body");
-              xtw.WriteAttributeString ("goal", goal.ToString ());
-              xtw.WriteAttributeString ("level", level.ToString ());
-            }
-            else if (level < prevLevel)
-              xtw.WriteEndElement ();
-            else
-              XmlTraceWriteTerm ("goal", "goal", goal);
-            XmlTraceWriteTerm ("try", isFact ? "fact" : "pred", currClause);
-          }
-#endif
+
                     break;
                 case SpyPort.Redo:
                     if (console)
@@ -1517,13 +1425,7 @@ namespace Prolog
                         s = Utils.WrapWithMargin(currClause.ToString(), lmar + "|     ", lenMax: free);
                         IO.Write("{0,2:d2} {1}: {2}", level, "Try ", s); // fact or clause
                     }
-#if !NETSTANDARD
-          if (xmlTrace)
-          {
-            if (level < prevLevel) xtw.WriteEndElement ();
-            XmlTraceWriteTerm ("try", isFact ? "fact" : "clause", currClause);
-          }
-#endif
+
                     break;
                 case SpyPort.Fail:
                     if (console)
@@ -1531,13 +1433,7 @@ namespace Prolog
                         s = Utils.WrapWithMargin(goal.ToString(), lmar + "|     ", lenMax: free);
                         IO.Write("{0,2:d2} Fail: {1}", level, s);
                     }
-#if !NETSTANDARD
-          if (xmlTrace)
-          {
-            if (level < prevLevel) xtw.WriteEndElement ();
-            XmlTraceWriteTerm ("fail", "goal", goal);
-          }
-#endif
+
                     break;
                 case SpyPort.Exit:
                     if (console)
@@ -1545,13 +1441,7 @@ namespace Prolog
                         s = Utils.WrapWithMargin(goal.ToString(), lmar + "         ", lenMax: free);
                         IO.Write("{0,2:d2} Exit: {1}", level, s);
                     }
-#if !NETSTANDARD
-          if (xmlTrace)
-          {
-            if (level < prevLevel) xtw.WriteEndElement ();
-            XmlTraceWriteTerm ("exit", "match", goal);
-          }
-#endif
+
                     break;
             }
 
@@ -1665,14 +1555,7 @@ namespace Prolog
                         else
                         {
                             RetryCurrentGoal(level: level);
-#if !NETSTANDARD
-              if (xmlTrace)
-              {
-                XmlTraceWriteElement ("RETRY",
-                  (n == INF) ? "Retry entered by user" : String.Format ("Retry to level {0} entered by user", level));
-                XmlTraceWriteEnds (leap);
-              }
-#endif
+
                             return true;
                         }
                     case "f": // Fail
@@ -1685,14 +1568,7 @@ namespace Prolog
                         else
                         {
                             if (!CanBacktrack()) throw new AbortQueryException();
-#if !NETSTANDARD
-              if (xmlTrace)
-              {
-                XmlTraceWriteElement ("FAILED",
-                  (n == INF) ? "Goal failed by user" : String.Format ("Retry to level {0} entered by user", level));
-                XmlTraceWriteEnds (leap);
-              }
-#endif
+
                             return true;
                         }
                     case "i": // ancestors
@@ -1702,9 +1578,7 @@ namespace Prolog
                         SetSwitch("Debugging", switchVar: ref debug, false);
                         return false;
                     case "a":
-#if !NETSTANDARD
-            if (xmlTrace) XmlTraceWriteElement("ABORT", "Session aborted by user");
-#endif
+
                         throw new AbortQueryException();
                     case "+": // spy this
                         goalNode.PredDescr.SetSpy(true, functor: goalNode.Term.FunctorToString,
@@ -1798,69 +1672,6 @@ namespace Prolog
             }
         }
 
-#if !NETSTANDARD // Disable XML Trace feature.
-    void XmlTraceOpen (string tag, int maxEl)
-    {
-      xmlMaxEl = maxEl;
-      xmlElCount = 0;
-      xmlTrace = true;
-      reporting = true;
-      xtw = new XmlTextWriter (xmlFile, null);
-      xtw.Formatting = Formatting.Indented;
-      xtw.WriteStartDocument ();
-      xtw.WriteStartElement (tag);
-    }
-
-
-    void XmlTraceWriteTerm (string tag, string attr, BaseTerm term)
-    {
-      xtw.WriteStartElement (tag);
-      if (term != null) xtw.WriteAttributeString (attr, term.ToString ());
-      xtw.WriteEndElement ();
-      XmlTraceCheckMaxElement ();
-    }
-
-
-    void XmlTraceWriteElement (string tag, string content)
-    {
-      xtw.WriteStartElement (tag);
-      xtw.WriteString (content);
-      xtw.WriteEndElement ();
-      XmlTraceCheckMaxElement ();
-    }
-
-
-    void XmlTraceCheckMaxElement ()
-    {
-      if (xmlElCount++ < xmlMaxEl) return;
-
-      xtw.WriteStartElement ("MAX_EXCEEDED");
-      xtw.WriteString (String.Format ("Maximum number of elements ({0}) written", xmlMaxEl));
-      xtw.WriteEndElement ();
-
-      XmlTraceClose ();
-    }
-
-
-    void XmlTraceWriteEnds (int leap)
-    {
-      for (int i = 0; i < leap; i++) xtw.WriteEndElement ();
-    }
-
-
-    void XmlTraceClose ()
-    {
-      if (!xmlTrace) return;
-
-      xtw.WriteEndElement ();
-      xtw.WriteEndDocument ();
-      xtw.Flush ();
-      xtw.Close ();
-      IO.Message ("XML trace file {0} created", xmlFile);
-      xmlFile = null;
-      xmlTrace = false;
-    }
-#endif
 
         #endregion Debugging
 
@@ -1881,53 +1692,21 @@ namespace Prolog
 
   History commands must not be followed by a '.'
 ";
-#if !NETSTANDARD
-    [Serializable] // in order to be able to the retain history between sessions
-#endif
+
         private class CommandHistory : List<string>
         {
-#if !NETSTANDARD
-      ApplicationStorage persistentSettings;
-#endif
+
             public int cmdNo => Count + 1;
             private int maxNo; // maximum number of commands to be retained
 
-            public CommandHistory()
-#if NETSTANDARD
-                : this(false)
-#else
-          : this(enablePersistence: true)
-#endif
-            {
-            }
+          
 
             public CommandHistory(bool enablePersistence)
             {
                 maxNo = Math.Abs(value: ConfigSettings.HistorySize);
-#if NETSTANDARD
-                if (enablePersistence)
-                    //TODO: enable persistence
-                    throw new NotImplementedException();
-#else
-          if (enablePersistence)
-          {
-              persistentSettings = new ApplicationStorage();
-              List<string> history;
 
-              try
-              {
-                  history = persistentSettings.Get<List<string>>("CommandHistory", null);
-              }
-              catch
-              {
-                  history = null;
-              }
-          
-              if (history == null) return;
-          
-              foreach (string cmd in history) Add(cmd);
-          }
-#endif
+                if (enablePersistence)
+                    throw new NotImplementedException();
             }
 
 
@@ -2075,57 +1854,34 @@ namespace Prolog
             private void ClearHistory()
             {
                 Clear();
-#if !NETSTANDARD
-        if (persistentSettings != null) persistentSettings["CommandHistory"] = null;
-#endif
-            }
-
-
-            public void Persist()
-            {
-#if !NETSTANDARD
-        int maxNum = Math.Min (Count, maxNo);
-        if (persistentSettings != null) persistentSettings["CommandHistory"] = GetRange(Count - maxNum, maxNum);
-#endif
             }
         }
 
 
-        public void PersistCommandHistory()
-        {
-            try
-            {
-                if (ConfigSettings.HistorySize > 0)
-                    cmdBuf.Persist();
-            }
-            catch (Exception x)
-            {
-                IO.Error("Unable to save command history. System message is:\r\n{0}", x.Message);
-            }
-        }
+       
 
         #endregion Command history
 
         #region Named variables
 
-        public BaseTerm GetVariable(string s)
+        private BaseTerm GetVariable(string s)
         {
             return solution.GetVar(name: s);
         }
 
 
-        public void SetVariable(BaseTerm t, string s)
+        private void SetVariable(BaseTerm t, string s)
         {
             solution.SetVar(name: s, value: t);
         }
 
 
-        public void EraseVariables()
+        private void EraseVariables()
         {
             solution.Clear();
         }
 
-        public void RegisterVarNonSingleton(string s)
+        private void RegisterVarNonSingleton(string s)
         {
             solution.RegisterVarNonSingleton(name: s);
         }
@@ -2155,7 +1911,7 @@ namespace Prolog
         public string Prompt => string.Format("\r\n{0}{1} ?- ", Debugging ? "[d]" : "", arg1: CmdNo);
 
 
-        public int ElapsedTime() // returns numer of milliseconds since last Call
+        public int ElapsedTime() // returns number of milliseconds since last Call
         {
             var prevStartTime = startTime == -1 ? DateTime.Now.Ticks : startTime;
 
@@ -2200,20 +1956,6 @@ namespace Prolog
         }
 
 
-        public void CheckConfigFile()
-        {
-#if !NETSTANDARD
-      string configFileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
-
-      if (!File.Exists (configFileName))
-      {
-        string msg = string.Format (
-          "No config file ({0}) found: default settings used", configFileName);
-
-        IO.Warning (msg);
-      }
-#endif
-        }
 
 
         public void Consult(string fileName)
