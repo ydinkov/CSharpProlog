@@ -708,11 +708,8 @@ namespace Prolog
 
                 public override string ToString()
                 {
-                    return string.Format(
-                        "{0}",
-                        role == TT.Zero
-                            ? string.Format("({0})", arg0: triplet.Name)
-                            : triplet[role: role].ToString());
+                    return
+                        $"{(role == TT.Zero ? string.Format("({0})", arg0: triplet.Name) : triplet[role: role].ToString())}";
                 }
             }
 

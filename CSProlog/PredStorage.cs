@@ -27,7 +27,6 @@ using System.Text;
 
 namespace Prolog
 {
-#if NETSTANDARD
     using Hashtable = Dictionary<object, object>;
     using SortedList = SortedList<object, object>;
 
@@ -39,7 +38,6 @@ namespace Prolog
         }
     }
 
-#endif
 
     public partial class PrologEngine
     {
@@ -589,11 +587,7 @@ namespace Prolog
                     FindUndefined(sd: sd, pd: kv.Value);
 
                 IO.WriteLine("The following predicates are undefined:");
-#if NETSTANDARD
                 foreach (var kv in sd) IO.WriteLine("  {0}", kv.Key);
-#else
-        foreach (DictionaryEntry kv in sd) IO.WriteLine ("  {0}", kv.Key);
-#endif
             }
 
 

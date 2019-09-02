@@ -24,11 +24,9 @@ using System.Threading;
 
 namespace Prolog
 {
-#if NETSTANDARD
     using ApplicationException = Exception;
     using Stack = Stack<object>;
 
-#endif
 
     #region Exceptions
 
@@ -394,9 +392,7 @@ namespace Prolog
         private static OperatorDescr EqualOpDescr;
         private static OperatorDescr ColonOpDescr;
         private PredicateCallOptions predicateCallOptions;
-#if !NETSTANDARD
-    DbCommandSet dbCommandSet;
-#endif
+
         private OpenFiles openFiles;
         private const int INF = int.MaxValue;
         private VarStack varStack; // stack of variable bindings and choice points
@@ -1378,11 +1374,8 @@ namespace Prolog
                 levelMax = INF; // recover from (q)s(kip) command
                 qskip = false; // ...
                 const int widthMin = 20; // minimal width of writeable portion of line
-#if mswindows
-        int width = Utils.NumCols - 10;
-#else
+
                 var width = 140;
-#endif
                 var indent = 3 * (level - levelMin);
                 var condensedLevel = 0;
 

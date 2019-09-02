@@ -18,10 +18,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
-#if !NETSTANDARD
-using System.Data.Common;
-using System.Data;
-#endif
+
 
 namespace Prolog
 {
@@ -419,35 +416,7 @@ namespace Prolog
 
         #region DbConnectionTerm
 
-#if !NETSTANDARD
-    // to store database connection info before and between calls to sql_select/2 and sql_command/2/3
-    public class DbConnectionTerm : StringTerm
-    {
-      DbCommand dbCommand;
-      public DbCommand DbCommand { get { return dbCommand; } }
-      public string Connectstring { get { return dbCommand.Connection.ConnectionString; } }
-      public string CommandText { get { return dbCommand.CommandText; } }
-      public override bool IsCallable { get { return false; } }
 
-      public DbConnectionTerm (DbCommand dbCommand)
-        : base (dbCommand.CommandText) // SQL-command
-      {
-        this.dbCommand = dbCommand;
-      }
-
-      public DbConnectionTerm (DbConnectionTerm t)
-        : base (t.dbCommand.CommandText)
-      {
-        dbCommand = t.dbCommand;
-      }
-
-      public override string ToString ()
-      {
-        return string.Format ("Connectstring: '{0}'\r\nCommandText  : '{1}'",
-          Connectstring, CommandText);
-      }
-    }
-#endif
 
         #endregion DbConnectionTerm
 
@@ -455,85 +424,6 @@ namespace Prolog
 
         #region DbCommandSet
 
-#if !NETSTANDARD
-    public class DbCommandSet : List<DbCommand>
-    {
-      const int maxConnections = 64; // arbitray choice
-
-      public DbCommand GetCommand (BaseTerm provider, BaseTerm connectionArgs)
-      {
-        string sqlProvider = "(not set)";
-        string sqlConnectstring = "(not set)";
-        string providerKey = provider.FunctorToString;
-        sqlProvider = "(not set)";
-        sqlConnectstring = "(not set)";
-        DbConnection dbConnection;
-        DbProviderFactory dbProviderFactory;
-        DbCommand dbCommand = null;
-
-        if (Count == maxConnections)
-          IO.Error ("Maximum number of database connections ({0}) has been reached", maxConnections);
-
-        try
-        {
-          string connectInfo = ConfigSettings.GetConfigSetting (providerKey, null);
-
-          if (connectInfo == null)
-            IO.Error ("No SQL provider info found in config file for key '{0}'", providerKey);
-
-          string [] s = connectInfo.Split ('|');
-
-          if (s == null || s.Length != 2)
-            IO.Error ("Ill-formatted connection string in config file:\r\n'{0}'", connectInfo);
-
-          sqlProvider = s [0];
-          sqlConnectstring = Utils.Format (s [1], connectionArgs);
-          dbProviderFactory = DbProviderFactories.GetFactory (sqlProvider);
-          dbConnection = dbProviderFactory.CreateConnection ();
-          dbCommand = dbProviderFactory.CreateCommand ();
-          dbCommand.Connection = dbConnection;
-          dbConnection.ConnectionString = sqlConnectstring;
-          dbConnection.Open ();
-          Add (dbCommand);
-        }
-        catch (Exception e)
-        {
-          IO.Fatal (
-@"Unable to open database connection.
-Provider       : {0}
-Connectstring  : {1}
-System message : {2}",
-            sqlProvider, sqlConnectstring, e.Message);
-        }
-
-        return dbCommand;
-      }
-
-
-      public void CloseAllConnections ()
-      {
-        foreach (DbCommand c in this)
-          c.Connection.Close ();
-
-        Clear ();
-      }
-
-
-      public void Close (BaseTerm t)
-      {
-        DbCommand dbCommand = ((DbConnectionTerm)t).DbCommand;
-
-        for (int i = 0; i < Count; i++)
-        {
-          if (dbCommand == this [i])
-          {
-            dbCommand.Connection.Close ();
-            Remove (this [i]);
-          }
-        }
-      }
-    }
-#endif
 
         #endregion DbCommandSet
 

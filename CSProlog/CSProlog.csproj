@@ -68,9 +68,4 @@ v.5.0.0
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="OpenXmlNetCore" Version="1.0.3" />
-    <PackageReference Include="System.Net.Mail.Abstractions" Version="1.1.20" />
-  </ItemGroup>
-
 </Project>

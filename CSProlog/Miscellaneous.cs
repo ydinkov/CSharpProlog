@@ -22,26 +22,11 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-#if mswindows
-using System.Resources;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
-#endif
-#if !NETSTANDARD
-using System.Configuration;
-using System.IO.IsolatedStorage;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-#endif
 
 namespace Prolog
 {
-#if NETSTANDARD
     using ArrayList = List<object>;
     using Hashtable = Dictionary<object, object>;
-
-#endif
-
     public partial class PrologEngine
     {
         #region ConfigSettings
@@ -102,21 +87,13 @@ namespace Prolog
                 get
                 {
                     string wd;
-#if NETSTANDARD
                     if (String.IsNullOrEmpty(workingDirectory))
                         wd = Directory.GetCurrentDirectory();
                     else if (workingDirectory == "%desktop" || workingDirectory == "%exedir")
                         throw new NotImplementedException();
                     else
                         wd = workingDirectory;
-#else
-          if (String.IsNullOrEmpty (workingDirectory) || workingDirectory == "%exedir")
-            wd = AppDomain.CurrentDomain.BaseDirectory;
-          else if (workingDirectory == "%desktop")
-            wd = Environment.GetFolderPath (Environment.SpecialFolder.DesktopDirectory);
-          else
-            wd = workingDirectory;
-#endif
+
                     if (!wd.EndsWith(Path.DirectorySeparatorChar.ToString()))
                         wd = wd + Path.DirectorySeparatorChar;
 
@@ -286,19 +263,13 @@ namespace Prolog
 
             public static PrologParser CurrentParser
             {
-                get { return currentParser; }
-                set { currentParser = value; }
+                get => currentParser;
+                set => currentParser = value;
             }
 
-            public static int LineNo
-            {
-                get { return (currentParser == null || currentParser.InQueryMode) ? -1 : currentParser.LineNo - 1; }
-            }
+            public static int LineNo => (currentParser == null || currentParser.InQueryMode) ? -1 : currentParser.LineNo - 1;
 
-            public static int ColNo
-            {
-                get { return (currentParser == null) ? -1 : currentParser.ColNo; }
-            }
+            public static int ColNo => currentParser?.ColNo ?? -1;
 
             #endregion
         }
@@ -307,184 +278,6 @@ namespace Prolog
 
         #region PersistentSettings
 
-#if !NETSTANDARD
-    [Serializable]
-    public class ApplicationStorage : Hashtable
-    {
-      // File name. Let us use the entry assembly name with .dat as the extension.
-      string settingsFileName =
-      System.Reflection.Assembly.GetEntryAssembly ().GetName ().Name + ".dat";
-
-      public ApplicationStorage ()
-      {
-        LoadFromFile ();
-      }
-
-
-      // This constructor is required for deserializing our class from persistent storage.
-      protected ApplicationStorage (SerializationInfo info, StreamingContext context)
-        : base (info, context)
-      {
-      }
-
-
-      public object this [string key]
-      {
-        set
-        {
-          base [key.ToLower ()] = value;
-          SaveToFile ();
-        }
-
-        get
-        {
-          return base [key.ToLower ()];
-        }
-      }
-
-
-      void LoadFromFile ()
-      {
-        IsolatedStorageFile isoStore = IsolatedStorageFile.GetStore (
-          IsolatedStorageScope.User | IsolatedStorageScope.Assembly, null, null);
-
-        if (isoStore.GetFileNames (settingsFileName).Length == 0) return;
-
-        Stream stream = new IsolatedStorageFileStream (settingsFileName, FileMode.OpenOrCreate, isoStore);
-
-        if (stream != null)
-        {
-          try
-          {
-            // deserialize the Hashtable from stream.
-            IFormatter formatter = new BinaryFormatter ();
-            Hashtable appData = (Hashtable)formatter.Deserialize (stream);
-
-            // enumerate through the collection and load our base Hashtable.
-            IDictionaryEnumerator enumerator = appData.GetEnumerator ();
-
-            while (enumerator.MoveNext ())
-              this [enumerator.Key] = enumerator.Value;
-          }
-          catch
-          {
-          }
-          finally
-          {
-            stream.Dispose ();
-          }
-        }
-      }
-
-
-      /// <summary>
-      /// Saves the configuration data to the persistent storage.
-      /// </summary>
-      void SaveToFile ()
-      {
-        // Open the stream from the IsolatedStorage.
-        IsolatedStorageFile isoStore = IsolatedStorageFile.GetStore (
-          IsolatedStorageScope.User | IsolatedStorageScope.Assembly, null, null);
-        Stream stream = new IsolatedStorageFileStream (settingsFileName, FileMode.Create, isoStore);
-
-        if (stream != null)
-        {
-          try
-          {
-            // Serialize the Hashtable into the IsolatedStorage.
-            IFormatter formatter = new BinaryFormatter ();
-            formatter.Serialize (stream, (Hashtable)this);
-          }
-          finally
-          {
-            stream.Dispose ();
-          }
-        }
-      }
-
-
-      public T Get<T> (string key, T defVal)
-      {
-        object o = this [key];
-
-        if (o == null) return defVal; // key not found
-
-        try
-        {
-          return (T)o;
-        }
-        catch
-        {
-          throw new Exception (string.Format (
-            "PersistentSettings Get<{0}>: retrieved value for key '{1}' has wrong type '{2}'",
-            typeof (T), key, o.GetType ()));
-        }
-      }
-
-
-#if Windows
-    ///<summary>
-    /// Start an OpenFile dialog and save the selected file name in persistent storage
-    ///<param name="fileName">In/out: the selected file name. Unmodified upon cancel</param>
-    ///<param name="key">In: the key under which the file name should be saved in persistent storage</param>
-    ///<param name="defaultExt">In: the dialog default extension, e.g. "wav"</param>
-    ///<param name="filter">In: the dialog filter, e.g. "WAV files (*.wav)|*.wav|*.*"</param>
-    ///</summary>
-    public string OpenFileName (ref string fileName, string key, string defaultExt, string filter)
-    {
-      OpenFileDialog openDlg = new OpenFileDialog ();
-      openDlg.DefaultExt = defaultExt;
-      openDlg.Filter = filter;
-      openDlg.InitialDirectory = Path.GetDirectoryName (fileName);
-
-      if (openDlg.ShowDialog () == DialogResult.OK)
-        this [key] = fileName = openDlg.FileName;
-
-      return fileName;
-    }
-
-
-    ///<summary>
-    /// Start a SaveFile dialog and save the selected file name in persistent storage
-    ///<param name="fileName">In/out: the selected file name. Unmodified upon cancel</param>
-    ///<param name="key">In: the key under which the file name should be saved in persistent storage</param>
-    ///<param name="defaultExt">In: the dialog default extension, e.g. "wav"</param>
-    ///<param name="filter">In: the dialog filter, e.g. "WAV files (*.wav)|*.wav|*.*"</param>
-    ///</summary>
-    public string SaveFileName (ref string fileName, string key, string defaultExt, string filter)
-    {
-      SaveFileDialog saveDlg = new SaveFileDialog ();
-      saveDlg.DefaultExt = defaultExt;
-      saveDlg.Filter = filter;
-      saveDlg.FileName = fileName;
-      saveDlg.InitialDirectory = Path.GetDirectoryName (fileName);
-
-      if (saveDlg.ShowDialog () == DialogResult.OK)
-        this [key] = fileName = saveDlg.FileName;
-
-      return fileName;
-    }
-
-
-    public bool SelectDirectory (ref string dirName, string key)
-    {
-      bool result;
-
-      FolderBrowserDialog fbd = new FolderBrowserDialog ();
-
-      if (dirName != null) fbd.SelectedPath = dirName;
-
-      fbd.Description = "Select a map";
-      fbd.ShowNewFolderButton = true;
-
-      if (result = (fbd.ShowDialog () == DialogResult.OK))
-        this [key] = dirName = fbd.SelectedPath;
-
-      return result;
-    }
-#endif
-    }
-#endif
 
         #endregion PersistentSettings
 
@@ -499,147 +292,6 @@ namespace Prolog
                 Content
             }
 
-#if mswindows
-      public static bool CreateHelpResourceFile (out string resxFileName)
-      {
-        Regex header = new Regex (@"^_+\s*(?<functor>[^/]+)\s*/\s*(?<arity>[^ _]+)\s*_*\s*$",
-          RegexOptions.Singleline | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
-        const int nColsDef = 5;
-        ResXResourceWriter rw = null;
-        string functor = "<not set>";
-        string arity = "<not set>";
-        string key = "<not set>";
-        string value = "<not set>";
-        resxFileName = "<not set>";
-        int nCols = nColsDef;
-        SortedDictionary<string, string> combinedArities = new SortedDictionary<string, string> ();
-        int maxPredLen = 0;
-        StringBuilder content = new StringBuilder (); // contains the help item content
-        StreamReader sr;
-
-        if (PrologEngine.ConfigSettings.CsPrologHelpFile == null) // set in CSProlog.exe.config
-          Console.WriteLine ("No help file name found in config file (key 'CsPrologHelpFile')");
-        else
-        {
-          string helpFileName = PrologEngine.ConfigSettings.CsPrologHelpFile;
-          int lineNo = 0;
-
-          try
-          {
-            sr = new StreamReader (helpFileName);
-            resxFileName = Path.ChangeExtension (helpFileName, ".resx");
-            rw = new ResXResourceWriter (resxFileName);
-          }
-          catch (Exception e)
-          {
-            IO.Error ("Error opening help file '{0}'.\r\nMessage was:\r\n{1}",
-              helpFileName, e.Message);
-
-            return false;
-          }
-
-          string line;
-          content = new StringBuilder (); // help item content
-          bool firstHeader = true;
-
-          try
-          {
-            while (!sr.EndOfStream)
-            {
-              line = sr.ReadLine ();
-              lineNo++;
-
-              if (lineNo == 1) // number of colums optionally in first line
-              {
-                if (!int.TryParse (line.Trim (), out nCols)) nCols = nColsDef;
-              }
-
-              if (line.StartsWith ("%")) continue;
-
-              Match m = header.Match (line);
-
-              if (m.Success)
-              {
-                if (firstHeader)
-                  firstHeader = false;
-                else // finish off previous content
-                  rw.AddResource (key, content.ToString ());
-                //rw.AddResource (key, content.ToString ().TrimEnd ());
-
-                content.Length = 0;
-                functor = m.Groups ["functor"].ToString ();
-                arity = m.Groups ["arity"].ToString ();
-
-                if (!(arity.HasSignedRealNumberFormat () || arity == "*"))
-                  IO.Warning ("Erroneous header line({0}):\r\n{1}", lineNo, line);
-
-                key = functor + '/' + arity;
-                string arities; // collect all arities per functor name (for 'help <predicate>' without arity)
-                combinedArities [functor] =
-                  (combinedArities.TryGetValue (functor, out arities) ? arities : null) +
-                  (arity == "*" ? "(*)" : '/' + arity);
-                maxPredLen = Math.Max (
-                  maxPredLen, functor.Length + (arities == null ? 0 : arities.Length) + arity.Length + 1);
-              }
-              else if (line.StartsWith ("_"))
-                IO.Warning ("Erroneous header line({0}):\r\n{1}", lineNo, line);
-              else
-                content.AppendLine ("  " + line);
-            }
-          }
-          finally
-          {
-            sr.Close ();
-          }
-        }
-
-        // last item
-        rw.AddResource (key, content.ToString ().TrimEnd ());
-
-        // create an overview of all predicates (shown for 'help' without arguments)
-        StringBuilder allPreds = new StringBuilder ();
-        maxPredLen += 2; // at least two spaces between columns
-
-        /* // row-wise
-        foreach (KeyValuePair<string, string> kv in predicates)
-        {
-          string s = kv.Key + kv.Value;
-          rw.AddResource (kv.Key, kv.Value);
-
-          if (colNo%nCols == 0) allPreds.Append ("  "); // two leading spaces for each line
-
-          allPreds.Append (s.PadRight (maxPredLen, ' '));
-
-          if ((++colNo)%nCols == 0) allPreds.Append (Environment.NewLine);
-        }
-        */
-
-        int nRows = (combinedArities.Count + nCols - 1) / nCols; // number of rows for total survey
-        KeyValuePair<string, string> [] kv = new KeyValuePair<string, string> [combinedArities.Count];
-        combinedArities.CopyTo (kv, 0);
-
-        for (int i = 0; i < nRows; i++)
-          for (int j = 0; j < nCols; j++)
-          {
-            int k = i + j * nRows;
-
-            if (k >= kv.Length) break; // final positions in last column may remain empty
-
-            key = kv [k].Key;
-            value = kv [k].Value;
-            rw.AddResource (key, value);
-
-            if (j == 0) allPreds.Append (Environment.NewLine + "  "); // two leading spaces for each line
-
-            allPreds.Append ((key + value).PadRight (maxPredLen, ' '));
-          }
-
-        rw.AddResource ("help$", allPreds.ToString ());
-        rw.Close ();
-
-        return true;
-      }
-#endif
 
             public static string AtomFromVarChar(string s)
             {
@@ -668,12 +320,8 @@ namespace Prolog
             }
 
 
-            public static string DirectoryNameFromTerm(BaseTerm t)
-            {
-                if (!t.IsAtomOrString) return null;
-
-                return GetFullDirectoryName(t.FunctorToString.Dequoted());
-            }
+            public static string DirectoryNameFromTerm(BaseTerm t) => 
+                !t.IsAtomOrString ? null : GetFullDirectoryName(t.FunctorToString.Dequoted());
 
 
             public static string GetFullDirectoryName(string wd)
@@ -874,25 +522,7 @@ namespace Prolog
                 return null;
             }
 
-#if mswindows
-      public static void SetClipboardData (string data)
-      {
-        ThreadStart CopyToClipboardThreadStart = delegate ()
-        {
-          Clipboard.SetDataObject (data, true, 3, 100);
-        };
 
-        if (Thread.CurrentThread.GetApartmentState () == ApartmentState.STA)
-          CopyToClipboardThreadStart ();
-        else
-        {
-          Thread thread = new Thread (CopyToClipboardThreadStart);
-          thread.SetApartmentState (ApartmentState.STA);
-          thread.Start ();
-          thread.Join ();
-        }
-      }
-#endif
 
             public static string WrapWithMargin(string s, string margin, int lenMax)
                 // Break up a string into pieces that are at most lenMax characters long, by
@@ -1049,155 +679,6 @@ namespace Prolog
                 return 1 + (date - startWk1).Days / 7;
             }
 
-#if mswindows
-      [DllImport ("netapi32.dll")]
-      static extern short NetMessageBufferSend (IntPtr server, IntPtr recipient, IntPtr reserved, IntPtr message, int size);
-
-      public static void SendNetBios (string server, string recipient, string text)
-      {
-        int err;
-        IntPtr srv = IntPtr.Zero, rcp = IntPtr.Zero, txt = IntPtr.Zero, res = IntPtr.Zero;
-
-        try
-        {
-          srv = Marshal.StringToBSTR (server);
-          rcp = Marshal.StringToBSTR (recipient);
-          txt = Marshal.StringToBSTR (text = string.Format ("{0}/{1}: {2}", server, recipient, text));
-
-          err = NetMessageBufferSend (srv, rcp, res, txt, (text.Length + 1) * 2);
-        }
-        catch (Exception /*engine*/)
-        {
-          ;
-        }
-        finally
-        {
-          if (srv != IntPtr.Zero)
-            Marshal.FreeBSTR (srv);
-          if (rcp != IntPtr.Zero)
-            Marshal.FreeBSTR (rcp);
-          if (txt != IntPtr.Zero)
-            Marshal.FreeBSTR (txt);
-        }
-      }
-
-
-      // Console
-
-      class Constants
-      {
-        // Standard input, output, and Error
-        internal const int STD_INPUT_HANDLE = -10;
-        internal const int STD_OUTPUT_HANDLE = -11;
-        internal const int STD_ERROR_HANDLE = -12;
-
-        // Returned by GetStdHandle when an Error occurs
-        internal static readonly IntPtr INVALID_HANDLE_VALUE = new IntPtr (-1);
-      }
-
-      struct COORD
-      {
-        internal short X;
-        internal short Y;
-
-        public COORD (bool b) // constructor just to get rid of compiler warnings
-        {
-          X = 0;
-          Y = 0;
-        }
-      }
-
-      struct SMALL_RECT
-      {
-        internal short Left;
-        internal short Top;
-        internal short Right;
-        internal short Bottom;
-
-        public SMALL_RECT (bool b) // constructor just to get rid of compiler warnings
-        {
-          Left = 0;
-          Top = 0;
-          Right = 0;
-          Bottom = 0;
-        }
-      }
-
-      struct CONSOLE_SCREEN_BUFFER_INFO
-      {
-        internal COORD dwSize;
-        internal COORD dwCursorPosition;
-        internal ushort wAttributes;
-        internal SMALL_RECT srWindow;
-        internal COORD dwMaximumWindowSize;
-      }
-
-      [DllImport ("kernel32.dll", SetLastError = true)]
-      static extern bool GetConsoleScreenBufferInfo (
-        IntPtr hConsoleOutput,
-        out CONSOLE_SCREEN_BUFFER_INFO lpConsoleScreenBufferInfo
-      );
-
-      [DllImport ("kernel32.dll", SetLastError = true)]
-      static extern IntPtr GetStdHandle (
-        int whichHandle
-      );
-
-      [DllImport ("kernel32.dll", SetLastError = true)]
-      static extern IntPtr GetConsoleWindow ();
-
-      static IntPtr GetHandle (int WhichHandle)
-      {
-        IntPtr h = GetStdHandle (WhichHandle);
-
-        if (h == Constants.INVALID_HANDLE_VALUE)
-        {
-          switch (WhichHandle)
-          {
-            case Constants.STD_INPUT_HANDLE:
-              throw new Exception ("Can't get standard input handle");
-            //break;
-            case Constants.STD_OUTPUT_HANDLE:
-              throw new Exception ("Can't get standard output handle");
-            //break;
-            case Constants.STD_ERROR_HANDLE:
-              throw new Exception ("Can't get standard error handle");
-            //break;
-            default:
-              throw new Exception ("Apparently invalid parameter to GetHandle");
-          }
-        }
-        return h;
-      }
-
-
-      public static short NumCols
-      {
-        get
-        {
-          IntPtr h = GetHandle (Constants.STD_OUTPUT_HANDLE);
-          CONSOLE_SCREEN_BUFFER_INFO csbi = new CONSOLE_SCREEN_BUFFER_INFO ();
-
-          if (!GetConsoleScreenBufferInfo (h, out csbi)) return 0;
-
-          return csbi.dwSize.X;
-        }
-        //      set
-        //      {
-        //        IntPtr h = GetHandle (Constants.STD_OUTPUT_HANDLE);
-        //        CONSOLE_SCREEN_BUFFER_INFO csbi = new CONSOLE_SCREEN_BUFFER_INFO();
-        //
-        //        if (!GetConsoleScreenBufferInfo (h, out csbi)) return;
-        //
-        //        COORD c = new COORD ();
-        //        c.X = value;
-        //        c.Y = csbi.dwSize.Y;
-        //        SetConsoleScreenBufferSize (h,c);
-        //
-        //        return;
-        //      }
-      }
-#endif
 
 
             // Log file, debugging

@@ -17,9 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-#if mswindows
-using System.Windows.Forms;
-#endif
+
 
 namespace Prolog
 {
@@ -160,62 +158,6 @@ namespace Prolog
 
     public partial class PrologEngine
     {
-#if mswindows
-    #region Batch Processing
-    public bool ProcessArgs (string [] args, bool windowsMode)
-    {
-      if (args.Length == 0) return false;
-
-      // Process command line arguments. First is a query, optional second
-      // arg is number of backtrack attempts (default is 0, 'infinite' = *)
-      // If the first argument contains spaces, it must be enclosed in double quotes.
-      // Example: pld "['path.pl'], solve( p(2,2), L)" 4
-      string command = args [0].Dequoted ().Trim ();
-      Query = command + (command.EndsWith (".") ? null : "."); // append a dot if necessary
-      int solutionCount = 0; // i.e. find all solutions (backtrack until failure; value corresponds to '*')
-      string msg = null;
-
-      if (args.Length > 2)
-        msg = string.Format ("Superfluous argument '{0}'", args [2]);
-      else if (args.Length == 2 && !(int.TryParse (args [1], out solutionCount) || args [1] == "*"))
-        msg = string.Format ("Illegal value '{0}' for maximum number of solutions", args [1]);
-      else
-        solutionCount = 1;
-
-      if (msg == null)
-      {
-        int i = 0;
-        bool found = false; // true if at least one solution found
-
-        foreach (PrologEngine.ISolution s in SolutionIterator)
-        {
-          if (Error || (!found && !s.Solved)) // only an immediate 'no' give rise to an error
-          {
-            msg = s.ToString ();
-
-            break;
-          }
-
-          if (++i == solutionCount) break;
-
-          found = true;
-        }
-      }
-
-      if (msg != null)
-      {
-        if (windowsMode)
-          MessageBox.Show (msg);
-        else
-          Console.WriteLine (msg);
-
-        Environment.ExitCode = 1; // sets DOS ERRORLEVEL to 1
-      }
-
-      return true;
-    }
-    #endregion Batch Processing
-#endif
 
         #region GetAllSolutionsXml
 

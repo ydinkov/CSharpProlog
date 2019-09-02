@@ -20,15 +20,6 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 
-#if mswindows
-using System.Security.Principal;
-using System.Resources;
-#endif
-#if !NETSTANDARD
-using System.Configuration;
-using System.Data;
-using System.Data.Common;
-#endif
 
 namespace Prolog
 {
@@ -1202,11 +1193,7 @@ namespace Prolog
 
                     if (n > 0) Write(Spaces(n: n));
                     break;
-#if !NETSTANDARD
-        case BI.errorlevel: // errorlevel( +N) % sets DOS ERRORLEVEL (0..255)
-          Environment.ExitCode = term.Arg<int> (0);
-          break;
-#endif
+
                 case BI.print: // print( X)
                     Write(term.Arg(0), true);
                     break;
@@ -1650,20 +1637,7 @@ namespace Prolog
                     Throw(exceptionClass: exceptionClass, exceptionMessage: exceptionMessage);
                     break;
 
-#if mswindows
-        case BI.clipboard:
-          try
-          {
-            Utils.SetClipboardData (term.Arg (0).ToString ().Dequoted ());
-          }
-          catch (System.Runtime.InteropServices.ExternalException e)
-          {
-            IO.Error ("Copy to clipboard failed, message was:\r\n{0}", e.Message);
 
-            return false;
-          };
-          break;
-#endif
                 case BI.today: // date( ?Y, ?M, ?D)
                     y = DateTime.Today.Year;
                     m = DateTime.Today.Month;
@@ -2395,37 +2369,12 @@ namespace Prolog
 
 
                 case BI.numcols: // numcols( N) -- Number of columns in the DOS-box
-#if mswindows
-          if (!term.Arg (0).Unify (new DecimalTerm (Utils.NumCols), varStack)) return false;
 
-          break;
-#else
                     return false;
-#endif
 
                 case BI.userroles:
-#if mswindows
-          WindowsIdentity ident = WindowsIdentity.GetCurrent ();
-          WindowsPrincipal principal = new WindowsPrincipal (ident);
-          //bool admin = principal.IsInRole (WindowsBuiltInRole.Administrator);
-          IO.Message ("{0} belongs to: ", principal.Identity.Name.ToString ());
 
-          Array wbirFields = Enum.GetValues (typeof (WindowsBuiltInRole));
-
-          foreach (object roleName in wbirFields)
-          {
-            try
-            {
-              IO.Message ("{0}? {1}.", roleName, principal.IsInRole ((WindowsBuiltInRole)roleName));
-            }
-            catch (Exception)
-            {
-              IO.Message ("Could not obtain role for RID {0}", roleName);
-            }
-          }
-#else
                     IO.Error("userroles only available if compiler symbol mswindows is defined");
-#endif
                     break;
 
 
@@ -2440,12 +2389,7 @@ namespace Prolog
 
                 // not operational yet, some next version
                 case BI.callstack: // callstack( S, L) -- S is string, L is list representation of current call stack
-                    //string str;
-                    //ListTerm lst;
-                    ////CallStack (out str, out lst);
-                    //if (!term.Arg (0).Unify (new StringTerm (str), varStack) ||
-                    //   (term.Arity == 2 && !term.Arg (1).Unify (lst, varStack)))
-                    //  return false;
+                    
                     break;
 
 
@@ -2481,14 +2425,7 @@ namespace Prolog
                     if (!t0.IsInteger || (queryTimeout = t0.To<int>()) < 0) return false;
 
                     break;
-#if mswindows
-        case BI.make_help_resx:
-          string resxFileName;
-          Utils.CreateHelpResourceFile (out resxFileName);
-          IO.WriteLine ("\r\n  Resource file '{0}' created.", Path.GetFullPath (resxFileName));
-          IO.WriteLine ("\r\n  Exclude the previous version from the project, add it again, and build.");
-          break;
-#endif
+
                 case BI.get_counter:
                     globalTermsTable.getctr(a: term.Arg(0).FunctorToString, value: out cntrValue);
 

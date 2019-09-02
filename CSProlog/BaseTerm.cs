@@ -656,10 +656,7 @@ namespace Prolog
                 {
                     t = new CompoundTerm(functor: functor, args: a);
                 }
-#if !NETSTANDARD
-          else if (this is DbConnectionTerm)
-            t = new DbConnectionTerm ((DbConnectionTerm)this);
-#endif
+
                 else
                 {
                     IO.Error("CopyEx(): type '{0}' not handled explicitly", GetType());
