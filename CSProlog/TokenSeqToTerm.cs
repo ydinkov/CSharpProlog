@@ -712,7 +712,6 @@ namespace Prolog
                         $"{(role == TT.Zero ? string.Format("({0})", arg0: triplet.Name) : triplet[role: role].ToString())}";
                 }
             }
-
             #endregion InputToken
         }
     }

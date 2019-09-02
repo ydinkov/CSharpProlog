@@ -30,14 +30,7 @@ namespace Prolog
     using Hashtable = Dictionary<object, object>;
     using SortedList = SortedList<object, object>;
 
-    internal static class HashtableExtension
-    {
-        public static bool Contains(this Hashtable value, object key)
-        {
-            return value.ContainsKey(key: key);
-        }
-    }
-
+  
 
     public partial class PrologEngine
     {
@@ -117,7 +110,7 @@ namespace Prolog
 
             public bool IsPredefined(string key)
             {
-                return Predefineds.Contains(key: key);
+                return Predefineds.ContainsKey(key);
             }
 
 
@@ -333,7 +326,7 @@ namespace Prolog
                 var key = head.Key;
                 var index = head.Index;
 
-                if (Predefineds.Contains(key: key))
+                if (Predefineds.ContainsKey(key))
                     IO.Error("Modification of predefined predicate {0} not allowed", index);
 
                 if (prevIndex == key) // previous clause was for the same predicate
@@ -345,7 +338,7 @@ namespace Prolog
                 {
                     var pd = this[key: key];
 
-                    if (!definedInCurrFile.Contains(key: key)
+                    if (!definedInCurrFile.ContainsKey( key)
                     ) //  very first clause of this predicate in this file -- reset at start of consult
                     {
                         if (pd != null && pd.DefinitionFile != ConsultFileName)
@@ -354,7 +347,7 @@ namespace Prolog
                         definedInCurrFile[key: key] = true;
                         pd = SetClauseList(f: head.FunctorToString, a: head.Arity,
                             c: clause); // implicitly erases all previous definitions
-                        pd.IsDiscontiguous = isDiscontiguous.Contains(key: key) || allDiscontiguous;
+                        pd.IsDiscontiguous = isDiscontiguous.ContainsKey( key) || allDiscontiguous;
                         prevIndex = key;
                     }
                     else // not the first clause. First may be from another definitionFile (which is an error).
@@ -738,7 +731,7 @@ namespace Prolog
 
                 var key = head.Key;
 
-                if (Predefineds.Contains(key: key) || head.Precedence >= 1000)
+                if (Predefineds.ContainsKey( key) || head.Precedence >= 1000)
                     IO.Error("assert/1 cannot be applied to predefined predicate or operator '{0}'",
                         assertionCopy.Index);
 
@@ -778,7 +771,7 @@ namespace Prolog
             {
                 var key = t.Key;
 
-                if (Predefineds.Contains(key: key))
+                if (Predefineds.ContainsKey( key))
                     IO.Error("retract of predefined predicate {0} not allowed", key);
 
                 var pd = this[key: key];
@@ -853,7 +846,7 @@ namespace Prolog
 
                 var key = t.Key;
 
-                if (Predefineds.Contains(key: key))
+                if (Predefineds.ContainsKey(key))
                     IO.Error("retract of predefined predicate {0} not allowed", key);
 
                 var pd = this[key: key];
@@ -916,7 +909,7 @@ namespace Prolog
             {
                 var key = BaseTerm.MakeKey(f: functor, a: arity);
 
-                if (Predefineds.Contains(key: key))
+                if (Predefineds.ContainsKey(key))
                     IO.Error("abolish of predefined predicate '{0}/{1}' not allowed", functor, arity);
 
                 var pd = this[key: key];

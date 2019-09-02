@@ -399,7 +399,7 @@ namespace Prolog
                         t: out head);
                     if (!head.IsCallable)
                         IO.Error("Illegal predicate head: {0}", head.ToString());
-                    if (engine.Ps.Predefineds.Contains(key: head.Key))
+                    if (engine.Ps.Predefineds.ContainsKey(head.Key))
                         IO.Error("Predefined predicate or operator '{0}' cannot be redefined.", head.FunctorToString);
                     GetSymbol(new TerminalSet(terminalCount: terminalCount, Dot, ImpliesSym, DCGArrowSym), false, true);
                     if (symbol.IsMemberOf(ImpliesSym, DCGArrowSym))
