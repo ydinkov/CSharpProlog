@@ -16,6 +16,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -85,17 +86,8 @@ namespace Prolog
             }
 
             // NodePath returns the position in the tree (i.e. [1,2] means: 2nd arg of 1st arg of root)
-            public ListTerm NodePath
-            {
-                get
-                {
-                    var result = BaseTerm.EMPTYLIST;
-
-                    foreach (var i in pos.ToArray()) result = new ListTerm(new DecimalTerm(i - 1), t1: result);
-
-                    return result;
-                }
-            }
+            public ListTerm NodePath => 
+                pos.ToArray().Aggregate(BaseTerm.EMPTYLIST, (current, i) => new ListTerm(new DecimalTerm(i - 1), t1: current));
 
             /*
               GetEnumerator () traverses the Term tree and returns each node in a
@@ -260,7 +252,7 @@ namespace Prolog
 
             public TermNode ToGoalList() // called during consult
             {
-                return ToGoalList(0, 0);
+                return ToGoalList(0, level: 0);
             }
 
 

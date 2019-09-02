@@ -2869,15 +2869,8 @@ namespace Prolog
                     return;
                 }
 
-                if (isTemp)
-                    try
-                    {
-                        File.Delete(path: name);
-                    }
-                    catch
-                    {
-                        throw new Exception("*** FileWriteBuffer Close() could not delete temporary file");
-                    }
+                if (!isTemp) return;
+                File.Delete(path: name);
             }
 
 
@@ -2984,15 +2977,11 @@ namespace Prolog
 
     internal static class BaseParserExtensions
     {
-        public static bool IsIdStartChar(this char c)
-        {
-            return char.IsLetter(c: c) || c == '_';
-        }
+        public static bool IsIdStartChar(this char c) => 
+            char.IsLetter(c: c) || c == '_';
 
-        public static bool IsBaseIdChar(this char c)
-        {
-            return char.IsLetter(c: c) || char.IsDigit(c: c) || c == '_';
-        }
+        public static bool IsBaseIdChar(this char c) => 
+            char.IsLetter(c: c) || char.IsDigit(c: c) || c == '_';
     }
 
     #endregion Extensions class

@@ -1803,16 +1803,10 @@ namespace Prolog
             public override bool IsCallable => false;
 
 
-            protected override int CompareValue(BaseTerm t)
-            {
-                return FunctorToString.CompareTo(strB: t.FunctorToString);
-            }
+            protected override int CompareValue(BaseTerm t) => FunctorToString.CompareTo(strB: t.FunctorToString);
 
 
-            public override string ToWriteString(int level)
-            {
-                return string.Format("\"(byte[{0}] binary data)\"", arg0: data.Length);
-            }
+            public override string ToWriteString(int level) => $"\"(byte[{data.Length}] binary data)\"";
         }
 
         #endregion BinaryTerm
@@ -1826,7 +1820,7 @@ namespace Prolog
                 UserObject = obj;
             }
 
-            public T UserObject { get; set; }
+            public T UserObject { get;}
         }
 
         #endregion UserClassTerm
