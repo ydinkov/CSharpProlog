@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.4;net35</TargetFrameworks>
     <NoWarn>$(NoWarn);1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>CSProlog</AssemblyName>
@@ -31,6 +30,7 @@ v.5.0.0
 - BREAKING CHANGE: Remove dependency of "System.Windows.Forms".
 - NuGet package release</PackageReleaseNotes>
     <GeneratePackageOnBuild Condition="'$(Configuration)'=='Release'">true</GeneratePackageOnBuild>
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)|$(TargetFramework)'=='Release|AnyCPU|netstandard1.4'">
@@ -66,6 +66,11 @@ v.5.0.0
   <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
     <Reference Include="System.Configuration" />
     <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OpenXmlNetCore" Version="1.0.3" />
+    <PackageReference Include="System.Net.Mail.Abstractions" Version="1.1.20" />
   </ItemGroup>
 
 </Project>

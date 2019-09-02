@@ -1,12 +1,7 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{435BB1A6-EBA7-4F55-BF99-AF1C65FC43E2}"
-	ProjectSection(SolutionItems) = preProject
-		appveyor.yml = appveyor.yml
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PLd", "PLd\PLd.csproj", "{B7438FBF-6E46-4065-A60B-1B1CA2AC9875}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PLw", "PLw\PLw.csproj", "{BB06ADF9-92C3-4F92-8397-5ACC92208528}"
@@ -18,6 +13,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSProlog.Core.Test", "CSProlog.Core.Test\CSProlog.Core.Test.csproj", "{927B2CA6-BB69-422F-8107-B2E5EE9A6C4C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PL.NETcore", "PL.NETcore\PL.NETcore.csproj", "{191FF3C7-503C-4C3E-AC49-46B9BCB4B396}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSPrologConsole", "CSPrologConsole\CSPrologConsole.csproj", "{BC8C126E-33DD-4C23-90EC-9571FE07CFED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,6 +55,12 @@ Global
 		{191FF3C7-503C-4C3E-AC49-46B9BCB4B396}.LibraryRelease|Any CPU.ActiveCfg = Release|Any CPU
 		{191FF3C7-503C-4C3E-AC49-46B9BCB4B396}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{191FF3C7-503C-4C3E-AC49-46B9BCB4B396}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC8C126E-33DD-4C23-90EC-9571FE07CFED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC8C126E-33DD-4C23-90EC-9571FE07CFED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC8C126E-33DD-4C23-90EC-9571FE07CFED}.LibraryRelease|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC8C126E-33DD-4C23-90EC-9571FE07CFED}.LibraryRelease|Any CPU.Build.0 = Debug|Any CPU
+		{BC8C126E-33DD-4C23-90EC-9571FE07CFED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC8C126E-33DD-4C23-90EC-9571FE07CFED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

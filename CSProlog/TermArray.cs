@@ -13,7 +13,6 @@
 
 -------------------------------------------------------------------------------------------*/
 
-using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -21,99 +20,104 @@ using System.Text;
 
 namespace Prolog
 {
-  public partial class PrologEngine
-  {
-    // untested code
-    #region TermArray
-    public class TermArray
+    public partial class PrologEngine
     {
-      string name;
-      int [] dimensions;
-      // Any array (i.e. with an arbitrary number of subscripts) is mapped to a one-dimensional 
-      // one (baseArray). In doing so, it is possible to accomodate arrays with an arbitrary 
-      // number of subscripts.
-      BaseTerm [] baseArray;
-      public int Rank { get { return dimensions.Length; } }
-      public string Name { get { return name; } }
+        // untested code
 
-      public TermArray (string name, int [] dimensions)
-      {
-        this.name = name;
-        this.dimensions = dimensions;
-        int length = 1;
+        #region TermArray
 
-        for (int i = 0; i < dimensions.Length; i++)
+        public class TermArray
         {
-          if (dimensions [i] <= 0)
-            IO.Error ("Dimension {0} of array '{1}' has illegal value {2}", i, name, dimensions [i]);
+            // Any array (i.e. with an arbitrary number of subscripts) is mapped to a one-dimensional 
+            // one (baseArray). In doing so, it is possible to accomodate arrays with an arbitrary 
+            // number of subscripts.
+            private readonly BaseTerm[] baseArray;
+            private readonly int[] dimensions;
 
-          length *= dimensions [i];
+            public TermArray(string name, int[] dimensions)
+            {
+                Name = name;
+                this.dimensions = dimensions;
+                var length = 1;
+
+                for (var i = 0; i < dimensions.Length; i++)
+                {
+                    if (dimensions[i] <= 0)
+                        IO.Error("Dimension {0} of array '{1}' has illegal value {2}", i, name, dimensions[i]);
+
+                    length *= dimensions[i];
+                }
+
+                baseArray = new BaseTerm [length];
+            }
+
+            public int Rank => dimensions.Length;
+            public string Name { get; }
+
+            public BaseTerm GetEntry(int[] subscripts) // subscripts are zero-based
+            {
+                return baseArray[CalculateOffset(subscripts: subscripts)];
+            }
+
+            public void SetEntry(int[] subscripts, BaseTerm t)
+            {
+                baseArray[CalculateOffset(subscripts: subscripts)] = t;
+            }
+
+            // CalculateOffset calculates the mapping of [i1, i2, ..., iN] to the index in this 1-D array
+            private int CalculateOffset(int[] subscripts) // f(i1, i2, ..., iN) => 0 .. d1*d2*...*dN-1
+            {
+                for (var i = 0; i < subscripts.Length; i++)
+                    if (subscripts[i] < 0 || subscripts[i] >= dimensions[i])
+                        IO.Error("Value of index {0} is {1} but must be in the range 0..{2}",
+                            i, subscripts[i], dimensions[i] - 1);
+
+                var offset = subscripts[0];
+
+                for (var i = 1; i < subscripts.Length; i++)
+                    offset = offset * dimensions[i] + subscripts[i];
+
+                return offset;
+            }
         }
 
-        baseArray = new BaseTerm [length];
-      }
+        #endregion TermArray
 
-      public BaseTerm GetEntry (int [] subscripts) // subscripts are zero-based
-      {
-        return baseArray [CalculateOffset (subscripts)];
-      }
+        #region ArrayVariable
 
-      public void SetEntry (int [] subscripts, BaseTerm t)
-      {
-        baseArray [CalculateOffset (subscripts)] = t;
-      }
-
-      // CalculateOffset calculates the mapping of [i1, i2, ..., iN] to the index in this 1-D array
-      int CalculateOffset (int [] subscripts) // f(i1, i2, ..., iN) => 0 .. d1*d2*...*dN-1
-      {
-        for (int i = 0; i < subscripts.Length; i++)
-          if (subscripts [i] < 0 || subscripts [i] >= dimensions [i])
-            IO.Error ("Value of index {0} is {1} but must be in the range 0..{2}",
-              i, subscripts [i], dimensions [i] - 1);
-
-        int offset = subscripts [0];
-
-        for (int i = 1; i < subscripts.Length; i++)
-          offset = offset * dimensions [i] + subscripts [i];
-
-        return offset;
-      }
-    }
-    #endregion TermArray
-
-    #region ArrayVariable
-    public class ArrayVariable : NamedVariable
-    {
-      TermArray ta;
-      List<BaseTerm> subscripts;
-
-      public ArrayVariable (string name, TermArray ta, ListTerm subscripts)
-      {
-        this.ta = ta;
-        this.name = ta.Name;
-        this.subscripts = subscripts.ToTermList ();
-
-        if (this.subscripts.Count != ta.Rank)
-          IO.Error ("Wrong number of subscripts for '{0}': expected {1}, got {2}",
-            name, ta.Rank, this.subscripts.Count);
-      }
-
-      public override string ToWriteString (int level)
-      {
-        StringBuilder sb = new StringBuilder (name);
-        bool first = true;
-
-        foreach (BaseTerm t in subscripts)
+        public class ArrayVariable : NamedVariable
         {
-          if (first) first = false; else sb.Append (CommaAtLevel (level));
+            private readonly List<BaseTerm> subscripts;
+            private TermArray ta;
 
-          sb.Append ((t.IsGround ? t.Eval () : t).ToString ()); // at end of query vs. any other situation
+            public ArrayVariable(string name, TermArray ta, ListTerm subscripts)
+            {
+                this.ta = ta;
+                this.name = ta.Name;
+                this.subscripts = subscripts.ToTermList();
+
+                if (this.subscripts.Count != ta.Rank)
+                    IO.Error("Wrong number of subscripts for '{0}': expected {1}, got {2}",
+                        name, ta.Rank, this.subscripts.Count);
+            }
+
+            public override string ToWriteString(int level)
+            {
+                var sb = new StringBuilder(value: name);
+                var first = true;
+
+                foreach (var t in subscripts)
+                {
+                    if (first) first = false;
+                    else sb.Append(CommaAtLevel(level: level));
+
+                    sb.Append(t.IsGround ? t.Eval() : t); // at end of query vs. any other situation
+                }
+
+                return sb.ToString();
+            }
         }
 
-        return sb.ToString ();
-      }
+        #endregion ArrayVariable
     }
-    #endregion ArrayVariable
-
-  }
 }

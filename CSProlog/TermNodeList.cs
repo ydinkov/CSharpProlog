@@ -19,101 +19,98 @@ using System.Text;
 
 namespace Prolog
 {
-  /*
-    --------
-    TermNode
-    --------
+    /*
+      --------
+      TermNode
+      --------
+  
+      A TermNode serves two purposes:
+      - to store the goals of a command
+      - to store predicates (clauses)
+  
+      A goal is constructed as a simple chained term of TermNodes. This makes it easy
+      (and also more efficient in terms of GC) to revert to a previous state upon backtracking
+      (in contrast to i.e. an ArrayList).
+  
+      A predicate consists of one or more clauses. A clause consist of a head and optionally a
+      body. A head is a term, the body is a sequence of terms. A predicate is stored as a chain
+      of TermNodes, where each TermNode represents a clause. These TermNodes are linked via the
+      nextClause field. In each nextClause/TermNode the clause head is stored in term, and the
+      clause body (which may be null) in NextNode.
+  
+    */
 
-    A TermNode serves two purposes:
-    - to store the goals of a command
-    - to store predicates (clauses)
 
-    A goal is constructed as a simple chained term of TermNodes. This makes it easy
-    (and also more efficient in terms of GC) to revert to a previous state upon backtracking
-    (in contrast to i.e. an ArrayList).
-
-    A predicate consists of one or more clauses. A clause consist of a head and optionally a
-    body. A head is a term, the body is a sequence of terms. A predicate is stored as a chain
-    of TermNodes, where each TermNode represents a clause. These TermNodes are linked via the
-    nextClause field. In each nextClause/TermNode the clause head is stored in term, and the
-    clause body (which may be null) in NextNode.
-
-  */
-
-
-  public partial class PrologEngine
-  {
-    #region TermNode
-    public class TermNode
+    public partial class PrologEngine
     {
-      BI builtinId = BI.none;
-      protected BaseTerm term;                  // for a NextClause: predicate head
-      protected TermNode nextNode = null;       // next node in the chain
-      protected ClauseNode nextClause = null;   // next predicate clause (advanced upon backtracking)
-      protected PredicateDescr predDescr;       // points to the predicate definition for term
-      public BaseTerm Head { get { return term; } set { term = value; } }
-      public ClauseNode NextClause { get { return nextClause; } set { nextClause = value; } }
-      protected int level = 0;                  // debugging and tracing (for indentation)
+        #region TermNode
 
-      #region public properties
-      public int Level { get { return level; } set { level = value; } }
-      public BaseTerm Term { get { return term; } }
-      public TermNode NextNode { get { return nextNode; } set { nextNode = value; } }
-      public TermNode NextGoal { get { return nextNode; } set { nextNode = value; } }
-      public bool Spied { get { return PredDescr == null ? false : PredDescr.Spied; } }
-      public SpyPort SpyPort { get { return PredDescr == null ? SpyPort.None : PredDescr.SpyPort; } }
-      public BI BuiltinId { get { return builtinId; } }
-      public PredicateDescr PredDescr { get { return predDescr; } set { predDescr = value; } }
-      #endregion
-
-      public TermNode ()
-      {
-      }
-
-
-      public TermNode (BaseTerm term, PredicateDescr predDescr)
-      {
-        this.predDescr = predDescr;
-        this.term = term;
-      }
-
-
-      public TermNode (BaseTerm term, PredicateDescr predDescr, int level)
-      {
-        this.term = term;
-        this.predDescr = predDescr;
-        this.level = level;
-      }
-
-
-      public TermNode (string tag) // builtin predicates
-      {
-        try
+        public class TermNode
         {
-          builtinId = (BI)Enum.Parse (typeof (BI), tag, false);
-        }
-        catch
-        {
-          IO.Error ("Bootstrap.cs: unknown BI enum value '{0}'", tag);
-        }
-      }
+            protected int level; // debugging and tracing (for indentation)
+            protected ClauseNode nextClause; // next predicate clause (advanced upon backtracking)
+            protected TermNode nextNode; // next node in the chain
+            protected PredicateDescr predDescr; // points to the predicate definition for term
+            protected BaseTerm term; // for a NextClause: predicate head
+
+            public TermNode()
+            {
+            }
 
 
-      public TermNode (BaseTerm term, TermNode nextNode)
-      {
-        this.term = term;
-        this.nextNode = nextNode;
-      }
+            public TermNode(BaseTerm term, PredicateDescr predDescr)
+            {
+                this.predDescr = predDescr;
+                this.term = term;
+            }
 
 
-      // put the predicate definition (if found) into the TermNode if it is not already there
-      public bool FindPredicateDefinition (PredicateTable predicateTable)
-      {
-        if (predDescr == null)
-        {
-          if ((predDescr = predicateTable [term.Key]) == null) 
-            return false;
-        }
+            public TermNode(BaseTerm term, PredicateDescr predDescr, int level)
+            {
+                this.term = term;
+                this.predDescr = predDescr;
+                this.level = level;
+            }
+
+
+            public TermNode(string tag) // builtin predicates
+            {
+                try
+                {
+                    BuiltinId = (BI) Enum.Parse(typeof(BI), value: tag, false);
+                }
+                catch
+                {
+                    IO.Error("Bootstrap.cs: unknown BI enum value '{0}'", tag);
+                }
+            }
+
+
+            public TermNode(BaseTerm term, TermNode nextNode)
+            {
+                this.term = term;
+                this.nextNode = nextNode;
+            }
+
+            public BaseTerm Head
+            {
+                get => term;
+                set => term = value;
+            }
+
+            public ClauseNode NextClause
+            {
+                get => nextClause;
+                set => nextClause = value;
+            }
+
+
+            // put the predicate definition (if found) into the TermNode if it is not already there
+            public bool FindPredicateDefinition(PredicateTable predicateTable)
+            {
+                if (predDescr == null)
+                    if ((predDescr = predicateTable[key: term.Key]) == null)
+                        return false;
 
 #if arg1index // first-argument indexing enabled
         BaseTerm arg;
@@ -142,203 +139,239 @@ namespace Prolog
         }
         else // not indexed
 #endif
-          nextClause = predDescr.ClauseList;
+                nextClause = predDescr.ClauseList;
 
-        return true;
-      }
+                return true;
+            }
 
 
-      public void Append (BaseTerm t)
-      {
-        if (term == null)  // empty term
-        {
-          term = t;
+            public void Append(BaseTerm t)
+            {
+                if (term == null) // empty term
+                {
+                    term = t;
 
-          return;
+                    return;
+                }
+
+                var tail = this;
+                var next = nextNode;
+
+                while (next != null)
+                {
+                    tail = next;
+                    next = next.nextNode;
+                }
+
+                tail.nextNode = new TermNode(term: t, (PredicateDescr) null);
+            }
+
+
+            public TermNode Append(TermNode t)
+            {
+                var tail = this;
+                var next = nextNode;
+
+                while (next != null) // get the last TermNode
+                {
+                    tail = next;
+                    next = next.nextNode;
+                }
+
+                tail.nextNode = t;
+
+                return this;
+            }
+
+
+            public void Clear()
+            {
+                term = null;
+                nextNode = null;
+                nextClause = null;
+                level = 0;
+            }
+
+
+            public BaseTerm TermSeq()
+            {
+                return NextNode == null
+                    ? Term // last term of TermNode
+                    : new OperatorTerm(od: CommaOpDescr, a0: Term, NextNode.TermSeq());
+            }
+
+
+            public override string ToString()
+            {
+                var sb = new StringBuilder();
+                var first = true;
+                var indent = 2;
+                var tn = this;
+                BaseTerm t;
+
+                while (tn != null)
+                {
+                    if ((t = tn.term) is TryOpenTerm)
+                    {
+                        if (!first) sb.Append(',');
+
+                        sb.AppendFormat("{0}{1}TRY{0}{1}(", arg0: Environment.NewLine, Spaces(2 * indent++));
+                        first = true;
+                    }
+                    else if (t is CatchOpenTerm)
+                    {
+                        var co = (CatchOpenTerm) t;
+                        var msgVar = co.MsgVar is AnonymousVariable ? null : co.MsgVar.Name;
+                        var comma = co.ExceptionClass == null || msgVar == null ? null : ", ";
+
+                        sb.AppendFormat("{0}{1}){0}{1}CATCH {2}{3}{4}{0}{1}(",
+                            Environment.NewLine, Spaces(2 * (indent - 1)), co.ExceptionClass, comma, msgVar);
+                        first = true;
+                    }
+                    else if (t == TC_CLOSE)
+                    {
+                        sb.AppendFormat("{0}{1})", arg0: Environment.NewLine, Spaces(2 * --indent));
+                        first = false;
+                    }
+                    else
+                    {
+                        if (first) first = false;
+                        else sb.Append(',');
+
+                        sb.AppendFormat("{0}{1}{2}", arg0: Environment.NewLine, Spaces(2 * indent), arg2: t);
+                    }
+
+                    tn = tn.nextNode;
+                }
+
+                return sb.ToString();
+            }
+
+            #region public properties
+
+            public int Level
+            {
+                get => level;
+                set => level = value;
+            }
+
+            public BaseTerm Term => term;
+
+            public TermNode NextNode
+            {
+                get => nextNode;
+                set => nextNode = value;
+            }
+
+            public TermNode NextGoal
+            {
+                get => nextNode;
+                set => nextNode = value;
+            }
+
+            public bool Spied => PredDescr == null ? false : PredDescr.Spied;
+            public SpyPort SpyPort => PredDescr == null ? SpyPort.None : PredDescr.SpyPort;
+            public BI BuiltinId { get; } = BI.none;
+
+            public PredicateDescr PredDescr
+            {
+                get => predDescr;
+                set => predDescr = value;
+            }
+
+            #endregion
         }
 
-        TermNode tail = this;
-        TermNode next = nextNode;
+        #endregion TermNode
 
-        while (next != null)
+        #region SpyPoint
+
+        //  pushed on the VarStack to detect failure, inserted in the saveGoal to detect Exit.
+        private class SpyPoint : TermNode // TermNode only used as at-compatible vehicle for port and saveGoal
         {
-          tail = next;
-          next = next.nextNode;
+            public SpyPoint(SpyPort p, TermNode g)
+            {
+                Port = p;
+                SaveGoal = g;
+                level = g.Level;
+            }
+
+            public SpyPort Port { get; private set; }
+
+            public TermNode SaveGoal { get; }
+
+            public void Kill()
+            {
+                Port = SpyPort.None;
+            }
+
+            public override string ToString()
+            {
+                return "[" + Port + "-spypoint] " + SaveGoal.Term + " ...";
+            }
         }
 
-        tail.nextNode = new TermNode (t, (PredicateDescr)null);
-      }
+        #endregion SpyPoint
 
+        #region clause
 
-      public TermNode Append (TermNode t)
-      {
-        TermNode tail = this;
-        TermNode next = nextNode;
-
-        while (next != null) // get the last TermNode
+        // the terms (connected by NextNode) of a single clause
+        public class ClauseNode : TermNode
         {
-          tail = next;
-          next = next.nextNode;
+            public static ClauseNode FAIL = new ClauseNode(t: BaseTerm.FAIL, null);
+
+            public ClauseNode()
+            {
+            }
+
+            public ClauseNode(BaseTerm t, TermNode body)
+                : base(term: t, nextNode: body)
+            {
+            }
+
+
+            public override string ToString()
+            {
+                var NL = Environment.NewLine;
+
+                var sb = new StringBuilder(NL + term);
+
+                var first = true;
+                var tl = nextNode;
+
+                if (tl == null) return sb.ToString() + '.' + NL;
+
+                while (true)
+                {
+                    if (first) sb.Append(" :-");
+
+                    sb.Append(NL + "  " + tl.Term);
+
+                    if ((tl = tl.NextNode) == null)
+                        return sb.ToString() + '.' + NL;
+                    if (!first)
+                        sb.AppendFormat(",");
+
+                    first = false;
+                }
+            }
         }
 
-        tail.nextNode = t;
 
-        return this;
-      }
-
-
-      public void Clear ()
-      {
-        term = null;
-        nextNode = null;
-        nextClause = null;
-        level = 0;
-      }
-
-
-      public BaseTerm TermSeq ()
-      {
-        return (NextNode == null)
-        ? Term  // last term of TermNode
-        : new OperatorTerm (CommaOpDescr, Term, NextNode.TermSeq ());
-      }
-
-
-      public override string ToString ()
-      {
-        StringBuilder sb = new StringBuilder ();
-        bool first = true;
-        int indent = 2;
-        TermNode tn = this;
-        BaseTerm t;
-
-        while (tn != null)
+        // CACHEING CURRENTLY NOT USED
+        public class CachedClauseNode : ClauseNode
         {
-          if ((t = tn.term) is TryOpenTerm)
-          {
-            if (!first) sb.Append (',');
+            public CachedClauseNode(BaseTerm t, TermNode body, bool succeeds) : base(t: t, body: body)
+            {
+                Succeeds = succeeds;
+            }
 
-            sb.AppendFormat ("{0}{1}TRY{0}{1}(", Environment.NewLine, Spaces (2*indent++));
-            first = true;
-          }
-          else if (t is CatchOpenTerm)
-          {
-            CatchOpenTerm co = (CatchOpenTerm)t;
-            string msgVar = (co.MsgVar is AnonymousVariable) ? null : co.MsgVar.Name;
-            string comma = (co.ExceptionClass == null || msgVar == null) ? null : ", ";
-
-            sb.AppendFormat ("{0}{1}){0}{1}CATCH {2}{3}{4}{0}{1}(",
-              Environment.NewLine, Spaces (2*(indent-1)), co.ExceptionClass, comma, msgVar);
-            first = true;
-          }
-          else if (t == TC_CLOSE)
-          {
-            sb.AppendFormat ("{0}{1})", Environment.NewLine, Spaces (2*--indent));
-            first = false;
-          }
-          else
-          {
-            if (first) first = false; else sb.Append (',');
-
-            sb.AppendFormat ("{0}{1}{2}", Environment.NewLine, Spaces (2*indent), t);
-          }
-
-          tn = tn.nextNode;
+            // i.e. in doing so fib(1,9999) will effecively be cached as 'fib( 1, 9999) :- !, fail'
+            // (the ! is necessary to prevent the resolution process from recalculating the same result
+            // again).
+            public bool Succeeds { get; }
         }
 
-        return sb.ToString ();
-      }
+        #endregion clause
     }
-    #endregion TermNode
-
-    #region clause
-    // the terms (connected by NextNode) of a single clause
-    public class ClauseNode : TermNode
-    {
-      public ClauseNode ()
-      {
-      }
-
-      public ClauseNode (BaseTerm t, TermNode body)
-        : base (t, body)
-      {
-      }
-
-
-      public override string ToString ()
-      {
-        string NL = Environment.NewLine;
-
-        StringBuilder sb = new StringBuilder (NL + term.ToString ());
-
-        bool first = true;
-        TermNode tl = nextNode;
-
-        if (tl == null) return sb.ToString () + '.' + NL;
-
-        while (true)
-        {
-          if (first) sb.Append (" :-");
-
-          sb.Append (NL + "  " + tl.Term);
-
-          if ((tl = tl.NextNode) == null)
-            return sb.ToString () + '.' + NL;
-          else if (!first)
-            sb.AppendFormat (",");
-
-          first = false;
-        }
-      }
-
-
-      public static ClauseNode FAIL = new ClauseNode (BaseTerm.FAIL, null);
-    }
-
-
-    // CACHEING CURRENTLY NOT USED
-    public class CachedClauseNode : ClauseNode
-    {
-      bool succeeds; // indicates whether the cached fact results in a failure or in a success
-      // i.e. in doing so fib(1,9999) will effecively be cached as 'fib( 1, 9999) :- !, fail'
-      // (the ! is necessary to prevent the resolution process from recalculating the same result
-      // again).
-      public bool Succeeds { get { return succeeds; } }
-
-      public CachedClauseNode (BaseTerm t, TermNode body, bool succeeds) : base (t, body)
-      {
-        this.succeeds = succeeds;
-      }
-    }
-    #endregion clause
-
-    #region SpyPoint
-    //  pushed on the VarStack to detect failure, inserted in the saveGoal to detect Exit.
-    class SpyPoint : TermNode // TermNode only used as at-compatible vehicle for port and saveGoal
-    {
-      SpyPort port;
-      public SpyPort Port { get { return port; } }
-      TermNode saveGoal;
-      public TermNode SaveGoal { get { return saveGoal; } }
-
-      public SpyPoint (SpyPort p, TermNode g)
-        : base ()
-      {
-        port = p;
-        saveGoal = g;
-        level = g.Level;
-      }
-
-      public void Kill ()
-      {
-        port = SpyPort.None;
-      }
-
-      public override string ToString ()
-      {
-        return "[" + port + "-spypoint] " + saveGoal.Term.ToString () + " ...";
-      }
-    }
-    #endregion SpyPoint
-  }
 }

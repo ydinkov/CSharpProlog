@@ -17,58 +17,65 @@ using System.Collections.Generic;
 
 namespace Prolog
 {
-  public enum DupMode { DupIgnore, DupAccept, DupError };
-
-  public partial class PrologEngine
-  {
-    public class BaseTermSet : List<BaseTerm>
+    public enum DupMode
     {
-      DupMode dupMode;
-
-      public BaseTermSet ()
-      {
-        dupMode = DupMode.DupAccept;
-      }
-
-
-      public BaseTermSet (DupMode dm)
-      {
-        dupMode = dm;
-      }
-
-
-      public BaseTermSet (BaseTerm list)
-      {
-        while (list.Arity == 2)
-        {
-          Add (list.Arg (0));
-          list = list.Arg (1);
-        }
-      }
-
-
-      public void Insert (BaseTerm termToInsert)
-      {
-        int i = BinarySearch (termToInsert);
-
-        if (i >= 0) // found
-        {
-          if (dupMode == DupMode.DupAccept) Insert (i, termToInsert);
-        }
-        else
-          Insert (~i, termToInsert);
-      }
-
-
-      public ListTerm ToList ()
-      {
-        ListTerm t = ListTerm.EMPTYLIST;
-
-        for (int i = Count - 1; i >= 0; i--)
-          t = new ListTerm (this [i], t); // [a0, a0, ...]
-
-        return t;
-      }
+        DupIgnore,
+        DupAccept,
+        DupError
     }
-  }
+
+    public partial class PrologEngine
+    {
+        public class BaseTermSet : List<BaseTerm>
+        {
+            private readonly DupMode dupMode;
+
+            public BaseTermSet()
+            {
+                dupMode = DupMode.DupAccept;
+            }
+
+
+            public BaseTermSet(DupMode dm)
+            {
+                dupMode = dm;
+            }
+
+
+            public BaseTermSet(BaseTerm list)
+            {
+                while (list.Arity == 2)
+                {
+                    Add(list.Arg(0));
+                    list = list.Arg(1);
+                }
+            }
+
+
+            public void Insert(BaseTerm termToInsert)
+            {
+                var i = BinarySearch(item: termToInsert);
+
+                if (i >= 0) // found
+                {
+                    if (dupMode == DupMode.DupAccept) Insert(index: i, item: termToInsert);
+                }
+                else
+                {
+                    Insert(index: ~i, item: termToInsert);
+                }
+            }
+
+
+            public ListTerm ToList()
+            {
+                var t = BaseTerm.EMPTYLIST;
+
+                for (var i = Count - 1; i >= 0; i--)
+                    t = new ListTerm(this[index: i], t1: t); // [a0, a0, ...]
+
+                return t;
+            }
+        }
+    }
 }

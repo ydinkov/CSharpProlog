@@ -16,14 +16,14 @@
 namespace Prolog
 {
   /// <summary>
-  /// Contains the predefined predicates, also required to provide the Prolog engine with basic capabilities
+  ///     Contains the predefined predicates, also required to provide the Prolog engine with basic capabilities
   /// </summary>
   public class Bootstrap
-  {
-    public static string LicenseUrl = "http://www.gnu.org/licenses/lgpl-3.0.html";
+    {
+        public static string LicenseUrl = "http://www.gnu.org/licenses/lgpl-3.0.html";
 
-    public static string PredefinedPredicates =
-      @"&builtin
+        public static string PredefinedPredicates =
+            @"&builtin
        :- op( 900,  fy, [\+, not, once, help]).
        :- op( 700, xfx, [=, \=, ==, \==, is, :=, =:, =:=, =\=, <, >, =<, >=, @<, @>, @=<, @>=, =.., ?=]).
        :- op( 600, xfy, :).
@@ -554,5 +554,5 @@ namespace Prolog
 
        make_help_resx           :== make_help_resx. % create help resource file from the file name specified in the config file
        ";
-  }
+    }
 }

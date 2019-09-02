@@ -15,160 +15,151 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
-using System.Xml;
+
 #if mswindows
 using System.Windows.Forms;
 #endif
 
 namespace Prolog
 {
-  #region SolutionSet
-  public class SolutionSet
-  {
-    string query;
-    public string Query { get { return query; } internal set { query = value; } }
-    bool success;
-    public bool Success { get { return success; } internal set { success = value; } }
-    string errorMsg;
-    public string ErrMsg { get { return errorMsg; } internal set { errorMsg = value; } }
-    public bool HasError { get { return errorMsg != null; } }
-    List<Solution> solutionSet;
-    public int Count { get { return solutionSet.Count; } }
-    Solution currVarSet;
+    #region SolutionSet
 
-    public SolutionSet ()
+    public class SolutionSet
     {
-      solutionSet = new List<Solution> ();
-      success = false;
-      errorMsg = null;
-    }
+        private Solution currVarSet;
+        private readonly List<Solution> solutionSet;
 
-    internal void CreateVarSet ()
-    {
-      solutionSet.Add (currVarSet = new Solution ());
-    }
-
-    internal void AddToVarSet (string name, string type, string value)
-    {
-      currVarSet.Add (name, type, value);
-      success = true;
-    }
-
-    public IEnumerable<Solution> NextSolution
-    {
-      get
-      {
-        foreach (Solution s in solutionSet)
-          yield return s;
-      }
-    }
-
-    public Solution this [int i]
-    {
-      get
-      {
-        return solutionSet [i];
-      }
-    }
-
-    public override string ToString ()
-    {
-      if (errorMsg != null)
-        return errorMsg;
-
-      if (success)
-      {
-        if (solutionSet.Count == 0)
-          return "yes";
-        else
+        public SolutionSet()
         {
-          StringBuilder sb = new StringBuilder ();
-          int i = 0;
-          foreach (Solution s in solutionSet)
-            sb.AppendLine ("Solution {0}\r\n{1}", ++i, s.ToString ());
-
-          return sb.ToString ();
+            solutionSet = new List<Solution>();
+            Success = false;
+            ErrMsg = null;
         }
-      }
-      else
-        return "no";
+
+        public string Query { get; internal set; }
+
+        public bool Success { get; internal set; }
+
+        public string ErrMsg { get; internal set; }
+
+        public bool HasError => ErrMsg != null;
+        public int Count => solutionSet.Count;
+
+        public IEnumerable<Solution> NextSolution
+        {
+            get
+            {
+                foreach (var s in solutionSet)
+                    yield return s;
+            }
+        }
+
+        public Solution this[int i] => solutionSet[index: i];
+
+        internal void CreateVarSet()
+        {
+            solutionSet.Add(currVarSet = new Solution());
+        }
+
+        internal void AddToVarSet(string name, string type, string value)
+        {
+            currVarSet.Add(name: name, type: type, value: value);
+            Success = true;
+        }
+
+        public override string ToString()
+        {
+            if (ErrMsg != null)
+                return ErrMsg;
+
+            if (Success)
+            {
+                if (solutionSet.Count == 0) return "yes";
+
+                var sb = new StringBuilder();
+                var i = 0;
+                foreach (var s in solutionSet)
+                    sb.AppendLine("Solution {0}\r\n{1}", ++i, s.ToString());
+
+                return sb.ToString();
+            }
+
+            return "no";
+        }
     }
-  }
-  #endregion SolutionSet
 
-  #region Solution
-  public class Solution // a solution is a set of variables
-  {
-    List<Variable> variables;
-    int Count { get { return variables.Count; } }
+    #endregion SolutionSet
 
-    public Solution ()
+    #region Solution
+
+    public class Solution // a solution is a set of variables
     {
-      variables = new List<Variable> ();
+        private readonly List<Variable> variables;
+
+        public Solution()
+        {
+            variables = new List<Variable>();
+        }
+
+        private int Count => variables.Count;
+
+        public IEnumerable<Variable> NextVariable
+        {
+            get
+            {
+                foreach (var v in variables)
+                    yield return v;
+            }
+        }
+
+        public Variable this[int i] => variables[index: i];
+
+        internal void Add(string name, string type, string value)
+        {
+            variables.Add(new Variable(name: name, type: type, value: value));
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+
+            foreach (var v in variables)
+                sb.AppendLine(v.ToString());
+
+            return sb.ToString();
+        }
     }
 
-    internal void Add (string name, string type, string value)
+    #endregion Solution
+
+    #region Variable
+
+    public class Variable
     {
-      variables.Add (new Variable (name, type, value));
+        public Variable(string name, string type, string value)
+        {
+            Name = name;
+            Type = type;
+            Value = value;
+        }
+
+        public string Name { get; }
+
+        public string Type { get; }
+
+        public string Value { get; }
+
+        public override string ToString()
+        {
+            return string.Format("{0} ({1}) = {2}", arg0: Name, arg1: Type, arg2: Value);
+        }
     }
 
-    public IEnumerable<Variable> NextVariable
+    #endregion Variable
+
+    public partial class PrologEngine
     {
-      get
-      {
-        foreach (Variable v in variables)
-          yield return v;
-      }
-    }
-
-    public Variable this [int i]
-    {
-      get
-      {
-        return variables [i];
-      }
-    }
-
-    public override string ToString ()
-    {
-      StringBuilder sb = new StringBuilder ();
-
-      foreach (Variable v in variables)
-        sb.AppendLine (v.ToString ());
-
-      return sb.ToString ();
-    }
-  }
-  #endregion Solution
-
-  #region Variable
-  public class Variable
-  {
-    string name;
-    public string Name { get { return name; } }
-    string type;
-    public string Type { get { return type; } }
-    string value;
-    public string Value { get { return value; } }
-
-    public Variable (string name, string type, string value)
-    {
-      this.name = name;
-      this.type = type;
-      this.value = value;
-    }
-
-    public override string ToString ()
-    {
-      return string.Format ("{0} ({1}) = {2}", name, type, value);
-    }
-  }
-  #endregion Variable
-
-  public partial class PrologEngine
-  {
 #if mswindows
     #region Batch Processing
     public bool ProcessArgs (string [] args, bool windowsMode)
@@ -226,8 +217,9 @@ namespace Prolog
     #endregion Batch Processing
 #endif
 
-    #region GetAllSolutionsXml
-    // Store solutions in an xml structure
+        #region GetAllSolutionsXml
+
+        // Store solutions in an xml structure
 #if !NETSTANDARD
     public string GetAllSolutionsXml (string sourceFileName, string destinFileName, string query)
     {
@@ -338,72 +330,77 @@ namespace Prolog
       }
     }
 #endif
-    #endregion GetAllSolutionsXml
+
+        #endregion GetAllSolutionsXml
 
 
-    #region GetAllSolutions
-    // Store solutions in an GetAllSolutions class
-    public SolutionSet GetAllSolutions (string sourceFileName, string query)
-    {
-      return GetAllSolutions (sourceFileName, query, 0);
-    }
+        #region GetAllSolutions
 
-    public SolutionSet GetAllSolutions (string sourceFileName, string query, int maxSolutionCount)
-    {
-      
-      SolutionSet solutions = new SolutionSet ();
-
-      try
-      {
-        if (sourceFileName != null) Reset ();
-
-        if (sourceFileName != null) Consult (sourceFileName);
-
-        Query = solutions.Query = query + (query.EndsWith (".") ? null : "."); // append a dot if necessary
-        int i = 0;
-        bool found = false;
-        bool varFound = false;
-
-        foreach (PrologEngine.ISolution s in SolutionIterator)
+        // Store solutions in an GetAllSolutions class
+        public SolutionSet GetAllSolutions(string sourceFileName, string query)
         {
-          if (Error)
-          {
-            solutions.ErrMsg = s.ToString ();
+            return GetAllSolutions(sourceFileName: sourceFileName, query: query, 0);
+        }
 
-            break;
-          }
-          else if (!found && !s.Solved)
-            break;
+        public SolutionSet GetAllSolutions(string sourceFileName, string query, int maxSolutionCount)
+        {
+            var solutions = new SolutionSet();
 
-          solutions.Success = true;
-          bool firstVar = true;
-
-          foreach (PrologEngine.IVarValue varValue in s.VarValuesIterator)
-          {
-            if (varValue.DataType == "none") break;
-
-            if (firstVar)
+            try
             {
-              firstVar = false;
-              solutions.CreateVarSet ();
+                if (sourceFileName != null) Reset();
+
+                if (sourceFileName != null) Consult(fileName: sourceFileName);
+
+                Query = solutions.Query = query + (query.EndsWith(".") ? null : "."); // append a dot if necessary
+                var i = 0;
+                var found = false;
+                var varFound = false;
+
+                foreach (var s in SolutionIterator)
+                {
+                    if (Error)
+                    {
+                        solutions.ErrMsg = s.ToString();
+
+                        break;
+                    }
+
+                    if (!found && !s.Solved)
+                    {
+                        break;
+                    }
+
+                    solutions.Success = true;
+                    var firstVar = true;
+
+                    foreach (var varValue in s.VarValuesIterator)
+                    {
+                        if (varValue.DataType == "none") break;
+
+                        if (firstVar)
+                        {
+                            firstVar = false;
+                            solutions.CreateVarSet();
+                        }
+
+                        solutions.AddToVarSet(name: varValue.Name, type: varValue.DataType, varValue.Value.ToString());
+                        varFound = true;
+                    }
+
+                    if (++i == maxSolutionCount || !varFound) break;
+
+                    found = true;
+                }
+            }
+            catch (Exception e)
+            {
+                solutions.ErrMsg = e.Message;
             }
 
-            solutions.AddToVarSet (varValue.Name, varValue.DataType, varValue.Value.ToString ());
-            varFound = true;
-          }
-
-          if (++i == maxSolutionCount || !varFound) break;
-
-          found = true;
+            return solutions;
         }
-      }
-      catch (Exception e)
-      {
-        solutions.ErrMsg = e.Message;
-      }
 
-      return solutions;
+        #endregion GetAllSolutions
     }
-    #endregion GetAllSolutions
-  }
 }
