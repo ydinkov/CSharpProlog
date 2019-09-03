@@ -34,23 +34,30 @@ namespace Prolog
                 try
                 {
                     return e is ValueTerm
-                        ? (T) Convert.ChangeType(value: e.functor, typeof(T))
+                        ? (T) Convert.ChangeType( e.functor, typeof(T))
                         : e.Eval().To<T>();
                 }
                 catch
                 {
-                    if (e is NamedVariable)
-                        IO.Error("Unable to convert unbound variable {0} to type {1}",
-                            ((NamedVariable) e).Name, typeof(T).Name);
-                    else if (e is Variable)
-                        IO.Error("Unable to convert an unbound variable to type {0}",
-                            typeof(T).Name);
-                    else if (e is ListTerm)
-                        IO.Error("Unable to convert list {0} to type {1}",
-                            e, typeof(T).Name);
-                    else
-                        IO.Error("Unable to convert '{0}' to type {1}",
-                            e.FunctorToString, typeof(T).Name);
+                    switch (e)
+                    {
+                        case NamedVariable variable:
+                            IO.Error("Unable to convert unbound variable {0} to type {1}",
+                                variable.Name, typeof(T).Name);
+                            break;
+                        case Variable _:
+                            IO.Error("Unable to convert an unbound variable to type {0}",
+                                typeof(T).Name);
+                            break;
+                        case ListTerm _:
+                            IO.Error("Unable to convert list {0} to type {1}",
+                                e, typeof(T).Name);
+                            break;
+                        default:
+                            IO.Error("Unable to convert '{0}' to type {1}",
+                                e.FunctorToString, typeof(T).Name);
+                            break;
+                    }
 
                     return default; // IO.Error throws error, but compiler insists on a return value
                 }
@@ -110,25 +117,25 @@ namespace Prolog
                     switch (FunctorToString)
                     {
                         case "pi":
-                            return new DecimalTerm(value: Math.PI);
+                            return new DecimalTerm( Math.PI);
                         case "e":
-                            return new DecimalTerm(value: Math.E);
+                            return new DecimalTerm( Math.E);
                         case "i":
                             return new ComplexTerm(0f, 1f);
                         case "now":
-                            return new DateTimeTerm(value: DateTime.Now);
+                            return new DateTimeTerm( DateTime.Now);
                         case "today":
-                            return new DateTimeTerm(value: DateTime.Now.Date);
+                            return new DateTimeTerm( DateTime.Now.Date);
                         case "yesterday":
-                            return new DateTimeTerm(value: DateTime.Now.AddDays(-1).Date);
+                            return new DateTimeTerm( DateTime.Now.AddDays(-1).Date);
                         case "tomorrow":
-                            return new DateTimeTerm(value: DateTime.Now.AddDays(1).Date);
+                            return new DateTimeTerm( DateTime.Now.AddDays(1).Date);
                         case "false":
                             return new BoolTerm(false);
                         case "true":
                             return new BoolTerm(true);
                         default:
-                            return new StringTerm(value: FunctorToString);
+                            return new StringTerm( FunctorToString);
                         //IO.Error ("Unable to evaluate '{0}'", FunctorToString);
                         //break;
                     }
@@ -270,7 +277,7 @@ namespace Prolog
                         case "phi":
                             if (a0 is ComplexTerm)
                             {
-                                return new DecimalTerm(value: ((ComplexTerm) a0).Phi);
+                                return new DecimalTerm( ((ComplexTerm) a0).Phi);
                             }
                             else if (a0 is DecimalTerm)
                             {
@@ -284,7 +291,7 @@ namespace Prolog
                         case "magnitude":
                             if (a0 is ComplexTerm)
                             {
-                                return new DecimalTerm(value: ((ComplexTerm) a0).Magnitude);
+                                return new DecimalTerm( ((ComplexTerm) a0).Magnitude);
                             }
                             else if (a0 is DecimalTerm)
                             {
@@ -300,7 +307,7 @@ namespace Prolog
                         case "string2":
                             return new StringTerm(string.Format("{0}", arg0: a0));
                         case "length":
-                            return new DecimalTerm(value: a0.FunctorToString.Length);
+                            return new DecimalTerm( a0.FunctorToString.Length);
                         case "upcase":
                             return new StringTerm(a0.FunctorToString.ToUpper());
                         case "upcase1": // upcase first char; rest unchanged
@@ -323,29 +330,29 @@ namespace Prolog
                             return new StringTerm(Regex.Replace(input: a0.FunctorToString, "(\r(\n| )?|\n ?)", " "));
                         // DateTime stuff
                         case "year":
-                            return new DecimalTerm(value: a0.To<DateTime>().Year);
+                            return new DecimalTerm( a0.To<DateTime>().Year);
                         case "month":
-                            return new DecimalTerm(value: a0.To<DateTime>().Month);
+                            return new DecimalTerm( a0.To<DateTime>().Month);
                         case "day":
-                            return new DecimalTerm(value: a0.To<DateTime>().Day);
+                            return new DecimalTerm( a0.To<DateTime>().Day);
                         case "hour":
-                            return new DecimalTerm(value: a0.To<DateTime>().Hour);
+                            return new DecimalTerm( a0.To<DateTime>().Hour);
                         case "minute":
-                            return new DecimalTerm(value: a0.To<DateTime>().Minute);
+                            return new DecimalTerm( a0.To<DateTime>().Minute);
                         case "second":
-                            return new DecimalTerm(value: a0.To<DateTime>().Second);
+                            return new DecimalTerm( a0.To<DateTime>().Second);
                         case "millisecond":
-                            return new DecimalTerm(value: a0.To<DateTime>().Millisecond);
+                            return new DecimalTerm( a0.To<DateTime>().Millisecond);
                         case "dayofweek":
                             return new DecimalTerm((int) a0.To<DateTime>().DayOfWeek);
                         case "dayofyear":
-                            return new DecimalTerm(value: a0.To<DateTime>().DayOfYear);
+                            return new DecimalTerm( a0.To<DateTime>().DayOfYear);
                         case "ticks":
-                            return new DecimalTerm(value: a0.To<DateTime>().Ticks);
+                            return new DecimalTerm( a0.To<DateTime>().Ticks);
                         case "today":
-                            return new DateTimeTerm(value: DateTime.Today);
+                            return new DateTimeTerm( DateTime.Today);
                         case "timeofday":
-                            return new TimeSpanTerm(value: DateTime.Now.TimeOfDay);
+                            return new TimeSpanTerm( DateTime.Now.TimeOfDay);
                         case "weekno":
                             return new DecimalTerm(Utils.WeekNo(a0.To<DateTime>()));
                         case "dayname":
@@ -372,7 +379,7 @@ namespace Prolog
                             var result = EMPTYLIST;
 
                             for (var i = hi; i >= lo; i--)
-                                result = new ListTerm(new DecimalTerm(value: i), t1: result);
+                                result = new ListTerm(new DecimalTerm( i), t1: result);
 
                             return result;
                         case "+":
@@ -449,19 +456,19 @@ namespace Prolog
                         case ">>":
                             return new DecimalTerm(a0.To<long>() >> a1.To<int>());
                         case "=":
-                            return new BoolTerm(a0.CompareTo(t: a1) == 0);
+                            return new BoolTerm(a0.CompareTo( a1) == 0);
                         case "\\=":
-                            return new BoolTerm(a0.CompareTo(t: a1) != 0);
+                            return new BoolTerm(a0.CompareTo( a1) != 0);
                         case "<>":
-                            return new BoolTerm(a0.CompareTo(t: a1) != 0);
+                            return new BoolTerm(a0.CompareTo( a1) != 0);
                         case "<":
-                            return new BoolTerm(a0.CompareTo(t: a1) < 0);
+                            return new BoolTerm(a0.CompareTo( a1) < 0);
                         case "=<":
-                            return new BoolTerm(a0.CompareTo(t: a1) <= 0);
+                            return new BoolTerm(a0.CompareTo( a1) <= 0);
                         case ">":
-                            return new BoolTerm(a0.CompareTo(t: a1) > 0);
+                            return new BoolTerm(a0.CompareTo( a1) > 0);
                         case ">=":
-                            return new BoolTerm(a0.CompareTo(t: a1) >= 0);
+                            return new BoolTerm(a0.CompareTo( a1) >= 0);
                         case "//":
                             return new DecimalTerm(Trunc(a0.To<decimal>() / a1.To<decimal>()));
                         case "#":
@@ -511,7 +518,7 @@ namespace Prolog
                             else
                                 return new StringTerm(string.Format(format: a0.FunctorToString, arg0: a1));
                         case "indexof":
-                            return new DecimalTerm(a0.FunctorToString.IndexOf(value: a1.FunctorToString));
+                            return new DecimalTerm(a0.FunctorToString.IndexOf( a1.FunctorToString));
                         case "padleft":
                             return new StringTerm(a0.FunctorToString.PadLeft(a1.To<int>()));
                         case "padright":
@@ -525,7 +532,7 @@ namespace Prolog
                             return new StringTerm(a0.FunctorToString.Substring(startIndex: len,
                                 a0.FunctorToString.Length - len));
                         case "wrap":
-                            return new StringTerm(Utils.ForceSpaces(s: a0.FunctorToString, a1.To<int>()));
+                            return new StringTerm(Utils.ForceSpaces( a0.FunctorToString, a1.To<int>()));
                         case "split":
                             var splitChars = a1.FunctorToString;
                             var splitList = EMPTYLIST;
@@ -550,8 +557,8 @@ namespace Prolog
                             var separator = a1.FunctorToString;
                             foreach (BaseTerm t in (ListTerm) a0)
                             {
-                                if (chain.Length != 0) chain.Append(value: separator);
-                                chain.Append(value: t.FunctorToString);
+                                if (chain.Length != 0) chain.Append( separator);
+                                chain.Append( t.FunctorToString);
                             }
 
                             return new StringTerm(chain.ToString());
@@ -586,7 +593,7 @@ namespace Prolog
                     switch (FunctorToString)
                     {
                         case "indexof":
-                            return new DecimalTerm(a0.FunctorToString.IndexOf(value: a1.FunctorToString, a2.To<int>()));
+                            return new DecimalTerm(a0.FunctorToString.IndexOf( a1.FunctorToString, a2.To<int>()));
                         case "remove":
                             return new StringTerm(a0.FunctorToString.Remove(a1.To<int>(), a2.To<int>()));
                         case "substring":

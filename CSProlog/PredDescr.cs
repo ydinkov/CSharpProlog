@@ -288,7 +288,7 @@ namespace Prolog
             {
                 IO.WriteLine("Cacheing {0}{1}", cacheTerm, succeeds ? null : " :- !, fail");
 
-                var newCachedClause = new CachedClauseNode(t: cacheTerm, null, succeeds: succeeds);
+                var newCachedClause = new CachedClauseNode( cacheTerm, null, succeeds: succeeds);
 
                 if (lastCachedClause == null) // about to add the first cached term
                 {

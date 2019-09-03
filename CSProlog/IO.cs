@@ -75,13 +75,13 @@ namespace Prolog
 
         public override void Write(string s)
         {
-            Console.Write(value: s);
+            Console.Write( s);
         }
 
 
         public override void WriteLine(string s)
         {
-            Console.WriteLine(value: s);
+            Console.WriteLine( s);
         }
 
 
@@ -142,7 +142,7 @@ namespace Prolog
             if (outFile == null)
                 throw new ApplicationException("FileIO class: output file is not defined");
 
-            outFile.Write(value: s);
+            outFile.Write( s);
         }
 
 
@@ -151,7 +151,7 @@ namespace Prolog
             if (outFile == null)
                 throw new ApplicationException("FileIO class: output file is not defined");
 
-            outFile.WriteLine(value: s);
+            outFile.WriteLine( s);
         }
 
 
@@ -280,7 +280,7 @@ namespace Prolog
 
             public static void Write(string s)
             {
-                BasicIO.Write(s: s);
+                BasicIO.Write( s);
             }
 
 
@@ -292,7 +292,7 @@ namespace Prolog
 
             public static void WriteLine(string s)
             {
-                BasicIO.WriteLine(s: s);
+                BasicIO.WriteLine( s);
             }
 
 
@@ -365,9 +365,9 @@ namespace Prolog
         private void BaseWriteCurrentOutput(string s)
         {
             if (currentFileWriter == null)
-                IO.Write(s: s);
+                IO.Write( s);
             else
-                currentFileWriter.Write(s: s);
+                currentFileWriter.Write( s);
         }
 
 
@@ -412,13 +412,13 @@ namespace Prolog
 
         public void Write(string s)
         {
-            BaseWriteCurrentOutput(s: s);
+            BaseWriteCurrentOutput( s);
         }
 
 
         public void Write(string s, params object[] args)
         {
-            BaseWriteCurrentOutput(s: s, args: args);
+            BaseWriteCurrentOutput( s, args: args);
         }
 
 
@@ -436,7 +436,7 @@ namespace Prolog
 
         public void NewLine()
         {
-            BaseWriteCurrentOutput(s: Environment.NewLine);
+            BaseWriteCurrentOutput( Environment.NewLine);
         }
 
         #endregion Read(Line/Char) and Write(Line)

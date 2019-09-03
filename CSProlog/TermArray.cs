@@ -103,7 +103,7 @@ namespace Prolog
 
             public override string ToWriteString(int level)
             {
-                var sb = new StringBuilder(value: name);
+                var sb = new StringBuilder( name);
                 var first = true;
 
                 foreach (var t in subscripts)

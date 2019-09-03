@@ -197,7 +197,7 @@ namespace Prolog
                 {
                     var mustPack = value.Precedence >= 700;
 
-                    return string.Format("{0} = {1}", arg0: name, value.ToString().Packed(mustPack: mustPack));
+                    return string.Format("{0} = {1}", name, value.ToString().Packed(mustPack: mustPack));
                 }
 
                 return null;
@@ -324,7 +324,7 @@ namespace Prolog
                     if (first) first = false;
                     else IO.Write(", ");
 
-                    IO.Write(s: name);
+                    IO.Write( name);
                 }
 
                 IO.WriteLine("]");
@@ -572,7 +572,7 @@ namespace Prolog
         }
 
         public PrologEngine(BasicIo io)
-            : this(io: io, true)
+            : this( io, true)
         {
         }
 
@@ -639,7 +639,7 @@ namespace Prolog
             maxWriteDepth = -1; // i.e. no max depth
             predicateCallOptions = new PredicateCallOptions();
 
-            terminalTable = new BaseParser<OpDescrTriplet>.BaseTrie(terminalCount: PrologParser.terminalCount, true);
+            terminalTable = new BaseParser<OpDescrTriplet>.BaseTrie(PrologParser.terminalCount, true);
             PrologParser.FillTerminalTable(terminalTable: terminalTable);
             parser = new PrologParser(this); // now this.terminalTable is passed on as well
         }
@@ -725,7 +725,7 @@ namespace Prolog
                 tryCatchId = 0;
                 findFirstClause = true;
 
-                if (cmdBuf.CheckForHistoryCommands(query: ref query, this))
+                if (cmdBuf.CheckForHistoryCommands(ref query, this))
                     return false;
 
                 userInterrupted = false;
@@ -884,7 +884,7 @@ namespace Prolog
                     var sp = ((SpyPoint) goalListHead).SaveGoal;
 
                     // debugger resets saveGoal and returns true if user enters r(etry) or f(ail)
-                    if (!Debugger(port: SpyPort.Exit, goalNode: sp, null, false, 1))
+                    if (!Debugger( SpyPort.Exit, sp, null, false, 1))
                         goalListHead = sp.NextGoal;
 
                     continue;
@@ -900,7 +900,7 @@ namespace Prolog
                     {
                         var goal = goalListHead.Head;
 
-                        switch (Ps.ActionWhenUndefined(f: goal.FunctorToString, a: goal.Arity))
+                        switch (Ps.ActionWhenUndefined( goal.FunctorToString, a: goal.Arity))
                         {
                             case UndefAction.Fail: // pretend the predicate exists, with 'fail' as first and only clause
                                 goalListHead.PredDescr = Ps[key: BaseTerm.FAIL.Key];
@@ -941,7 +941,7 @@ namespace Prolog
                         varStack.Push(new SpyPoint(p: SpyPort.Fail, g: goalListHead));
 
                     if (caching)
-                        varStack.Push(new CacheCheckPoint(port: CachePort.Fail, saveGoal: goalListHead));
+                        varStack.Push(new CacheCheckPoint( CachePort.Fail, saveGoal: goalListHead));
                 }
                 else // currClause.NextClause will be tried upon backtracking
                 {
@@ -953,12 +953,12 @@ namespace Prolog
                 level = goalListHead.Level;
 
                 if (reporting &&
-                    Debugger(redo ? SpyPort.Redo : SpyPort.Call, goalNode: saveGoal, currClause: cleanClauseHead,
+                    Debugger(redo ? SpyPort.Redo : SpyPort.Call, saveGoal, cleanClauseHead,
                         currClause.NextGoal == null, 2))
                     continue; // Debugger may return some previous version of saveGoal (retry- or fail-command)
 
                 // UNIFICATION of the current goal and the (clause of the) predicate that matches it
-                if (cleanClauseHead.Unify(t: goalListHead.Term, varStack: varStack))
+                if (cleanClauseHead.Unify( goalListHead.Term, varStack: varStack))
                 {
                     var currCachedClauseMustFail =
                         currClause is CachedClauseNode && !((CachedClauseNode) currClause).Succeeds;
@@ -968,7 +968,7 @@ namespace Prolog
                     // FACT
                     if (currClause == null) // body is null, so matching was against a fact
                     {
-                        if (reporting && Debugger(port: SpyPort.Exit, goalNode: goalListHead, null, false, 3)) continue;
+                        if (reporting && Debugger( SpyPort.Exit, goalListHead, null, false, 3)) continue;
 
                         if (currCachedClauseMustFail) // act as if the clause has a (!, fail) body
                             InsertCutFail();
@@ -992,12 +992,12 @@ namespace Prolog
                                 t = goalListHead.Head;
                             }
 
-                            tn0 = t.ToGoalList(stackSize: stackSize, goalListHead.Level + 1);
+                            tn0 = t.ToGoalList(stackSize, goalListHead.Level + 1);
 
                             if (reporting)
                                 tn0.Append(new SpyPoint(p: SpyPort.Exit, g: saveGoal));
 
-                            goalListHead = goalListHead == null ? tn0 : tn0.Append(t: goalListHead.NextGoal);
+                            goalListHead = goalListHead == null ? tn0 : tn0.Append( goalListHead.NextGoal);
                             findFirstClause = true;
                         }
                         else if (builtinId == BI.or)
@@ -1011,10 +1011,10 @@ namespace Prolog
                             tn1 = goalListHead.Head.Arg(1).ToGoalList(stackSize: stackSize, level: goalListHead.Level);
                             varStack.Push(new ChoicePoint(goalListHead == null
                                 ? tn1
-                                : tn1.Append(t: goalListHead.NextGoal), null));
+                                : tn1.Append( goalListHead.NextGoal), null));
 
                             tn0 = goalListHead.Head.Arg(0).ToGoalList(stackSize: stackSize, level: goalListHead.Level);
-                            goalListHead = goalListHead == null ? tn0 : tn0.Append(t: goalListHead.NextGoal);
+                            goalListHead = goalListHead == null ? tn0 : tn0.Append( goalListHead.NextGoal);
                             findFirstClause = true;
                         }
                         else if (builtinId == BI.cut)
@@ -1029,7 +1029,7 @@ namespace Prolog
                         }
                         else if (DoBuiltin(biId: builtinId, findFirstClause: out findFirstClause))
                         {
-                            if (reporting && Debugger(port: SpyPort.Exit, goalNode: saveGoal, null, false, 5))
+                            if (reporting && Debugger( SpyPort.Exit, saveGoal, null, false, 5))
                                 findFirstClause = true;
                         }
                         else if (!(redo = CanBacktrack()))
@@ -1051,7 +1051,7 @@ namespace Prolog
                             if (currTerm is TryOpenTerm)
                             {
                                 ((TryOpenTerm) currTerm).Id = ++tryCatchId;
-                                p = new TermNode(term: currTerm, null, 0);
+                                p = new TermNode( currTerm, null, 0);
                             }
                             else if (currTerm is CatchOpenTerm)
                             {
@@ -1066,7 +1066,7 @@ namespace Prolog
                             else // Copy (false): keep the varNo constant over all terms of the predicate head+body
                                 // (otherwise each term would get new variables, independent of their previous incarnations)
                             {
-                                p = new TermNode(currTerm.Copy(false), predDescr: currClause.PredDescr,
+                                p = new TermNode(currTerm.Copy(false), currClause.PredDescr,
                                     goalListHead.Level + 1); // gets the newVar version
                             }
 
@@ -1085,7 +1085,7 @@ namespace Prolog
                         // have changed the goal last (and effectively removed the exit point)
                         if (caching)
                         {
-                            pTail.NextGoal = new CacheCheckPoint(port: CachePort.Exit, saveGoal: saveGoal);
+                            pTail.NextGoal = new CacheCheckPoint( CachePort.Exit, saveGoal: saveGoal);
                             pTail = pTail.NextNode;
                         }
 
@@ -1113,9 +1113,9 @@ namespace Prolog
 
         private void InsertCutFail()
         {
-            var fail = new ClauseNode(t: BaseTerm.FAIL, null);
+            var fail = new ClauseNode( BaseTerm.FAIL, null);
             fail.NextGoal = goalListHead.NextGoal;
-            var cut = new ClauseNode(t: BaseTerm.CUT, null);
+            var cut = new ClauseNode( BaseTerm.CUT, null);
             cut.NextGoal = fail;
             goalListHead = cut;
         }
@@ -1147,7 +1147,7 @@ namespace Prolog
                 else if (reporting && o is SpyPoint)
                 {
                     if (local && ((SpyPoint) o).Port == SpyPort.Fail)
-                        Debugger(port: SpyPort.Fail, goalNode: ((SpyPoint) o).SaveGoal, null, false,
+                        Debugger( SpyPort.Fail, ((SpyPoint) o).SaveGoal, null, false,
                             6); // may reset saveGoal
                 }
                 else if (o is Variable)
@@ -1197,7 +1197,7 @@ namespace Prolog
 
         private void Throw(string exceptionClass, string exceptionFmtMessage, params object[] args)
         {
-            Throw(exceptionClass: exceptionClass, string.Format(format: exceptionFmtMessage, args: args));
+            Throw(exceptionClass, string.Format(format: exceptionFmtMessage, args: args));
         }
 
 
@@ -1214,7 +1214,7 @@ namespace Prolog
             for (var i = arity0; i < arity; i++)
                 callArgs[i] = GoalListHead.Head.Arg(1 + i - arity0);
 
-            GoalListHead.Head = new CompoundTerm(functor: callPred.Functor, args: callArgs);
+            GoalListHead.Head = new CompoundTerm( callPred.Functor, args: callArgs);
         }
 
 
@@ -1320,7 +1320,7 @@ namespace Prolog
                     case Status.TryMatch:
                         if (t.ExceptionClass == null || t.ExceptionClass == exceptionClass)
                         {
-                            t.MsgVar.Unify(new StringTerm(value: exceptionMessage), varStack: varStack);
+                            t.MsgVar.Unify(new StringTerm( exceptionMessage), varStack: varStack);
 
                             return true;
                         }
@@ -1397,7 +1397,7 @@ namespace Prolog
                     free = width - indent - dots.Length;
                 }
 
-                IO.Write(s: lmar);
+                IO.Write( lmar);
             }
 
             switch (port)
@@ -1444,7 +1444,7 @@ namespace Prolog
 
             if (rushToEnd || !console) return false;
 
-            return DoDebuggingAction(port: port, lmar: lmar, goalNode: goalNode);
+            return DoDebuggingAction( port, lmar, goalNode);
         }
 
 
@@ -1479,14 +1479,14 @@ namespace Prolog
                             break;
                         }
 
-                        if ("sr".IndexOf(value: cmd0) != -1 && Math.Abs(value: n) > level)
+                        if ("sr".IndexOf( cmd0) != -1 && Math.Abs( n) > level)
                         {
                             IO.WriteLine(lmar + filler + "*** Illegal value {0} -- must be in the range -{1}..{1}", n,
                                 level);
                         }
                         else
                         {
-                            if (n != INF && "cloqfgan+-.?h".IndexOf(value: cmd0) != -1)
+                            if (n != INF && "cloqfgan+-.?h".IndexOf( cmd0) != -1)
                             {
                                 IO.WriteLine(lmar + filler + "*** Unexpected argument {0}", n);
                             }
@@ -1525,7 +1525,7 @@ namespace Prolog
                     case "c": // ...
                         return false;
                     case "l": // leap
-                        SetSwitch("Tracing", switchVar: ref trace, false);
+                        SetSwitch("Tracing", ref trace, false);
                         return false;
                     case "value": // skip
                         if (n == INF) levelMax = level;
@@ -1568,18 +1568,18 @@ namespace Prolog
                         ShowAncestorGoals(lmar + filler);
                         break;
                     case "n": // nodebug
-                        SetSwitch("Debugging", switchVar: ref debug, false);
+                        SetSwitch("Debugging", ref debug, false);
                         return false;
                     case "a":
 
                         throw new AbortQueryException();
                     case "+": // spy this
-                        goalNode.PredDescr.SetSpy(true, functor: goalNode.Term.FunctorToString,
-                            arity: goalNode.Term.Arity, setPorts: SpyPort.Full, false);
+                        goalNode.PredDescr.SetSpy(true,  goalNode.Term.FunctorToString,
+                            goalNode.Term.Arity, SpyPort.Full, false);
                         return false;
                     case "-": // nospy this
-                        goalNode.PredDescr.SetSpy(false, functor: goalNode.Term.FunctorToString,
-                            arity: goalNode.Term.Arity, setPorts: SpyPort.Full, false);
+                        goalNode.PredDescr.SetSpy(false, goalNode.Term.FunctorToString,
+                            goalNode.Term.Arity, SpyPort.Full, false);
                         return false;
                     case ".": // run to completion
                         rushToEnd = true;
@@ -1696,7 +1696,7 @@ namespace Prolog
 
             public CommandHistory(bool enablePersistence)
             {
-                maxNo = Math.Abs(value: ConfigSettings.HistorySize);
+                maxNo = Math.Abs( ConfigSettings.HistorySize);
 
                 if (enablePersistence)
                     throw new NotImplementedException();
@@ -1785,7 +1785,7 @@ namespace Prolog
 
                         var sep = m.Groups["sep"].Value[0];
                         var cmdNo = m.Groups["cno"].Captures.Count > 0
-                            ? Convert.ToInt32(value: m.Groups["cno"].Value)
+                            ? Convert.ToInt32( m.Groups["cno"].Value)
                             : Count;
 
                         if (cmdNo < 1 || cmdNo > Count)
@@ -1799,7 +1799,7 @@ namespace Prolog
                         // replace oldSep in command by newSep some char that is bound not to occur in command
 
                         r = new Regex(@"^!\d*(?:\f(?<str>[^\f]*)){2}\f?$"); // 2 occurances of str
-                        m = r.Match(query.Replace(oldChar: sep, '\f'));
+                        m = r.Match(query.Replace(sep, '\f'));
 
                         CaptureCollection cc;
 
@@ -1931,7 +1931,7 @@ namespace Prolog
         {
             var initialConsultFileName = ConfigSettings.InitialConsultFile;
 
-            if (string.IsNullOrEmpty(value: initialConsultFileName)) return;
+            if (string.IsNullOrEmpty( initialConsultFileName)) return;
 
             if (File.Exists(path: initialConsultFileName))
             {
@@ -1983,7 +1983,7 @@ namespace Prolog
 
         public void ConsultFromString(string prologCode, string codeTitle = null)
         {
-            using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(s: prologCode)))
+            using (var ms = new MemoryStream(Encoding.UTF8.GetBytes( prologCode)))
             {
                 Consult(stream: ms, streamName: codeTitle);
             }
@@ -1991,7 +1991,7 @@ namespace Prolog
 
         public void CreateFact(string functor, BaseTerm[] args)
         {
-            Ps.Assert(new CompoundTerm(functor: functor, args: args), true);
+            Ps.Assert(new CompoundTerm( functor, args: args), true);
         }
 
 

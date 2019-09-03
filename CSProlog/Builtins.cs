@@ -277,7 +277,7 @@ namespace Prolog
 
                     if (t0.IsAtomOrString)
                     {
-                        fileName = Utils.FileNameFromTerm(t: t0, ".pl");
+                        fileName = Utils.FileNameFromTerm(t0, ".pl");
 
                         if (fileName == null) return false;
 
@@ -301,7 +301,7 @@ namespace Prolog
                     break;
 
                 case BI.retract:
-                    if (Ps.Retract(term.Arg(0), varStack: varStack, null))
+                    if (Ps.Retract(term.Arg(0), varStack, null))
                     {
                         currentCp.NextClause = retractClause;
                     }
@@ -326,9 +326,9 @@ namespace Prolog
                     else t3 = null; // leash t
 
                     if (t0.HasFunctor("/") && t0.Arity == 2 && (t1 = t0.Arg(0)).IsAtom && (t2 = t0.Arg(1)).IsInteger)
-                        result = Ps.SetSpy(term.HasFunctor("spy"), functor: t1.FunctorToString, t2.To<int>(), list: t3);
+                        result = Ps.SetSpy(term.HasFunctor("spy"),  t1.FunctorToString, t2.To<int>(), list: t3);
                     else if (t0.Arity == 0)
-                        result = Ps.SetSpy(term.HasFunctor("spy"), functor: t0.FunctorToString, -1, list: t3);
+                        result = Ps.SetSpy(term.HasFunctor("spy"), t0.FunctorToString, -1, list: t3);
 
                     if (!result) return false;
 
@@ -355,14 +355,14 @@ namespace Prolog
 
                 case BI.trace:
                 case BI.notrace:
-                    SetSwitch("Tracing", switchVar: ref trace, term.HasFunctor("trace"));
+                    SetSwitch("Tracing",  ref trace, term.HasFunctor("trace"));
                     if (trace) debug = true;
                     reporting = debug || xmlTrace;
                     break;
 
                 case BI.debug:
                 case BI.nodebug:
-                    SetSwitch("Debugging", switchVar: ref debug, term.HasFunctor("debug"));
+                    SetSwitch("Debugging",  ref debug, term.HasFunctor("debug"));
                     reporting = debug || xmlTrace;
                     break;
 
@@ -379,10 +379,10 @@ namespace Prolog
 
                         if ((t0 = term.Arg(0)).HasFunctor("/") && t0.Arity == 2 && t0.Arg(0).IsAtom &&
                             t0.Arg(1).IsInteger)
-                            result = Ps.ShowHelp(functor: t0.Arg(0).FunctorToString, t0.Arg<int>(1),
+                            result = Ps.ShowHelp( t0.Arg(0).FunctorToString, t0.Arg<int>(1),
                                 suggestion: out suggestion);
                         else if (term.Arg(0).IsAtom) // predicate functor without arity: take all arities
-                            result = Ps.ShowHelp(functor: term.Arg(0).FunctorToString, -1, suggestion: out suggestion);
+                            result = Ps.ShowHelp( term.Arg(0).FunctorToString, -1, suggestion: out suggestion);
 
                         if (!result)
                             IO.Warning("Predicate '{0}' not found.{1}", term.Arg(0), suggestion);
@@ -391,11 +391,11 @@ namespace Prolog
                     break;
 
                 case BI.cache:
-                    if (SetCaching(term: term, true)) break;
+                    if (SetCaching( term, true)) break;
                     return false;
 
                 case BI.nocache:
-                    if (SetCaching(term: term, false)) break;
+                    if (SetCaching( term, false)) break;
                     return false;
 
                 // bagof, setof, findall
@@ -433,8 +433,8 @@ namespace Prolog
                     break;
 
                 case BI.version: // version(V, R)
-                    if (!term.Arg(0).Unify(new AtomTerm(value: VERSION), varStack: varStack)) return false;
-                    if (!term.Arg(1).Unify(new AtomTerm(value: RELEASE), varStack: varStack)) return false;
+                    if (!term.Arg(0).Unify(new AtomTerm( VERSION), varStack: varStack)) return false;
+                    if (!term.Arg(1).Unify(new AtomTerm( RELEASE), varStack: varStack)) return false;
                     break;
 
                 case BI.halt:
@@ -469,7 +469,7 @@ namespace Prolog
 
                     if (t1.IsEmptyList)
                     {
-                        if (term.Arg(3).Unify(t: BaseTerm.EMPTYLIST, varStack: varStack)) break;
+                        if (term.Arg(3).Unify( BaseTerm.EMPTYLIST, varStack: varStack)) break;
 
                         return false;
                     }
@@ -498,7 +498,7 @@ namespace Prolog
                             return false;
                         }
 
-                        if (term.Arg(3).Unify(t: iCombi.Current, varStack: varStack)) break;
+                        if (term.Arg(3).Unify( iCombi.Current, varStack: varStack)) break;
 
                         return false;
                     }
@@ -512,7 +512,7 @@ namespace Prolog
 
                     if (t1.IsEmptyList)
                     {
-                        if (term.Arg(2).Unify(t: BaseTerm.EMPTYLIST, varStack: varStack)) break;
+                        if (term.Arg(2).Unify( BaseTerm.EMPTYLIST, varStack: varStack)) break;
 
                         return false;
                     }
@@ -541,7 +541,7 @@ namespace Prolog
                             return false;
                         }
 
-                        if (term.Arg(2).Unify(t: iPermut.Current, varStack: varStack)) break;
+                        if (term.Arg(2).Unify( iPermut.Current, varStack: varStack)) break;
 
                         return false;
                     }
@@ -571,16 +571,16 @@ namespace Prolog
                             for (var i = 0; i < n; i++)
                                 t2 = new ListTerm(new Variable(), t1: t2);
 
-                            t0.Unify(t: t2, varStack: varStack);
+                            t0.Unify( t2, varStack: varStack);
 
                             break;
                         }
 
-                        if (!term.Arg(1).Unify(new DecimalTerm(value: n), varStack: varStack)) return false;
+                        if (!term.Arg(1).Unify(new DecimalTerm( n), varStack: varStack)) return false;
                     }
                     else if (t0.IsAtomOrString)
                     {
-                        if (!term.Arg(1).Unify(new DecimalTerm(value: t0.FunctorToString.Length), varStack: varStack))
+                        if (!term.Arg(1).Unify(new DecimalTerm( t0.FunctorToString.Length), varStack: varStack))
                             return false;
                     }
                     else // create a list with N elements
@@ -593,7 +593,7 @@ namespace Prolog
                         for (var i = 0; i < arity; i++)
                             t1 = new ListTerm(new Variable(), t1: t1);
 
-                        t0.Unify(t: t1, varStack: varStack);
+                        t0.Unify( t1, varStack: varStack);
                     }
 
                     break;
@@ -661,16 +661,16 @@ namespace Prolog
 
                         for (var i = 0; i < arity; i++) args[i] = new Variable();
 
-                        if (!t0.Unify(CreateNewTerm(t: t2, arity: arity, functor: functor, args: args),
+                        if (!t0.Unify(CreateNewTerm( t2, arity, functor, args: args),
                             varStack: varStack)) return false;
 
                         break;
                     }
                     else
                     {
-                        if (!term.Arg(1).Unify(new AtomTerm(functor: t0.Functor), varStack: varStack)) return false;
+                        if (!term.Arg(1).Unify(new AtomTerm( t0.Functor), varStack: varStack)) return false;
 
-                        if (!term.Arg(2).Unify(new DecimalTerm(value: t0.Arity), varStack: varStack)) return false;
+                        if (!term.Arg(2).Unify(new DecimalTerm( t0.Arity), varStack: varStack)) return false;
 
                         break;
                     }
@@ -693,7 +693,7 @@ namespace Prolog
                     t0 = term.Arg(0);
                     result = true;
                     if (t0.HasFunctor("/") && t0.Arity == 2 && t0.Arg(0).IsAtom && t0.Arg(1).IsInteger)
-                        result = Ps.Abolish(functor: t0.Arg(0).FunctorToString, t0.Arg(1).To<short>());
+                        result = Ps.Abolish( t0.Arg(0).FunctorToString, t0.Arg(1).To<short>());
                     else
                         result = false;
                     if (!result) return false;
@@ -722,7 +722,7 @@ namespace Prolog
                 case BI.var:
                     if (!term.Arg(0).IsVar ||
                         term.Arity == 2 &&
-                        !term.Arg(1).Unify(new StringTerm(value: term.Arg(0).Name), varStack: varStack))
+                        !term.Arg(1).Unify(new StringTerm( term.Arg(0).Name), varStack: varStack))
                         return false;
                     break;
 
@@ -777,13 +777,13 @@ namespace Prolog
                     {
                         dati = t0.To<DateTime>();
 
-                        if (!term.Arg(1).Unify(new DecimalTerm(value: dati.Year), varStack: varStack) ||
-                            !term.Arg(2).Unify(new DecimalTerm(value: dati.Month), varStack: varStack) ||
-                            !term.Arg(3).Unify(new DecimalTerm(value: dati.Day), varStack: varStack) ||
+                        if (!term.Arg(1).Unify(new DecimalTerm( dati.Year), varStack: varStack) ||
+                            !term.Arg(2).Unify(new DecimalTerm( dati.Month), varStack: varStack) ||
+                            !term.Arg(3).Unify(new DecimalTerm( dati.Day), varStack: varStack) ||
                             term.Arity == 7 &&
-                            (!term.Arg(4).Unify(new DecimalTerm(value: dati.Hour), varStack: varStack) ||
-                             !term.Arg(5).Unify(new DecimalTerm(value: dati.Minute), varStack: varStack) ||
-                             !term.Arg(6).Unify(new DecimalTerm(value: dati.Second), varStack: varStack)
+                            (!term.Arg(4).Unify(new DecimalTerm( dati.Hour), varStack: varStack) ||
+                             !term.Arg(5).Unify(new DecimalTerm( dati.Minute), varStack: varStack) ||
+                             !term.Arg(6).Unify(new DecimalTerm( dati.Second), varStack: varStack)
                             ))
                             return false;
                     }
@@ -803,7 +803,7 @@ namespace Prolog
                                 term.Arg(5).To<int>(),
                                 term.Arg(6).To<int>());
 
-                        if (!t0.Unify(new DateTimeTerm(value: dati), varStack: varStack)) return false;
+                        if (!t0.Unify(new DateTimeTerm( dati), varStack: varStack)) return false;
                     }
                     else
                     {
@@ -825,9 +825,9 @@ namespace Prolog
                     {
                         ti = t0.To<TimeSpan>();
 
-                        if (!term.Arg(4).Unify(new DecimalTerm(value: ti.Hours), varStack: varStack) ||
-                            !term.Arg(5).Unify(new DecimalTerm(value: ti.Minutes), varStack: varStack) ||
-                            !term.Arg(6).Unify(new DecimalTerm(value: ti.Seconds), varStack: varStack)
+                        if (!term.Arg(4).Unify(new DecimalTerm( ti.Hours), varStack: varStack) ||
+                            !term.Arg(5).Unify(new DecimalTerm( ti.Minutes), varStack: varStack) ||
+                            !term.Arg(6).Unify(new DecimalTerm( ti.Seconds), varStack: varStack)
                         )
                             return false;
                     }
@@ -838,7 +838,7 @@ namespace Prolog
                             term.Arg(2).To<int>(),
                             term.Arg(3).To<int>());
 
-                        if (!t0.Unify(new TimeSpanTerm(value: ti), varStack: varStack)) return false;
+                        if (!t0.Unify(new TimeSpanTerm( ti), varStack: varStack)) return false;
                     }
                     else
                     {
@@ -851,7 +851,7 @@ namespace Prolog
 
                 case BI.is_: // X is Y
                     t0 = term.Arg(1).Eval();
-                    if (term.Arg(0).Unify(t: t0, varStack: varStack)) break;
+                    if (term.Arg(0).Unify( t0, varStack: varStack)) break;
                     return false;
 
                 case BI.ne_uni: // X \= Y
@@ -939,7 +939,7 @@ namespace Prolog
                             t1 = t1.Arg(1);
                         }
 
-                        t0.Unify(CreateNewTerm(t: t1, arity: arity, functor: functor, args: args), varStack: varStack);
+                        t0.Unify(CreateNewTerm( t1, arity, functor, args: args), varStack: varStack);
 
                         break;
                     }
@@ -952,7 +952,7 @@ namespace Prolog
                         for (var i = arity; i > 0; i--)
                             t1 = new ListTerm(t0.Arg(i - 1), t1: t1); // [arg1, arg2, ...]
 
-                        t1 = new ListTerm(new AtomTerm(value: t0.FunctorToString),
+                        t1 = new ListTerm(new AtomTerm( t0.FunctorToString),
                             t1: t1); // [functor, arg1, arg2, ...]
 
                         if (!t1.Unify(term.Arg(1), varStack: varStack)) return false;
@@ -971,7 +971,7 @@ namespace Prolog
                 case BI.fileexists:
                     t0 = term.Arg(0);
 
-                    fileName = Utils.FileNameFromTerm(t: t0, ".pl");
+                    fileName = Utils.FileNameFromTerm( t0, ".pl");
 
                     if (fileName == null || !File.Exists(path: fileName)) return false;
                     break;
@@ -1003,7 +1003,7 @@ namespace Prolog
                         break;
                     }
 
-                    currentInputName = Utils.FileNameFromTerm(t: t0, ".pl");
+                    currentInputName = Utils.FileNameFromTerm( t0, ".pl");
                     currentFileReader = (FileReaderTerm) openFiles.GetFileReader(fileName: currentInputName);
 
                     if (currentFileReader == null)
@@ -1017,14 +1017,14 @@ namespace Prolog
 
                 case BI.seeing:
                     if (currentFileReader == null ||
-                        !term.Arg(0).Unify(t: currentFileReader, varStack: varStack)) return false;
+                        !term.Arg(0).Unify( currentFileReader, varStack: varStack)) return false;
 
                     break;
 
                 case BI.read: // read( ?Term)
                     t0 = ReadTerm();
 
-                    if (!term.Arg(0).Unify(t: t0, varStack: varStack)) return false;
+                    if (!term.Arg(0).Unify( t0, varStack: varStack)) return false;
 
                     break;
 
@@ -1046,21 +1046,21 @@ namespace Prolog
                         t0 = ListTerm.ListFromArray(ta: terms);
                     }
 
-                    if (!term.Arg(0).Unify(t: t0, varStack: varStack)) return false;
+                    if (!term.Arg(0).Unify( t0, varStack: varStack)) return false;
 
                     break;
 
                 case BI.readatom: // readatom( A)
                     t0 = TermFromWord(ReadLine());
 
-                    if (!term.Arg(0).Unify(t: t0, varStack: varStack)) return false;
+                    if (!term.Arg(0).Unify( t0, varStack: varStack)) return false;
 
                     break;
 
                 case BI.readln: // readln( L)
                     line = ReadLine();
 
-                    if (line == null || !term.Arg(0).Unify(new StringTerm(value: line), varStack: varStack))
+                    if (line == null || !term.Arg(0).Unify(new StringTerm( line), varStack: varStack))
                         return false;
 
                     break;
@@ -1068,7 +1068,7 @@ namespace Prolog
                 case BI.readeof: // readeof( +F, ?T) -- unify the entire contents of file F with string T
                     if ((t0 = term.Arg(0)).IsVar) return false;
 
-                    x = Utils.FileNameFromTerm(t: t0, ".txt");
+                    x = Utils.FileNameFromTerm( t0, ".txt");
                     string fileContents = null;
 
                     try
@@ -1080,14 +1080,14 @@ namespace Prolog
                         IO.Error("Error reading file {0}. Message was:\r\n{1}", x, e.Message);
                     }
 
-                    if (!term.Arg(1).Unify(new StringTerm(value: fileContents), varStack: varStack)) return false;
+                    if (!term.Arg(1).Unify(new StringTerm( fileContents), varStack: varStack)) return false;
 
                     break;
 
                 case BI.get0: // get0( C): any character
                     n = ReadChar();
 
-                    if (!term.Arg(0).Unify(new DecimalTerm(value: n), varStack: varStack)) return false;
+                    if (!term.Arg(0).Unify(new DecimalTerm( n), varStack: varStack)) return false;
 
                     break;
 
@@ -1099,7 +1099,7 @@ namespace Prolog
                         if (!char.IsControl((char) n)) break; // break if printable
                     }
 
-                    if (!term.Arg(0).Unify(new DecimalTerm(value: n), varStack: varStack)) return false;
+                    if (!term.Arg(0).Unify(new DecimalTerm( n), varStack: varStack)) return false;
 
                     break;
 
@@ -1131,7 +1131,7 @@ namespace Prolog
                         break;
                     }
 
-                    currentOutputName = Utils.FileNameFromTerm(t: t0, ".pl");
+                    currentOutputName = Utils.FileNameFromTerm( t0, ".pl");
                     currentFileWriter = (FileWriterTerm) openFiles.GetFileWriter(fileName: currentOutputName);
 
                     if (currentFileWriter == null)
@@ -1145,7 +1145,7 @@ namespace Prolog
 
                 case BI.telling:
                     if (currentFileWriter == null ||
-                        !term.Arg(0).Unify(t: currentFileWriter, varStack: varStack)) return false;
+                        !term.Arg(0).Unify( currentFileWriter, varStack: varStack)) return false;
 
                     break;
 
@@ -1173,7 +1173,7 @@ namespace Prolog
 
                     if (fs == null) return false;
 
-                    Write(s: fs);
+                    Write( fs);
 
                     if (term.FunctorToString == "writelnf") NewLine();
 
@@ -1227,7 +1227,7 @@ namespace Prolog
                             IO.Error("Second argument of console/2 must be a list");
 
                         a = Utils.Format(term.Arg(0), term.Arg(1));
-                        IO.WriteLine(s: a);
+                        IO.WriteLine( a);
                     }
                     else
                     {
@@ -1240,7 +1240,7 @@ namespace Prolog
                     t0 = term.Arg(0);
 
                     if (t0.IsVar)
-                        term.Arg(0).Unify(new DecimalTerm(value: maxWriteDepth), varStack: varStack);
+                        term.Arg(0).Unify(new DecimalTerm( maxWriteDepth), varStack: varStack);
                     else if (t0.IsNatural)
                         maxWriteDepth = t0.To<int>();
                     else
@@ -1254,7 +1254,7 @@ namespace Prolog
 
                 case BI.showfile:
                     t0 = term.Arg(0);
-                    fileName = Utils.FileNameFromTerm(t: t0, ".pl");
+                    fileName = Utils.FileNameFromTerm( t0, ".pl");
 
                     if (fileName == null || !File.Exists(path: fileName)) return false;
 
@@ -1285,8 +1285,8 @@ namespace Prolog
 
                         if (!t1.IsInteger || !(t2.IsInteger || inf)) return false;
 
-                        irt = new IntRangeTerm(lowBound: t1, inf ? new DecimalTerm(value: int.MaxValue) : t2);
-                        term.Arg(0).Unify(t: irt, varStack: varStack);
+                        irt = new IntRangeTerm(t1, inf ? new DecimalTerm( int.MaxValue) : t2);
+                        term.Arg(0).Unify( irt, varStack: varStack);
 
                         break;
                     }
@@ -1295,7 +1295,7 @@ namespace Prolog
                     DecimalTerm dt;
 
                     if (!irt.GetNextValue(dt: out dt) ||
-                        !term.Arg(3).Unify(t: dt, varStack: varStack)) // done
+                        !term.Arg(3).Unify( dt, varStack: varStack)) // done
                     {
                         term.SetArg(0, t: BaseTerm.VAR);
 
@@ -1333,15 +1333,15 @@ namespace Prolog
                         DecimalTerm it;
                         AtomTerm at, nt;
 
-                        if (term.Arg(1).IsUnifiableWith(it = new DecimalTerm(value: opDescr.Prec),
+                        if (term.Arg(1).IsUnifiableWith(it = new DecimalTerm( opDescr.Prec),
                                 varStack: varStack) &&
                             term.Arg(2).IsUnifiableWith(at = new AtomTerm(opDescr.Assoc.ToString()),
                                 varStack: varStack) &&
-                            term.Arg(3).IsUnifiableWith(nt = new AtomTerm(value: opDescr.Name), varStack: varStack))
+                            term.Arg(3).IsUnifiableWith(nt = new AtomTerm( opDescr.Name), varStack: varStack))
                         {
-                            term.Arg(1).Unify(t: it, varStack: varStack);
-                            term.Arg(2).Unify(t: at, varStack: varStack);
-                            term.Arg(3).Unify(t: nt, varStack: varStack);
+                            term.Arg(1).Unify( it, varStack: varStack);
+                            term.Arg(2).Unify( at, varStack: varStack);
+                            term.Arg(3).Unify( nt, varStack: varStack);
 
                             break;
                         }
@@ -1360,7 +1360,7 @@ namespace Prolog
 
                         t2 = NewIsoOrCsStringTerm(t0.FunctorToString.Dequoted());
 
-                        if (!t1.Unify(t: t2, varStack: varStack)) return false;
+                        if (!t1.Unify( t2, varStack: varStack)) return false;
                     }
                     else // t1 is string
                     {
@@ -1401,7 +1401,7 @@ namespace Prolog
                         var p = new PrologParser(this);
                         p.StreamIn = "&reading\r\n" + t0.FunctorToString.AddEndDot();
 
-                        if (!t1.Unify(t: p.ReadTerm, varStack: varStack)) return false;
+                        if (!t1.Unify( p.ReadTerm, varStack: varStack)) return false;
                     }
                     else if (!t0.Unify(new StringTerm(t1.ToString()), varStack: varStack))
                     {
@@ -1434,7 +1434,7 @@ namespace Prolog
                             list = ListTerm.ListFromArray(ta: terms);
                         }
 
-                        if (list.Unify(t: t1, varStack: varStack)) break;
+                        if (list.Unify( t1, varStack: varStack)) break;
                     }
                     else if (t1.IsProperList)
                     {
@@ -1446,7 +1446,7 @@ namespace Prolog
                             if (first) first = false;
                             else sb.Append(' ');
 
-                            sb.Append(value: t);
+                            sb.Append(t);
                         }
 
                         if (t0.Unify(new StringTerm(sb.ToString()), varStack: varStack)) break;
@@ -1459,7 +1459,7 @@ namespace Prolog
                     if (t0.IsVar)
                         t0.Unify(new AtomTerm(csharpStrings ? "csharp" : "iso"), varStack: varStack);
                     else
-                        SetStringStyle(t: t0);
+                        SetStringStyle( t0);
                     break;
 
                 case BI.name: // name( ?A, ?L)
@@ -1480,7 +1480,7 @@ namespace Prolog
                             t0 = new ListTerm(t0: t2, t1: t0);
                         }
 
-                        t1.Unify(t: t0, varStack: varStack);
+                        t1.Unify( t0, varStack: varStack);
                     }
                     else
                     {
@@ -1501,13 +1501,13 @@ namespace Prolog
                             a = sb.ToString().ToAtomic(type: out type);
 
                             if (type == TermType.Number)
-                                t2 = new DecimalTerm(int.Parse(s: a));
+                                t2 = new DecimalTerm(int.Parse( a));
                             else if (type == TermType.String)
-                                t2 = NewIsoOrCsStringTerm(s: a);
+                                t2 = NewIsoOrCsStringTerm( a);
                             else
-                                t2 = new AtomTerm(value: a);
+                                t2 = new AtomTerm( a);
 
-                            if (!term.Arg(0).Unify(t: t2, varStack: varStack)) return false;
+                            if (!term.Arg(0).Unify( t2, varStack: varStack)) return false;
                         }
                         else
                         {
@@ -1522,9 +1522,9 @@ namespace Prolog
                     t1 = term.Arg(1); // R
                     var head = t0.Arg(0);
                     var body = t0.Arg(1).ToDCG(lhs: ref head);
-                    t2 = new ClauseTerm(new ClauseNode(t: head, body: body)).Copy();
+                    t2 = new ClauseTerm(new ClauseNode( head, body: body)).Copy();
 
-                    if (!t1.Unify(t: t2, varStack: varStack)) return false;
+                    if (!t1.Unify( t2, varStack: varStack)) return false;
                     break;
 
                 case BI.numbervars: // numbervars(+X, +B, -E)
@@ -1536,7 +1536,7 @@ namespace Prolog
 
                     var k = t1.To<int>();
                     t0.NumberVars(k: ref k, s: varStack);
-                    t2.Unify(new DecimalTerm(value: k), varStack: varStack);
+                    t2.Unify(new DecimalTerm( k), varStack: varStack);
                     break;
 
                 case BI.format: // format/3
@@ -1544,7 +1544,7 @@ namespace Prolog
 
                     if (fs == null) return false;
 
-                    if (!term.Arg(2).Unify(new StringTerm(value: fs), varStack: varStack)) return false;
+                    if (!term.Arg(2).Unify(new StringTerm( fs), varStack: varStack)) return false;
                     break;
                 
                 case BI.predicatePN: // predicate( +P/N)
@@ -1552,7 +1552,7 @@ namespace Prolog
                     result = true;
 
                     if (t0.HasFunctor("/") && t0.Arity == 2 && t0.Arg(0).IsAtom && t0.Arg(1).IsInteger)
-                        result = Ps.IsPredicate(functor: t0.Arg(0).FunctorToString, t0.Arg<int>(1));
+                        result = Ps.IsPredicate( t0.Arg(0).FunctorToString, t0.Arg<int>(1));
                     else
                         result = false;
                     if (!result)
@@ -1562,7 +1562,7 @@ namespace Prolog
                 case BI.predicateX: // predicate( +T)
                     t0 = term.Arg(0);
 
-                    if (t0.IsVar || !Ps.IsPredicate(functor: t0.FunctorToString, arity: t0.Arity)) return false;
+                    if (t0.IsVar || !Ps.IsPredicate( t0.FunctorToString, t0.Arity)) return false;
                     break;
 
                 // term_pattern( T, P, Dmin, Dmax)
@@ -1633,7 +1633,7 @@ namespace Prolog
                     if (!(t0 is StringTerm))
                         IO.Error("Throw/3: string expected instead of '{0}'", t0);
 
-                    exceptionMessage = t1 == null ? t0.FunctorToString : Utils.Format(t: t0, args: t1);
+                    exceptionMessage = t1 == null ? t0.FunctorToString : Utils.Format( t0, args: t1);
                     Throw(exceptionClass: exceptionClass, exceptionMessage: exceptionMessage);
                     break;
 
@@ -1643,11 +1643,11 @@ namespace Prolog
                     m = DateTime.Today.Month;
                     d = DateTime.Today.Day;
 
-                    if (!term.Arg(0).Unify(new DecimalTerm(value: y), varStack: varStack)) return false;
+                    if (!term.Arg(0).Unify(new DecimalTerm( y), varStack: varStack)) return false;
 
-                    if (!term.Arg(1).Unify(new DecimalTerm(value: m), varStack: varStack)) return false;
+                    if (!term.Arg(1).Unify(new DecimalTerm( m), varStack: varStack)) return false;
 
-                    if (!term.Arg(2).Unify(new DecimalTerm(value: d), varStack: varStack)) return false;
+                    if (!term.Arg(2).Unify(new DecimalTerm( d), varStack: varStack)) return false;
                     break;
 
                 case BI.now: // time( ?H, ?M, ?S)
@@ -1655,11 +1655,11 @@ namespace Prolog
                     m = DateTime.Now.Minute;
                     s = DateTime.Now.Second;
 
-                    if (!term.Arg(0).Unify(new DecimalTerm(value: h), varStack: varStack)) return false;
+                    if (!term.Arg(0).Unify(new DecimalTerm( h), varStack: varStack)) return false;
 
-                    if (!term.Arg(1).Unify(new DecimalTerm(value: m), varStack: varStack)) return false;
+                    if (!term.Arg(1).Unify(new DecimalTerm( m), varStack: varStack)) return false;
 
-                    if (!term.Arg(2).Unify(new DecimalTerm(value: s), varStack: varStack)) return false;
+                    if (!term.Arg(2).Unify(new DecimalTerm( s), varStack: varStack)) return false;
                     break;
 
                 case BI.validdate: // validdate( +Y, +M, +D)
@@ -1721,20 +1721,20 @@ namespace Prolog
 
                     if (term.Arity > 2)
                     {
-                        if (!t0.IsString || !DateTime.TryParse(s: t0.FunctorToString, result: out dati))
+                        if (!t0.IsString || !DateTime.TryParse( t0.FunctorToString, result: out dati))
                         {
                             IO.Error("string_datetime: invalid date format: '{0}' for first argument", t0);
 
                             return false;
                         }
 
-                        if (!term.Arg(1).Unify(new DecimalTerm(value: dati.Year), varStack: varStack) ||
-                            !term.Arg(2).Unify(new DecimalTerm(value: dati.Month), varStack: varStack) ||
-                            !term.Arg(3).Unify(new DecimalTerm(value: dati.Day), varStack: varStack) ||
+                        if (!term.Arg(1).Unify(new DecimalTerm( dati.Year), varStack: varStack) ||
+                            !term.Arg(2).Unify(new DecimalTerm( dati.Month), varStack: varStack) ||
+                            !term.Arg(3).Unify(new DecimalTerm( dati.Day), varStack: varStack) ||
                             term.Arity == 7 &&
-                            (!term.Arg(4).Unify(new DecimalTerm(value: dati.Hour), varStack: varStack) ||
-                             !term.Arg(5).Unify(new DecimalTerm(value: dati.Minute), varStack: varStack) ||
-                             !term.Arg(6).Unify(new DecimalTerm(value: dati.Second), varStack: varStack)
+                            (!term.Arg(4).Unify(new DecimalTerm( dati.Hour), varStack: varStack) ||
+                             !term.Arg(5).Unify(new DecimalTerm( dati.Minute), varStack: varStack) ||
+                             !term.Arg(6).Unify(new DecimalTerm( dati.Second), varStack: varStack)
                             ))
                             return false;
                     }
@@ -1744,9 +1744,9 @@ namespace Prolog
 
                         if (t0.IsString)
                         {
-                            if (DateTime.TryParse(s: t0.FunctorToString, result: out dati))
+                            if (DateTime.TryParse( t0.FunctorToString, result: out dati))
                             {
-                                if (!t1.Unify(new DateTimeTerm(value: dati), varStack: varStack))
+                                if (!t1.Unify(new DateTimeTerm( dati), varStack: varStack))
                                     return false;
                             }
                             else
@@ -1760,7 +1760,7 @@ namespace Prolog
                         {
                             if (t1.IsDateTime)
                             {
-                                if (!t0.Unify(new StringTerm(value: t1.FunctorToString), varStack: varStack))
+                                if (!t0.Unify(new StringTerm( t1.FunctorToString), varStack: varStack))
                                     return false;
                             }
                             else
@@ -1790,7 +1790,7 @@ namespace Prolog
                         return false;
                     }
 
-                    if (!term.Arg(1).Unify(new DateTimeTerm(value: t0.To<DateTime>().Date), varStack: varStack))
+                    if (!term.Arg(1).Unify(new DateTimeTerm( t0.To<DateTime>().Date), varStack: varStack))
                         return false;
 
                     break;
@@ -1805,7 +1805,7 @@ namespace Prolog
                         return false;
                     }
 
-                    if (!term.Arg(1).Unify(new TimeSpanTerm(value: t0.To<DateTime>().TimeOfDay), varStack: varStack))
+                    if (!term.Arg(1).Unify(new TimeSpanTerm( t0.To<DateTime>().TimeOfDay), varStack: varStack))
                         return false;
 
                     break;
@@ -1864,7 +1864,7 @@ namespace Prolog
                         return false;
                     }
 
-                    if (!term.Arg(3).Unify(new DecimalTerm(value: n), varStack: varStack)) return false;
+                    if (!term.Arg(3).Unify(new DecimalTerm( n), varStack: varStack)) return false;
                     break;
 
                 case BI.dayofyear: // dayofyear( +Y, +M, +D, ?N)
@@ -1894,7 +1894,7 @@ namespace Prolog
                         return false;
                     }
 
-                    if (!term.Arg(3).Unify(new DecimalTerm(value: n), varStack: varStack)) return false;
+                    if (!term.Arg(3).Unify(new DecimalTerm( n), varStack: varStack)) return false;
 
                     break;
 
@@ -1944,7 +1944,7 @@ namespace Prolog
                         n = Utils.WeekNo(date: DateTime.Today);
                     }
 
-                    if (!term.Arg(term.Arity - 1).Unify(new DecimalTerm(value: n), varStack: varStack)) return false;
+                    if (!term.Arg(term.Arity - 1).Unify(new DecimalTerm( n), varStack: varStack)) return false;
 
                     break;
 
@@ -2058,7 +2058,7 @@ namespace Prolog
                             noCommas = predicateCallOptions.Get("nocommas");
                             noQuotes = predicateCallOptions.Get("noquotes");
 
-                            File.WriteAllText(path: x,
+                            File.WriteAllText(x,
                                 jt.ToJsonString(indentDelta: indentDelta, maxIndentLevel: maxIndentLevel,
                                     noCommas: noCommas, noQuotes: noQuotes));
                         }
@@ -2072,7 +2072,7 @@ namespace Prolog
                             else
                                 p.StreamIn = x;
 
-                            if (!t1.Unify(t: p.JsonListTerm, varStack: varStack)) return false;
+                            if (!t1.Unify( p.JsonListTerm, varStack: varStack)) return false;
                         }
 
                         break;
@@ -2090,7 +2090,7 @@ namespace Prolog
 
                     if (t0.IsAtomOrString)
                     {
-                        fileName = Utils.FileNameFromTerm(t: t0, ".csv");
+                        fileName = Utils.FileNameFromTerm(t0, ".csv");
 
                         if (fileName == null) return false;
 
@@ -2145,7 +2145,7 @@ namespace Prolog
 
 
                 case BI.workingdir: // workingdir[( ?D)] -- gets or sets the working directory
-                    if (!ConfigSettings.SetWorkingDirectory(term: term, varStack: varStack)) return false;
+                    if (!ConfigSettings.SetWorkingDirectory( term, varStack: varStack)) return false;
 
                     break;
 
@@ -2155,7 +2155,7 @@ namespace Prolog
                     result = true;
 
                     if (t0.HasFunctor("/") && t0.Arity == 2 && t0.Arg(0).IsAtom && t0.Arg(1).IsInteger)
-                        result = Ps.ListAll(functor: t0.Arg(0).FunctorToString, t0.Arg<int>(1), false, true);
+                        result = Ps.ListAll( t0.Arg(0).FunctorToString, t0.Arg<int>(1), false, true);
                     else
                         result = false;
 
@@ -2169,7 +2169,7 @@ namespace Prolog
 
                     if (!t0.IsAtom) return false;
 
-                    if (!Ps.ListAll(functor: t0.FunctorToString, -1, false, true)) return false;
+                    if (!Ps.ListAll( t0.FunctorToString, -1, false, true)) return false;
 
                     break;
 
@@ -2184,7 +2184,7 @@ namespace Prolog
                     result = true;
 
                     if (t0.HasFunctor("/") && t0.Arity == 2 && t0.Arg(0).IsAtom && t0.Arg(1).IsInteger)
-                        result = Ps.ListAll(functor: t0.Arg(0).FunctorToString, t0.Arg<int>(1), true, false);
+                        result = Ps.ListAll(t0.Arg(0).FunctorToString, t0.Arg<int>(1), true, false);
                     else
                         result = false;
 
@@ -2198,7 +2198,7 @@ namespace Prolog
 
                     if (!t0.IsAtom) return false;
 
-                    if (!Ps.ListAll(functor: t0.FunctorToString, -1, true, false)) return false;
+                    if (!Ps.ListAll(t0.FunctorToString, -1, true, false)) return false;
 
                     break;
 
@@ -2264,7 +2264,7 @@ namespace Prolog
                         return false;
                     }
 
-                    if (!t2.Unify(t: iterator.ClauseBody, varStack: varStack)) return false;
+                    if (!t2.Unify( iterator.ClauseBody, varStack: varStack)) return false;
 
                     break;
 
@@ -2342,7 +2342,7 @@ namespace Prolog
                     var groups = Utils.FindRegexMatches(opTable: OpTable, source: t0.FunctorToString,
                         matchPattern: t1.FunctorToString, options: optionsOLD);
 
-                    if (groups == null || !term.Arg(2).Unify(t: groups, varStack: varStack)) return false;
+                    if (groups == null || !term.Arg(2).Unify( groups, varStack: varStack)) return false;
 
                     break;
 
@@ -2383,7 +2383,7 @@ namespace Prolog
                     t1 = term.Arg(1).Arg(0);
                     var time = ClockTicksMSecs();
 
-                    if (!t1.Unify(new DecimalTerm(value: time), varStack: varStack)) return false;
+                    if (!t1.Unify(new DecimalTerm( time), varStack: varStack)) return false;
 
                     break;
 
@@ -2417,7 +2417,7 @@ namespace Prolog
 
                     if (t0.IsVar)
                     {
-                        t0.Unify(new DecimalTerm(value: queryTimeout), varStack: varStack);
+                        t0.Unify(new DecimalTerm( queryTimeout), varStack: varStack);
 
                         break;
                     }
@@ -2427,9 +2427,9 @@ namespace Prolog
                     break;
 
                 case BI.get_counter:
-                    globalTermsTable.getctr(a: term.Arg(0).FunctorToString, value: out cntrValue);
+                    globalTermsTable.getctr( term.Arg(0).FunctorToString, value: out cntrValue);
 
-                    if (!term.Arg(1).Unify(new DecimalTerm(value: cntrValue), varStack: varStack)) return false;
+                    if (!term.Arg(1).Unify(new DecimalTerm( cntrValue), varStack: varStack)) return false;
                     break;
 
                 case BI.set_counter:
@@ -2438,29 +2438,29 @@ namespace Prolog
                     if (!(t0.IsAtom || t0.IsNatural))
                         IO.Error("set_counter: first argument ({0}) must be an atom or a non-negative integer", t0);
 
-                    globalTermsTable.setctr(a: t0.FunctorToString, term.Arg(1).To<int>());
+                    globalTermsTable.setctr( t0.FunctorToString, term.Arg(1).To<int>());
                     break;
 
                 case BI.inc_counter:
                     a = term.Arg(0).FunctorToString;
-                    globalTermsTable.getctr(a: a, value: out cntrValue);
+                    globalTermsTable.getctr( a, value: out cntrValue);
 
                     if (term.Arity == 2 &&
                         !term.Arg(1).Unify(new DecimalTerm(cntrValue + 1), varStack: varStack))
                         return false;
 
-                    globalTermsTable.incctr(a: a);
+                    globalTermsTable.incctr( a);
                     break;
 
                 case BI.dec_counter:
                     a = term.Arg(0).FunctorToString;
-                    globalTermsTable.getctr(a: a, value: out cntrValue);
+                    globalTermsTable.getctr( a, value: out cntrValue);
 
                     if (term.Arity == 2 &&
                         !term.Arg(1).Unify(new DecimalTerm(cntrValue - 1), varStack: varStack))
                         return false;
 
-                    globalTermsTable.decctr(a: a);
+                    globalTermsTable.decctr( a);
                     break;
 
                 case BI.getenvvar:
@@ -2476,12 +2476,12 @@ namespace Prolog
                     a = Environment.GetEnvironmentVariable(variable: t0.FunctorToString);
                     decimal ev;
 
-                    if (decimal.TryParse(s: a, result: out ev))
-                        t1 = new DecimalTerm(value: ev);
+                    if (decimal.TryParse( a, result: out ev))
+                        t1 = new DecimalTerm( ev);
                     else
-                        t1 = new StringTerm(value: a);
+                        t1 = new StringTerm( a);
 
-                    if (!term.Arg(1).Unify(t: t1, varStack: varStack)) return false;
+                    if (!term.Arg(1).Unify( t1, varStack: varStack)) return false;
                     break;
 
                 case BI.setenvvar:
@@ -2495,18 +2495,18 @@ namespace Prolog
                     }
 
                     Environment.SetEnvironmentVariable(
-                        variable: t0.FunctorToString, term.Arg(1).ToString());
+                         t0.FunctorToString, term.Arg(1).ToString());
                     break;
 
                 case BI.getvar:
                     globalTermsTable.getvar(name: term.Arg(0).FunctorToString, value: out t1);
-                    if (!term.Arg(1).Unify(t: t1, varStack: varStack)) return false;
+                    if (!term.Arg(1).Unify( t1, varStack: varStack)) return false;
                     break;
 
                 case BI.setvar:
                     if (!(term.Arg(0) is AtomTerm)) return false;
 
-                    globalTermsTable.setvar(name: term.Arg(0).FunctorToString, term.Arg(1).Copy());
+                    globalTermsTable.setvar( term.Arg(0).FunctorToString, term.Arg(1).Copy());
                     break;
 
 
@@ -2524,17 +2524,17 @@ namespace Prolog
                     {
                         if (!t0.IsString || !t2.IsVar) return false;
 
-                        buffer_in = Encoding.UTF8.GetBytes(s: t0.FunctorToString);
+                        buffer_in = Encoding.UTF8.GetBytes( t0.FunctorToString);
                         buffer_out = new byte [buffer_in.Length];
                         var primary_index = 0;
                         bwt.bwt_encode(buf_in: buffer_in, buf_out: buffer_out, size: buffer_in.Length,
                             primary_index: ref primary_index);
                         t1.Unify(new StringTerm(Encoding.UTF8.GetString(bytes: buffer_out)), varStack: varStack);
-                        t2.Unify(new DecimalTerm(value: primary_index), varStack: varStack);
+                        t2.Unify(new DecimalTerm( primary_index), varStack: varStack);
                     }
                     else if (t1.IsString && t2.IsInteger)
                     {
-                        buffer_out = Encoding.UTF8.GetBytes(s: t1.FunctorToString);
+                        buffer_out = Encoding.UTF8.GetBytes( t1.FunctorToString);
                         buffer_decode = new byte [buffer_out.Length];
                         var primary_index = t2.To<int>();
                         bwt.bwt_decode(buf_encoded: buffer_out, buf_decoded: buffer_decode, size: buffer_out.Length,
@@ -2542,7 +2542,7 @@ namespace Prolog
                         var decoded = Encoding.UTF8.GetString(bytes: buffer_decode);
 
                         if (t0.IsVar) // decode t1 into t0
-                            t0.Unify(new StringTerm(value: decoded), varStack: varStack);
+                            t0.Unify(new StringTerm( decoded), varStack: varStack);
                         else if (t0.IsString) // t1 decoded must be equal to t0
                             return t0.FunctorToString == decoded;
                         else
@@ -2568,7 +2568,7 @@ namespace Prolog
                 {
                     sp = ((SpyPoint) goalListHead).SaveGoal;
 
-                    if (Debugger(port: SpyPort.Exit, goalNode: sp, null, false, 1)) break;
+                    if (Debugger( SpyPort.Exit, sp, null, false, 1)) break;
 
                     goalListHead = sp.NextNode;
                 }
@@ -2606,9 +2606,9 @@ namespace Prolog
             a = a.ToAtomic(type: out type);
 
             if (type == TermType.Number)
-                t2 = new DecimalTerm(decimal.Parse(s: a, provider: CIC));
+                t2 = new DecimalTerm(decimal.Parse( a, provider: CIC));
             else
-                t2 = new AtomTerm(value: a);
+                t2 = new AtomTerm( a);
 
             return t2;
         }
@@ -2622,14 +2622,14 @@ namespace Prolog
             if (type == TermType.Number)
                 try
                 {
-                    return new DecimalTerm(decimal.Parse(s: word, style: NumberStyles.Any, provider: CIC));
+                    return new DecimalTerm(decimal.Parse( word, style: NumberStyles.Any, provider: CIC));
                 }
                 catch
                 {
                     throw new ParserException("*** Unable to convert \"" + word + "\" to a number");
                 }
 
-            return new AtomTerm(value: word);
+            return new AtomTerm( word);
         }
 
 
@@ -2647,9 +2647,9 @@ namespace Prolog
                 var t0 = term.Arg(0);
 
                 if (t0.HasFunctor("/") && t0.Arity == 2 && t0.Arg(0).IsAtom && t0.Arg(1).IsInteger)
-                    result = Ps.SetCaching(functor: t0.Arg(0).FunctorToString, t0.Arg<int>(1), value: value);
+                    result = Ps.SetCaching( t0.Arg(0).FunctorToString, t0.Arg<int>(1), value: value);
                 else if (term.Arg(0).IsAtom) // predicate functor without arity: take all arities
-                    result = Ps.SetCaching(functor: term.Arg(0).FunctorToString, -1, value: value);
+                    result = Ps.SetCaching( term.Arg(0).FunctorToString, -1, value: value);
             }
 
             return result;
@@ -2669,11 +2669,11 @@ namespace Prolog
             }
             else if (arity == 1 && OpTable.IsUnaryOperator(name: functor, od: out od))
             {
-                t = new OperatorTerm(od: od, args[0]);
+                t = new OperatorTerm( od, args[0]);
             }
             else if (arity == 2 && OpTable.IsBinaryOperator(name: functor, od: out od))
             {
-                t = new OperatorTerm(od: od, args[0], args[1]);
+                t = new OperatorTerm( od, args[0], args[1]);
             }
             else if (arity == 2 && functor == PrologParser.DOT)
             {
@@ -2681,7 +2681,7 @@ namespace Prolog
             }
             else
             {
-                t = new CompoundTerm(functor: functor, args: args);
+                t = new CompoundTerm( functor, args: args);
             }
 
             return t;
@@ -2740,7 +2740,7 @@ namespace Prolog
 
             public bool Get<T>(string s, ref T value) where T : struct
             {
-                return Get(s: s, 1, value: ref value);
+                return Get( s, 1, value: ref value);
             }
 
 
@@ -2757,15 +2757,15 @@ namespace Prolog
                     var optionName = t.FunctorToString;
 
                     if (t.Arity == 0)
-                        Register(s: optionName);
+                        Register( optionName);
                     else
                         foreach (var a in t.Args)
                             if (a.IsNumber)
-                                Register(s: optionName, a.To<int>());
+                                Register( optionName, a.To<int>());
                             else if (a.IsAtom)
-                                Register(s: optionName, value: a.FunctorToString);
+                                Register( optionName, value: a.FunctorToString);
                             else if (a.IsString)
-                                Register(s: optionName, a.FunctorToString.ToAtom());
+                                Register( optionName, a.FunctorToString.ToAtom());
                 }
             }
 
@@ -2781,7 +2781,7 @@ namespace Prolog
                     if (first0) first0 = false;
                     else sb.Append(", ");
 
-                    sb.Append(value: entry.Key);
+                    sb.Append( entry.Key);
 
                     if (entry.Value != null)
                     {
@@ -2793,7 +2793,7 @@ namespace Prolog
                             if (first1) first1 = false;
                             else sb.Append(",");
 
-                            sb.Append(value: o);
+                            sb.Append( o);
                         }
 
                         sb.Append(')');

@@ -46,7 +46,7 @@ namespace Prolog
             }
 
             public AltListTerm(string leftBracket, string rightBracket, BaseTerm[] a)
-                : base(a: a)
+                : base( a)
             {
                 isAltList = true;
                 functor = leftBracket + ".." + rightBracket;
@@ -62,7 +62,7 @@ namespace Prolog
                 AltListTerm result = null;
 
                 for (var i = ta.Length - 1; i >= 0; i--)
-                    result = new AltListTerm(leftBracket: leftBracket, rightBracket: rightBracket, ta[i],
+                    result = new AltListTerm( leftBracket, rightBracket, ta[i],
                         result == null ? afterBar : result);
 
                 return result;
@@ -83,12 +83,12 @@ namespace Prolog
 
             public override ListTerm FlattenList()
             {
-                var a = FlattenListEx(functor: functor);
+                var a = FlattenListEx( functor);
 
                 var result = new AltListTerm(leftBracket: leftBracket, rightBracket: rightBracket);
 
                 for (var i = a.Count - 1; i >= 0; i--)
-                    result = new AltListTerm(leftBracket: leftBracket, rightBracket: rightBracket, a[index: i],
+                    result = new AltListTerm(leftBracket, rightBracket, a[index: i],
                         t1: result); // [a0, a0, ...]
 
                 return result;
@@ -157,7 +157,7 @@ namespace Prolog
                 if (t.FunctorToString == "array")
                     DoJsonArray(t.Arg(0));
                 else if (t.IsProperList)
-                    DoJsonObject(t: t);
+                    DoJsonObject( t);
                 else
                     IO.Error("Not a well-formed JSON-term: {0}", t.ToString());
             }
@@ -173,7 +173,7 @@ namespace Prolog
                 {
                     jtb.AppendPossibleCommaAndNewLine(first: ref first,
                         MaxIndentLevel: MaxIndentLevel); // '{' <pair>+ '}'
-                    DoJsonPair(t: e);
+                    DoJsonPair( e);
                 }
 
                 jtb.EmitCloseBracket('}');
@@ -190,7 +190,7 @@ namespace Prolog
                 {
                     jtb.AppendPossibleCommaAndNewLine(first: ref first,
                         MaxIndentLevel: MaxIndentLevel); // newline & indentation
-                    DoJsonValue(t: e);
+                    DoJsonValue( e);
                 }
 
                 jtb.EmitCloseBracket(']');
@@ -208,12 +208,12 @@ namespace Prolog
 
                 if (arg1.Arity == 0)
                 {
-                    DoJsonLiteral(t: arg1);
+                    DoJsonLiteral( arg1);
                 }
                 else
                 {
                     jtb.Newline();
-                    DoJsonValue(t: arg1);
+                    DoJsonValue( arg1);
                 }
             }
 
@@ -221,9 +221,9 @@ namespace Prolog
             private void DoJsonValue(BaseTerm t) // <object> | <array> | <literal>
             {
                 if (t.Arity == 0)
-                    DoJsonLiteral(t: t);
+                    DoJsonLiteral( t);
                 else
-                    DoJsonStruct(t: t);
+                    DoJsonStruct( t);
             }
 
 
@@ -233,12 +233,12 @@ namespace Prolog
 
                 if (noQuotes)
                 {
-                    jtb.EmitString(value: s);
+                    jtb.EmitString( s);
                 }
                 else
                 {
                     if (s.HasSignedRealNumberFormat() || s == "false" || s == "true" || s == "null")
-                        jtb.EmitString(value: s);
+                        jtb.EmitString( s);
                     else
                         jtb.EmitString(t.ToString());
                 }
@@ -271,12 +271,12 @@ namespace Prolog
 
                 public void EmitOpenBracket(char c)
                 {
-                    sb.Append(value: c);
+                    sb.Append( c);
 
                     if (level <= maxIndentLevel)
                     {
                         level++;
-                        sb.Append(value: Indentation);
+                        sb.Append( Indentation);
                     }
                 }
 
@@ -287,14 +287,14 @@ namespace Prolog
                     {
                         level--;
                         sb.AppendLine();
-                        sb.Append(value: Indentation);
+                        sb.Append( Indentation);
                     }
                     else
                     {
                         sb.Append(' ');
                     }
 
-                    sb.Append(value: c);
+                    sb.Append( c);
                 }
 
 
@@ -303,7 +303,7 @@ namespace Prolog
                     if (level <= maxIndentLevel)
                     {
                         sb.AppendLine();
-                        sb.Append(value: Indentation);
+                        sb.Append( Indentation);
                     }
                     else
                     {
@@ -325,7 +325,7 @@ namespace Prolog
 
                 public void EmitString(string value)
                 {
-                    sb.Append(value: value);
+                    sb.Append( value);
                 }
 
 
@@ -374,7 +374,7 @@ namespace Prolog
                 var hi = hiBound.To<int>();
 
                 for (var i = hi; i >= lo; i--)
-                    result = new ListTerm(new DecimalTerm(value: i), t1: result);
+                    result = new ListTerm(new DecimalTerm( i), t1: result);
 
                 return result;
             }
@@ -385,7 +385,7 @@ namespace Prolog
                 var hi = hiBound.To<int>();
 
                 for (var i = lo; i <= hi; i++)
-                    yield return new DecimalTerm(value: i);
+                    yield return new DecimalTerm( i);
             }
 
             public bool GetNextValue(out DecimalTerm dt)
@@ -477,8 +477,8 @@ namespace Prolog
                 =>
                     arg;
 
-            public DecimalTerm ReTerm => new DecimalTerm(value: Re);
-            public DecimalTerm ImTerm => new DecimalTerm(value: Im);
+            public DecimalTerm ReTerm => new DecimalTerm( Re);
+            public DecimalTerm ImTerm => new DecimalTerm( Im);
 
 
             public override int CompareTo(BaseTerm t)
@@ -492,16 +492,16 @@ namespace Prolog
 
                     if (Re == c.Re && Im == c.Im) return 0;
 
-                    return magnitude.CompareTo(value: c.magnitude); // compare |this| and |c|
+                    return magnitude.CompareTo( c.magnitude); // compare |this| and |c|
                 }
 
                 if (t is DecimalTerm)
                 {
                     d = (DecimalTerm) t;
 
-                    if (Im == 0) return Re.CompareTo(value: d.ValueD);
+                    if (Im == 0) return Re.CompareTo( d.ValueD);
 
-                    return magnitude.CompareTo(value: d.ValueD);
+                    return magnitude.CompareTo( d.ValueD);
                 }
 
                 IO.Error("Relational operator cannot be applied to '{0}' and '{1}'", this, t);
@@ -518,7 +518,7 @@ namespace Prolog
                 const double eps = 1.0e-6; // arbitrary, cosmetic
 
                 if (t is DecimalTerm)
-                    return Math.Abs(value: Im) < eps &&
+                    return Math.Abs( Im) < eps &&
                            Math.Abs(Re - ((DecimalTerm) t).ValueD) < eps;
 
                 if (t is ComplexTerm)
@@ -534,7 +534,7 @@ namespace Prolog
 
             private ComplexTerm TimesI()
             {
-                return new ComplexTerm(re: -Im, im: Re);
+                return new ComplexTerm( -Im, im: Re);
             }
 
 
@@ -588,19 +588,19 @@ namespace Prolog
                 var newRe = (Re * c.Re + Im * c.Im) / denominator;
                 var newIm = (Im * c.Re - Re * c.Im) / denominator;
 
-                return new ComplexTerm(re: newRe, im: newIm);
+                return new ComplexTerm( newRe, im: newIm);
             }
 
 
             public ComplexTerm Negative()
             {
-                return new ComplexTerm(re: -Re, im: -Im);
+                return new ComplexTerm( -Re, im: -Im);
             }
 
 
             public ComplexTerm Conjugate()
             {
-                return new ComplexTerm(re: Re, im: -Im);
+                return new ComplexTerm( Re, im: -Im);
             }
 
 
@@ -635,13 +635,13 @@ namespace Prolog
             {
                 var exp = Math.Exp(d: Re);
 
-                return new ComplexTerm(exp * Math.Cos(d: Im), exp * Math.Sin(a: Im));
+                return new ComplexTerm(exp * Math.Cos(d: Im), exp * Math.Sin( Im));
             }
 
 
             public ComplexTerm Abs()
             {
-                return new ComplexTerm(re: magnitude, 0);
+                return new ComplexTerm( magnitude, 0);
             }
 
 
@@ -657,7 +657,7 @@ namespace Prolog
                     var rn = Math.Pow(x: magnitude, y: n);
                     var nArg = n * arg;
 
-                    return new ComplexTerm(rn * Math.Cos(d: nArg), rn * Math.Sin(a: nArg));
+                    return new ComplexTerm(rn * Math.Cos(d: nArg), rn * Math.Sin( nArg));
                 }
 
                 return Log().Multiply(d: d).Exp(); // t^d = exp(log(t^d)) = exp(d*log(t))
@@ -751,8 +751,8 @@ namespace Prolog
             public override string ToWriteString(int level)
             {
                 // rounding: arbitrary, cosmetic, in order to prevent answers like 0+i or 1+0i
-                var re = Math.Round(value: Re, 6);
-                var im = Math.Round(value: Im, 6);
+                var re = Math.Round( Re, 6);
+                var im = Math.Round( Im, 6);
 
                 if (im == 0) return re == 0 ? "0" : re.ToString("0.######", provider: CIC);
 
@@ -764,8 +764,8 @@ namespace Prolog
                     ims = im.ToString("0.######", provider: CIC);
 
                 if (re == 0)
-                    return string.Format(provider: CIC, "{0}i", arg0: ims);
-                return string.Format(provider: CIC, "{0:0.######}{1}{2}i", arg0: re, im < 0 ? null : "+", arg2: ims);
+                    return string.Format( CIC, "{0}i", arg0: ims);
+                return string.Format( CIC, "{0:0.######}{1}{2}i", re, im < 0 ? null : "+", arg2: ims);
             }
         }
 

@@ -69,7 +69,7 @@ namespace Prolog
             public int MinRangeTermLen => MinRangeLen + (HasSearchTerm ? 1 : 0);
 
             // MaxRangeTermLen: analogous
-            public int MaxRangeTermLen => SaveAdd(m: MaxRangeLen, HasSearchTerm ? 1 : 0);
+            public int MaxRangeTermLen => SaveAdd( MaxRangeLen, HasSearchTerm ? 1 : 0);
 
             // MinRemMatchLen and MaxRemMatchLen are calculated on the fly during the matching process
 /*
@@ -160,9 +160,9 @@ namespace Prolog
 #endif
                 if (HasDownRepFactor || HasAltSearchTerms || HasAltSearchTerms)
                 {
-                    if (HasDownRepFactor) sb.Append(value: downRepFactor);
-                    if (HasAltSearchTerms) sb.Append(value: altSearchTerms);
-                    if (HasAcrossRepFactor) sb.Append(value: acrossRepFactor);
+                    if (HasDownRepFactor) sb.Append( downRepFactor);
+                    if (HasAltSearchTerms) sb.Append( altSearchTerms);
+                    if (HasAcrossRepFactor) sb.Append( acrossRepFactor);
                     sb.Append("$");
 
                     return sb.ToString();
@@ -218,7 +218,7 @@ namespace Prolog
 
                 if (range == null)
                     return sb.ToString();
-                return string.Format("{0},{1}{2}", arg0: range, SpaceAtLevel(level: level), arg2: sb);
+                return string.Format("{0},{1}{2}", range, SpaceAtLevel(level: level), arg2: sb);
             }
 
 
@@ -276,7 +276,7 @@ namespace Prolog
                     if (first) first = false;
                     else sb.Append('|');
 
-                    sb.Append(value: t);
+                    sb.Append( t);
                 }
 
                 if (alternatives.Length > 1) sb.Append(')');
@@ -508,7 +508,7 @@ namespace Prolog
                     if ((k = it + i) >= target.Count)
                         return false;
 
-                    AppendToRangeList(RangeList: ref RangeList, rangeSpecVar: rangeSpecVar, target[index: k],
+                    AppendToRangeList(ref RangeList, rangeSpecVar, target[index: k],
                         tail: ref tail);
                 }
 
@@ -530,39 +530,15 @@ namespace Prolog
                             j++) // scan all AltSearchTerm alternatives (separated by '|')
                         {
                             var searchTerm = e.AltSearchTerms[j];
-                            DownRepFactor downRepFactor = null; // e.downRepFactor [j];
-                            t = target[index: k];
-                            var status = AltLoopStatus.TryNextAlt;
-
-                            if (downRepFactor == null)
-                            {
-                                status =
-                                    TryOneAlternative(ip: ip, varStack: varStack, e: e, k: k, marker: marker,
-                                        RangeList: RangeList, i: i, t: t, negSearchSucceeded: ref negSearchSucceeded,
-                                        searchTerm: searchTerm);
-
-                                if (status == AltLoopStatus.MatchFound) return true;
-                            }
-                            else // traverse the downRepFactor tree, which in principle may yield more than one match
-                            {
-                                subtreeIterator = new NodeIterator(root: t, pattern: searchTerm,
-                                    minLenTerm: downRepFactor.minLenTerm,
-                                    maxLenTerm: downRepFactor.maxLenTerm, false, path: downRepFactor.bindVar,
-                                    varStack: varStack);
-
-                                foreach (var match in subtreeIterator
-                                ) // try -- if necessary -- each tree match with the current search term
-                                {
-                                    status =
-                                        TryOneAlternative(ip: ip, varStack: varStack, e: e, k: k, marker: marker,
-                                            RangeList: RangeList, i: i, t: match,
-                                            negSearchSucceeded: ref negSearchSucceeded, searchTerm: searchTerm);
-
-                                    if (status == AltLoopStatus.MatchFound) return true;
-
-                                    if (status == AltLoopStatus.Break) break;
-                                }
-                            }
+                            
+                            t = target[k];
+                            
+                            var status =
+                                TryOneAlternative(ip: ip, varStack: varStack, e: e, k: k, marker: marker,
+                                    RangeList: RangeList, i: i, t: t, negSearchSucceeded: ref negSearchSucceeded,
+                                    searchTerm: searchTerm);
+                            if (status == AltLoopStatus.MatchFound) return true;
+                            
 
                             if (status == AltLoopStatus.Break) break;
                         }
@@ -603,7 +579,7 @@ namespace Prolog
 
                         // k is ok
                         if (i < maxLen)
-                            AppendToRangeList(RangeList: ref RangeList, rangeSpecVar: rangeSpecVar, target[index: k],
+                            AppendToRangeList(ref RangeList, rangeSpecVar, target[index: k],
                                 tail: ref tail);
 
                         // now deal with the rest
@@ -623,7 +599,7 @@ namespace Prolog
             private AltLoopStatus TryOneAlternative(int ip, VarStack varStack, ListPatternElem e, int k,
                 int marker, ListTerm RangeList, int i, BaseTerm t, ref bool negSearchSucceeded, BaseTerm searchTerm)
             {
-                var unified = searchTerm.Unify(t: t, varStack: varStack);
+                var unified = searchTerm.Unify( t, varStack: varStack);
 
                 if (e.IsNegSearch) // none of the terms in the inner loop may match. ~(a | b | c) = ~a & ~b & ~c
                 {
@@ -684,7 +660,7 @@ namespace Prolog
                 {
                     minRequiredForRestOfRanges += (e = (ListPatternElem) pattern[i]).MinRangeTermLen;
                     maxPossibleForRestOfRanges =
-                        ListPatternElem.SaveAdd(m: maxPossibleForRestOfRanges, n: e.MaxRangeTermLen);
+                        ListPatternElem.SaveAdd( maxPossibleForRestOfRanges, n: e.MaxRangeTermLen);
                 }
 
                 // calculate the number of target terms that are actually available
@@ -710,7 +686,7 @@ namespace Prolog
             {
                 if (AltListVar == null) return true;
 
-                return AltListVar.Unify(t: searchTerm, varStack: varStack);
+                return AltListVar.Unify( searchTerm, varStack: varStack);
             }
 
 
@@ -720,16 +696,16 @@ namespace Prolog
                 VarStack varStack)
             {
                 if (g.MinLenTerm.IsVar)
-                    g.MinLenTerm.Unify(new DecimalTerm(value: rangeLength), varStack: varStack);
+                    g.MinLenTerm.Unify(new DecimalTerm( rangeLength), varStack: varStack);
 
                 if (g.MaxLenTerm.IsVar)
-                    g.MaxLenTerm.Unify(new DecimalTerm(value: rangeLength), varStack: varStack);
+                    g.MaxLenTerm.Unify(new DecimalTerm( rangeLength), varStack: varStack);
 
                 if (g.RangeBindVar != null)
                 {
                     if (RangeList == null) RangeList = EMPTYLIST;
 
-                    if (!g.RangeBindVar.Unify(t: RangeList, varStack: varStack))
+                    if (!g.RangeBindVar.Unify( RangeList, varStack: varStack))
                         return false; // alas, the same range var was apparently used & bound earlier in the pattern
                 }
 
@@ -745,12 +721,12 @@ namespace Prolog
 
                 if (RangeList == null)
                 {
-                    RangeList = new ListTerm(t: t);
+                    RangeList = new ListTerm( t);
                     tail = RangeList;
                 }
                 else
                 {
-                    tail.SetArg(1, new ListTerm(t: t));
+                    tail.SetArg(1, new ListTerm( t));
                     tail = tail.Arg(1);
                 }
             }

@@ -140,15 +140,15 @@ namespace Prolog
                         childNo == 0 &&
                         pos.Count >= minLevel &&
                         pos.Count <= maxLevel &&
-                        pattern.Unify(t: term, varStack: varStack))
+                        pattern.Unify( term, varStack: varStack))
                     {
                         if (minLenTerm.IsVar)
-                            minLenTerm.Unify(new DecimalTerm(value: NodePath.ProperLength), varStack: varStack);
+                            minLenTerm.Unify(new DecimalTerm( NodePath.ProperLength), varStack: varStack);
 
                         if (maxLenTerm.IsVar)
-                            maxLenTerm.Unify(new DecimalTerm(value: NodePath.ProperLength), varStack: varStack);
+                            maxLenTerm.Unify(new DecimalTerm( NodePath.ProperLength), varStack: varStack);
 
-                        if (!path.IsCut && !path.Unify(t: NodePath, varStack: varStack))
+                        if (!path.IsCut && !path.Unify( NodePath, varStack: varStack))
                             continue;
 
                         yield return pattern;
@@ -221,7 +221,7 @@ namespace Prolog
                 var result =
                     t0.Rank.CompareTo(target: t1.Rank); // BaseTerm types are ranked according to TermType enum order
 
-                return result == 0 ? t0.CompareValue(t: t1) : result;
+                return result == 0 ? t0.CompareValue( t1) : result;
             }
 
             public void CopyValuesFrom(BaseTerm t)
@@ -279,13 +279,13 @@ namespace Prolog
                         if (!t0.IsCallable)
                             IO.Error("Illegal predicate head: {0}", t0);
                         t1 = Arg(1);
-                        result = new TermNode(term: t0, t1.ToGoalList(stackSize: stackSize, level: level));
+                        result = new TermNode(t0, t1.ToGoalList(stackSize: stackSize, level: level));
                         break;
                     case PrologParser.DCGIMPL:
                         t0 = Arg(0);
                         if (!t0.IsCallable) IO.Error("Illegal DCG head: {0}", t0);
                         t1 = Arg(1);
-                        result = new TermNode(term: t0, t1.ToGoalList(stackSize: stackSize, level: level));
+                        result = new TermNode( t0, t1.ToGoalList(stackSize: stackSize, level: level));
                         break;
                     case PrologParser.COMMA:
                         t0 = Arg(0);
@@ -327,7 +327,7 @@ namespace Prolog
                 BaseTerm inVar = new Variable();
                 var inVarSave = inVar;
                 var outVar = inVar;
-                lhs = new DcgTerm(t: lhs, z: ref outVar); // outVar becomes new term
+                lhs = new DcgTerm( lhs, z: ref outVar); // outVar becomes new term
                 BaseTerm remainder;
 
                 var alternatives = AlternativesToArrayList();
@@ -348,9 +348,9 @@ namespace Prolog
                     if (i == 0)
                         result = body.TermSeq();
                     else
-                        result = new OperatorTerm(od: SemiOpDescr, a0: result, body.TermSeq());
+                        result = new OperatorTerm(SemiOpDescr, result, body.TermSeq());
 
-                    ((Variable) remainder).Bind(t: outVar);
+                    ((Variable) remainder).Bind( outVar);
                 }
 
                 return result == null ? null : result.ToGoalList(); // empty body treated similar to null
@@ -362,7 +362,7 @@ namespace Prolog
                 var t = this;
                 var a = new List<BaseTerm>();
 
-                while (t.HasFunctor(s: PrologParser.SEMI) && t.Arity == 2)
+                while (t.HasFunctor( PrologParser.SEMI) && t.Arity == 2)
                 {
                     a.Add(t.Arg(0));
                     t = t.Arg(1); // xfy
@@ -379,7 +379,7 @@ namespace Prolog
                 var t = this;
                 var a = new List<BaseTerm>();
 
-                while (t.HasFunctor(s: PrologParser.COMMA) && t.Arity == 2)
+                while (t.HasFunctor( PrologParser.COMMA) && t.Arity == 2)
                 {
                     a.AddRange(t.Arg(0).ToTermList());
                     t = t.Arg(1); // xfy
@@ -397,9 +397,9 @@ namespace Prolog
 
                 if (t.IsString || t is Cut)
                 {
-                    body.Append(t: t);
+                    body.Append( t);
                 }
-                else if (t.HasFunctor(s: PrologParser.CURL))
+                else if (t.HasFunctor( PrologParser.CURL))
                 {
                     while (t.Arity == 2)
                     {
@@ -416,12 +416,12 @@ namespace Prolog
 
                     if (embedded)
                     {
-                        body.Append(new CompoundTerm(functor: PrologParser.EQ, a0: remainder, a1: t));
+                        body.Append(new CompoundTerm( PrologParser.EQ, a0: remainder, a1: t));
                         embedded = false;
                     }
                     else
                     {
-                        ((Variable) remainder).Bind(t: t);
+                        ((Variable) remainder).Bind( t);
                     }
                     // in this case, nothing is appended to body, which may be left empty (e.g. t-->[x])
 
@@ -429,8 +429,8 @@ namespace Prolog
                 }
                 else if (t.IsAtom || t.IsCompound)
                 {
-                    t = new DcgTerm(t: t, z: ref remainder);
-                    body.Append(t: t);
+                    t = new DcgTerm( t, z: ref remainder);
+                    body.Append( t);
                 }
                 else if (t.IsNamedVar)
                 {
@@ -487,7 +487,7 @@ namespace Prolog
             public bool IsUnifiableWith(BaseTerm t, VarStack varStack) // as Unify, but does not actually bind
             {
                 var marker = varStack.Count;
-                var result = Unify(t: t, varStack: varStack);
+                var result = Unify( t, varStack: varStack);
                 UnbindToMarker(varStack: varStack, marker: marker);
 
                 return result;
@@ -511,7 +511,7 @@ namespace Prolog
 
                 foreach (var v in varStack.ToArray())
                     if (v != null && v is Variable)
-                        result.AppendLine(string.Format(">> {0} = {1}", arg0: ((Variable) v).Name, (Variable) v));
+                        result.AppendLine($">> {((Variable) v).Name} = {(Variable) v}");
 
                 return result.ToString();
             }
@@ -560,7 +560,7 @@ namespace Prolog
             {
                 if (newVersion) verNoMax++;
 
-                return CopyEx(newVerNo: verNoMax, true);
+                return CopyEx( verNoMax, true);
             }
 
             public BaseTerm Copy(bool newVersion, bool mustBeNamed) // called by copy_term
@@ -592,7 +592,7 @@ namespace Prolog
                 {
                     var c = (CatchOpenTerm) this;
 
-                    return new CatchOpenTerm(id: c.Id, exceptionClass: c.ExceptionClass,
+                    return new CatchOpenTerm( c.Id, c.ExceptionClass,
                         c.MsgVar.CopyEx(newVerNo: newVerNo, mustBeNamed: mustBeNamed),
                         seqNo: c.SeqNo, saveStackSize: c.SaveStackSize);
                 }
@@ -609,12 +609,12 @@ namespace Prolog
 
                 if (this is ListPatternTerm)
                 {
-                    t = new ListPatternTerm(a: a);
+                    t = new ListPatternTerm( a);
                 }
                 else if (this is AltListTerm)
                 {
                     var alt = (AltListTerm) this;
-                    t = new AltListTerm(leftBracket: alt.LeftBracket, rightBracket: alt.RightBracket, a[0], a[1]);
+                    t = new AltListTerm(alt.LeftBracket, alt.RightBracket, a[0], a[1]);
                 }
                 else if (this is ListTerm)
                 {
@@ -625,11 +625,11 @@ namespace Prolog
                 }
                 else if (this is OperatorTerm)
                 {
-                    t = new OperatorTerm(od: ((OperatorTerm) this).od, a: a);
+                    t = new OperatorTerm( ((OperatorTerm) this).od, a: a);
                 }
                 else if (this is DcgTerm)
                 {
-                    t = new DcgTerm(functor: functor, args: a);
+                    t = new DcgTerm( functor, args: a);
                 }
                 else if (this is WrapperTerm)
                 {
@@ -641,12 +641,12 @@ namespace Prolog
                 }
                 else if (this is ListPatternElem)
                 {
-                    t = new ListPatternElem(a: a, downRepFactor: ((ListPatternElem) this).downRepFactor,
+                    t = new ListPatternElem( a, downRepFactor: ((ListPatternElem) this).downRepFactor,
                         isNegSearch: ((ListPatternElem) this).IsNegSearch);
                 }
                 else if (this is CompoundTerm)
                 {
-                    t = new CompoundTerm(functor: functor, args: a);
+                    t = new CompoundTerm( functor, args: a);
                 }
 
                 else
@@ -662,7 +662,7 @@ namespace Prolog
             {
                 if (IsVar)
                 {
-                    Unify(new CompoundTerm(functor: NUMVAR, new DecimalTerm(value: k++)), varStack: s);
+                    Unify(new CompoundTerm(NUMVAR, new DecimalTerm( k++)), varStack: s);
                 }
                 else
                 {
@@ -682,10 +682,10 @@ namespace Prolog
                 if (asAtom)
                     args[0] = new AtomTerm(m.Value.ToAtom());
                 else
-                    args[0] = new StringTerm(value: m.Value);
+                    args[0] = new StringTerm( m.Value);
 
-                args[1] = new DecimalTerm(value: m.Index);
-                args[2] = new DecimalTerm(value: m.Length);
+                args[1] = new DecimalTerm( m.Index);
+                args[2] = new DecimalTerm( m.Length);
                 args[3] = new AtomTerm("m.Groups");
 
                 return new CompoundTerm("match", args: args);
@@ -702,7 +702,7 @@ namespace Prolog
                 }
                 else
                 {
-                    e.WriteLine(s: FunctorToString);
+                    e.WriteLine( FunctorToString);
 
                     if (arity > 0)
                         foreach (var a in args)
@@ -784,7 +784,7 @@ namespace Prolog
             }
 
             public bool FunctorIsDot => FunctorToString == ".";
-            public string Key => MakeKey(f: FunctorToString, a: arity);
+            public string Key => MakeKey( FunctorToString, a: arity);
             public virtual string Name => FunctorToString + '/' + arity;
             public bool FunctorIsBinaryComma => FunctorToString == ",";
 

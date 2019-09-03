@@ -28,7 +28,7 @@ namespace Prolog
 
         public class TryCatchTerm : AtomTerm
         {
-            public TryCatchTerm(string a) : base(value: a)
+            public TryCatchTerm(string a) : base( a)
             {
             }
         }
@@ -84,7 +84,7 @@ namespace Prolog
         public BaseTerm NewIsoOrCsStringTerm(string s)
         {
             if (csharpStrings)
-                return new StringTerm(value: s);
+                return new StringTerm( s);
             return new ListTerm(charCodeString: s);
         }
 
@@ -156,17 +156,17 @@ namespace Prolog
 
             protected override int CompareValue(BaseTerm t)
             {
-                return varNo.CompareTo(value: ((Variable) t).varNo);
+                return varNo.CompareTo( ((Variable) t).varNo);
             }
 
             public override bool Unify(BaseTerm t, VarStack varStack)
             {
-                if (IsUnified) return ChainEnd().Unify(t: t, varStack: varStack);
+                if (IsUnified) return ChainEnd().Unify( t, varStack: varStack);
 
                 if (t.IsUnified) return Unify(t.ChainEnd(), varStack: varStack);
 
                 NextUnifyCount();
-                Bind(t: t);
+                Bind( t);
                 varStack.Push(this);
 
                 return true;
@@ -281,7 +281,7 @@ namespace Prolog
             {
                 if (c.NextNode == null) // fact
                 {
-                    CopyValuesFrom(t: c.Head);
+                    CopyValuesFrom( c.Head);
                 }
                 else
                 {
@@ -350,7 +350,7 @@ namespace Prolog
             {
                 if (MaxWriteDepthExceeded(level: level)) return "...";
 
-                var sb = new StringBuilder(value: wrapFunctor);
+                var sb = new StringBuilder( wrapFunctor);
 
                 var first = true;
 
@@ -454,7 +454,7 @@ namespace Prolog
 
             protected override int CompareValue(BaseTerm t)
             {
-                var result = Arity.CompareTo(value: t.Arity); // same FunctorString: lowest arity first
+                var result = Arity.CompareTo( t.Arity); // same FunctorString: lowest arity first
 
                 if (result != 0) return result; // different arities
 
@@ -557,7 +557,7 @@ namespace Prolog
             public OperatorDescr od;
 
             public OperatorTerm(OperatorTable opTable, string name, BaseTerm a0, BaseTerm a1)
-                : base(functor: name, a0: a0, a1: a1)
+                : base( name, a0: a0, a1: a1)
             {
                 if (!opTable.IsBinaryOperator(name: name, od: out od))
                     IO.Fatal("OperatorTerm/4: not a binary operator: '{0}'", name);
@@ -568,7 +568,7 @@ namespace Prolog
 
 
             public OperatorTerm(OperatorDescr od, BaseTerm a0, BaseTerm a1)
-                : base(functor: od.Name, a0: a0, a1: a1)
+                : base( od.Name, a0: a0, a1: a1)
             {
                 this.od = od;
                 assoc = od.Assoc;
@@ -577,7 +577,7 @@ namespace Prolog
 
 
             public OperatorTerm(OperatorDescr od, BaseTerm a)
-                : base(functor: od.Name, a: a)
+                : base( od.Name, a: a)
             {
                 this.od = od;
                 assoc = od.Assoc;
@@ -586,7 +586,7 @@ namespace Prolog
 
 
             public OperatorTerm(OperatorDescr od, BaseTerm[] a)
-                : base(functor: od.Name, args: a)
+                : base( od.Name, args: a)
             {
                 this.od = od;
                 assoc = od.Assoc;
@@ -595,7 +595,7 @@ namespace Prolog
 
 
             public OperatorTerm(string name) // stand-alone operator used as term
-                : base(functor: name)
+                : base( name)
             {
                 od = null;
                 assoc = AssocType.None;
@@ -652,7 +652,7 @@ namespace Prolog
                                precedence == Arg(0).Precedence && (assoc == AssocType.xfx || assoc == AssocType.xfy);
                     sb.AppendPacked(Arg(0).ToWriteString(level + 1), mustPack: mustPack);
 
-                    sb.AppendPossiblySpaced(s: FunctorToString);
+                    sb.AppendPossiblySpaced( FunctorToString);
 
                     mustPack =
                         precedence < Arg(1).Precedence ||
@@ -667,20 +667,20 @@ namespace Prolog
                     switch (assoc)
                     {
                         case AssocType.fx:
-                            sb.Append(value: FunctorToString);
+                            sb.Append( FunctorToString);
                             sb.AppendPacked(Arg(0).ToWriteString(level + 1), precedence <= Arg(0).Precedence);
                             break;
                         case AssocType.fy:
-                            sb.Append(value: FunctorToString);
+                            sb.Append( FunctorToString);
                             sb.AppendPacked(Arg(0).ToWriteString(level + 1), precedence < Arg(0).Precedence);
                             break;
                         case AssocType.xf:
                             sb.AppendPacked(Arg(0).ToWriteString(level + 1), precedence <= Arg(0).Precedence);
-                            sb.AppendPossiblySpaced(s: FunctorToString);
+                            sb.AppendPossiblySpaced( FunctorToString);
                             break;
                         case AssocType.yf:
                             sb.AppendPacked(Arg(0).ToWriteString(level + 1), precedence < Arg(0).Precedence);
-                            sb.AppendPossiblySpaced(s: FunctorToString);
+                            sb.AppendPossiblySpaced( FunctorToString);
                             break;
                     }
 
@@ -822,7 +822,7 @@ namespace Prolog
             public decimal Value { get; }
 
             public double ValueD => (double) Value;
-            public override string FunctorToString => Value.ToString(provider: CIC);
+            public override string FunctorToString => Value.ToString( CIC);
 
 
             public override bool Unify(BaseTerm t, VarStack varStack)
@@ -835,7 +835,7 @@ namespace Prolog
                     return Value == ((DecimalTerm) t).Value;
 
                 if (t is ComplexTerm)
-                    return Math.Abs(value: ((ComplexTerm) t).Im) < EPS &&
+                    return Math.Abs( ((ComplexTerm) t).Im) < EPS &&
                            Math.Abs(ValueD - ((ComplexTerm) t).Re) < EPS;
 
                 return false;
@@ -899,7 +899,7 @@ namespace Prolog
                 var newRe = ValueD * c.Re / denominator;
                 var newIm = -ValueD * c.Im / denominator;
 
-                return new ComplexTerm(re: newRe, im: newIm);
+                return new ComplexTerm( newRe, im: newIm);
             }
 
 
@@ -913,7 +913,7 @@ namespace Prolog
             {
                 if (Value == Math.Truncate(d: Value)) return Value.ToString();
 
-                return Value.ToString(Math.Abs(value: Value) < (decimal) EPS ? "e" : "0.######", provider: CIC);
+                return Value.ToString(Math.Abs( Value) < (decimal) EPS ? "e" : "0.######", provider: CIC);
             }
         }
 
@@ -1054,7 +1054,7 @@ namespace Prolog
                 }
                 catch (Exception e)
                 {
-                    engine.Throw(exceptionClass: IOException,
+                    engine.Throw( IOException,
                         "Error while opening file '{0}' for input.\r\nMessage was:\r\n{1}",
                         fileName, e.Message);
                 }
@@ -1124,7 +1124,7 @@ namespace Prolog
                 }
                 catch (Exception e)
                 {
-                    engine.Throw(exceptionClass: IOException,
+                    engine.Throw( IOException,
                         "Error while opening file '{0}' for output.\r\nMessage was:\r\n{1}",
                         fileName, e.Message);
                 }
@@ -1139,7 +1139,7 @@ namespace Prolog
 
             public void Write(string s)
             {
-                tw.Write(value: s);
+                tw.Write( s);
             }
 
 
@@ -1151,7 +1151,7 @@ namespace Prolog
 
             public void NewLine()
             {
-                tw.Write(value: Environment.NewLine);
+                tw.Write( Environment.NewLine);
             }
 
 
@@ -1260,23 +1260,23 @@ namespace Prolog
             }
 
             public ListTerm(BaseTerm t)
-                : base(functor: PrologParser.DOT, t.ChainEnd(), a1: EMPTYLIST)
+                : base( PrologParser.DOT, t.ChainEnd(), a1: EMPTYLIST)
             {
             }
 
             public ListTerm(BaseTerm t0, BaseTerm t1)
-                : base(functor: PrologParser.DOT, t0.ChainEnd(), t1.ChainEnd())
+                : base( PrologParser.DOT, t0.ChainEnd(), t1.ChainEnd())
             {
             }
 
             // for ListPattern; *not* intended for creating a list from an array, use ListFromArray
             public ListTerm(BaseTerm[] a)
-                : base(functor: PrologParser.DOT, args: a)
+                : base( PrologParser.DOT, args: a)
             {
             }
 
             public ListTerm(string charCodeString)
-                : base(functor: PrologParser.DOT)
+                : base( PrologParser.DOT)
             {
                 if (charCodeString.Length == 0)
                 {
@@ -1474,13 +1474,13 @@ namespace Prolog
 
             public BaseTerm AppendElement(BaseTerm last) // append last to 'this'
             {
-                return Append(new ListTerm(t: last));
+                return Append(new ListTerm( last));
             }
 
 
             public virtual ListTerm FlattenList()
             {
-                var a = FlattenListEx(functor: functor); // only sublists with the same functor
+                var a = FlattenListEx( functor); // only sublists with the same functor
 
                 var result = EmptyList;
 
@@ -1500,7 +1500,7 @@ namespace Prolog
                 while (t.IsListNode)
                 {
                     if ((t0 = t.Arg(0)).IsProperOrPartialList && ((ListTerm) t0).functor.Equals(obj: functor))
-                        result.AddRange(((ListTerm) t0).FlattenListEx(functor: functor));
+                        result.AddRange(((ListTerm) t0).FlattenListEx( functor));
                     else
                         result.Add(item: t0);
 
@@ -1692,7 +1692,7 @@ namespace Prolog
         public class DcgTerm : CompoundTerm
         {
             public DcgTerm(BaseTerm t, ref BaseTerm z)
-                : base(functor: t.FunctorToString, new BaseTerm [t.Arity + 2])
+                : base( t.FunctorToString, new BaseTerm [t.Arity + 2])
             {
                 for (var i = 0; i < t.Arity; i++) args[i] = t.Arg(pos: i);
 
@@ -1700,19 +1700,19 @@ namespace Prolog
                 args[arity - 1] = z = new Variable();
             }
 
-            public DcgTerm(BaseTerm t) : base(functor: PrologParser.CURL, a0: t, a1: NULLCURL)
+            public DcgTerm(BaseTerm t) : base( PrologParser.CURL, a0: t, a1: NULLCURL)
             {
             }
 
-            public DcgTerm(BaseTerm t0, BaseTerm t1) : base(functor: PrologParser.CURL, a0: t0, a1: t1)
+            public DcgTerm(BaseTerm t0, BaseTerm t1) : base( PrologParser.CURL, a0: t0, a1: t1)
             {
             }
 
-            public DcgTerm() : base(functor: PrologParser.CURL)
+            public DcgTerm() : base( PrologParser.CURL)
             {
             }
 
-            public DcgTerm(object functor, BaseTerm[] args) : base(functor: functor, args: args)
+            public DcgTerm(object functor, BaseTerm[] args) : base( functor, args: args)
             {
             }
 

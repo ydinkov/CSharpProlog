@@ -114,7 +114,7 @@ namespace Prolog
                     // column titles
                     for (var j = 0; j < dimension; j++)
                     {
-                        sr.Write(";{0}", Enquote(s: axis[index: j].Name));
+                        sr.Write(";{0}", Enquote( axis[index: j].Name));
                         colTotal[j] = 0;
                     }
 
@@ -123,7 +123,7 @@ namespace Prolog
                     // rows
                     for (var i = 0; i < dimension; i++)
                     {
-                        sr.Write(Enquote(s: axis[index: i].Name)); // row title
+                        sr.Write(Enquote( axis[index: i].Name)); // row title
                         rowTotal = 0;
 
                         for (var j = 0; j < dimension; j++)
@@ -218,7 +218,7 @@ namespace Prolog
             {
                 var result = Functor.CompareTo(strB: pd.Functor);
 
-                if (result == 0) return Arity.CompareTo(value: pd.Arity);
+                if (result == 0) return Arity.CompareTo( pd.Arity);
 
                 return result;
             }

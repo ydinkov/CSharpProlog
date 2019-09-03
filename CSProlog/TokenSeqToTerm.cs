@@ -82,7 +82,7 @@ namespace Prolog
             {
                 if (args == null)
                 {
-                    Add(new AtomTerm(value: functor));
+                    Add(new AtomTerm( functor));
                 }
                 else
                 {
@@ -92,14 +92,14 @@ namespace Prolog
                     if (functor == PrologParser.DOT && args.Length == 2)
                         Add(new ListTerm(args[0], args[1]));
                     else
-                        Add(new CompoundTerm(functor: functor, args: args));
+                        Add(new CompoundTerm( functor, args: args));
                 }
             }
 
 
             public void Add(BaseTerm term)
             {
-                CheckTokenPair(newToken = new OperandToken(term: term));
+                CheckTokenPair(newToken = new OperandToken( term));
                 IS.Push(item: newToken);
             }
 
@@ -116,9 +116,9 @@ namespace Prolog
                 if (args.Length == 1) // i.e. only a single term between parentheses
                     Add(args[0]);
                 else if (args.Length == 2)
-                    Add(new OperatorTerm(od: CommaOpDescr, args[0], args[1])); // a list of terms between parentheses
+                    Add(new OperatorTerm( CommaOpDescr, args[0], args[1])); // a list of terms between parentheses
                 else
-                    Add(new CompoundTerm(functor: CommaOpDescr.Name,
+                    Add(new CompoundTerm( CommaOpDescr.Name,
                         args: args)); // a list of terms between parentheses
             }
 
@@ -132,16 +132,16 @@ namespace Prolog
                         else if (triplet.HasPostfixDef)
                             Add(new OperatorTerm(triplet[role: TT.Post], args[0]));
                         else
-                            Add(new CompoundTerm(functor: triplet.Name, args: args));
+                            Add(new CompoundTerm( triplet.Name, args: args));
                         break;
                     case 2:
                         if (triplet.HasInfixDef)
                             Add(new OperatorTerm(triplet[role: TT.In], args[0], args[1]));
                         else
-                            Add(new CompoundTerm(functor: triplet.Name, args: args));
+                            Add(new CompoundTerm( triplet.Name, args: args));
                         break;
                     default:
-                        Add(new CompoundTerm(functor: triplet.Name, args: args));
+                        Add(new CompoundTerm( triplet.Name, args: args));
                         break;
                 }
             }
@@ -439,10 +439,10 @@ namespace Prolog
                 {
                     t1 = PrefixToTerm(); // get the second operand from the PS-stack
 
-                    return new OperatorTerm(od: oprToken.od, a0: t0, a1: t1);
+                    return new OperatorTerm( oprToken.od, a0: t0, a1: t1);
                 }
 
-                return new OperatorTerm(od: oprToken.od, a: t0);
+                return new OperatorTerm( oprToken.od, a: t0);
             }
 
 

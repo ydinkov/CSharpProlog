@@ -615,7 +615,7 @@ namespace Prolog
                         sb.AppendFormat("{0}{1} -- ", Spaces(n: indent), arg1: node.KeyChar);
 
                         if (node.TermRec == null)
-                            sb.Append(value: Environment.NewLine);
+                            sb.Append( Environment.NewLine);
                         else
                             sb.Append(string.Format(node.TermRec.ToString()));
                     }
@@ -803,13 +803,13 @@ namespace Prolog
 
                 positionMarker currPos;
 
-                InputStreamMark(m: out currPos);
+                InputStreamMark( out currPos);
 
-                if (errMark.Start != UNDEF) InputStreamRedo(m: errMark, 0);
+                if (errMark.Start != UNDEF) InputStreamRedo( errMark, 0);
 
                 IO.WriteLine("{0}{1}{2}", symbol.Context, msg, Environment.NewLine);
 
-                if (errMark.Start != UNDEF) InputStreamRedo(m: currPos, 0);
+                if (errMark.Start != UNDEF) InputStreamRedo( currPos, 0);
             }
 
 
@@ -823,7 +823,7 @@ namespace Prolog
             {
                 if (parseAnyText) return;
 
-                if (errMark.Start != UNDEF) InputStreamRedo(m: errMark, 0);
+                if (errMark.Start != UNDEF) InputStreamRedo( errMark, 0);
 
                 throw new Exception(string.Format("{0}{1}{2}", arg0: symbol.Context, arg1: msg,
                     arg2: Environment.NewLine));
@@ -840,7 +840,7 @@ namespace Prolog
             {
                 if (parseAnyText) return;
 
-                if (errMark.Start != UNDEF) InputStreamRedo(m: errMark, 0);
+                if (errMark.Start != UNDEF) InputStreamRedo( errMark, 0);
 
                 throw new Exception(string.Format("{0}{1}{2}", arg0: symbol.Context, arg1: msg,
                     arg2: Environment.NewLine));
@@ -857,7 +857,7 @@ namespace Prolog
             {
                 if (parseAnyText) return;
 
-                if (errMark.Start != UNDEF) InputStreamRedo(m: errMark, 0);
+                if (errMark.Start != UNDEF) InputStreamRedo( errMark, 0);
 
                 throw new FatalException(string.Format("{0}{1}{2}", arg0: symbol.Context, arg1: msg,
                     arg2: Environment.NewLine));
@@ -875,7 +875,7 @@ namespace Prolog
                 get => inStream.ToString();
                 set
                 {
-                    inStream = new StringReadBuffer(s: value);
+                    inStream = new StringReadBuffer( value);
                     streamInLen = inStream.Length;
                     Parse();
                 }
@@ -1543,7 +1543,7 @@ namespace Prolog
                     var isFirst = true;
                     int[] ii;
 
-                    ts.ToIntArray(a: out ii);
+                    ts.ToIntArray( out ii);
 
                     foreach (var i in ii)
                     {
@@ -1556,7 +1556,7 @@ namespace Prolog
                                 isImage = true;
                                 if (isFirst) isFirst = false;
                                 else result.Append(", ");
-                                result.Append(value: td.Image);
+                                result.Append( td.Image);
                             }
 
                         if (!isImage)
@@ -2087,7 +2087,7 @@ namespace Prolog
                 streamInPtr.LineStart = UNDEF;
                 streamInPtr.EndLine = true;
                 streamInPtr.FOnLine = true;
-                InputStreamMark(m: out errMark); // just to make the compiler happy when there is no ERRMARK+
+                InputStreamMark( out errMark); // just to make the compiler happy when there is no ERRMARK+
                 errMark.Start = UNDEF;
                 errorMessage = null;
                 syntaxErrorStat = false;
@@ -2542,7 +2542,7 @@ namespace Prolog
 
             public StringWriteBuffer(string s)
             {
-                sb = new StringBuilder(value: s);
+                sb = new StringBuilder( s);
             }
 
 
@@ -2592,7 +2592,7 @@ namespace Prolog
                 }
                 else
                 {
-                    sb.Append(value: xs);
+                    sb.Append( xs);
                     positionOnLine += xs.Length;
                 }
             }
@@ -2631,7 +2631,7 @@ namespace Prolog
                 }
                 else
                 {
-                    sb.Append(value: c);
+                    sb.Append( c);
                     positionOnLine++;
                 }
             }
@@ -2641,7 +2641,7 @@ namespace Prolog
             {
                 if (quietMode) return;
 
-                sb.Append(value: Environment.NewLine);
+                sb.Append( Environment.NewLine);
                 firstSymbolOnLine = true;
                 positionOnLine = 0;
             }
@@ -2818,8 +2818,8 @@ namespace Prolog
 
             public new int Length
             {
-                get => Convert.ToInt32(value: fs.Length);
-                set => fs.SetLength(value: value);
+                get => Convert.ToInt32( fs.Length);
+                set => fs.SetLength( value);
             }
 
 
@@ -2914,7 +2914,7 @@ namespace Prolog
                 }
                 else
                 {
-                    sw.Write(value: xs);
+                    sw.Write( xs);
                     positionOnLine += xs.Length;
                 }
             }
@@ -2953,7 +2953,7 @@ namespace Prolog
                 }
                 else
                 {
-                    sw.Write(value: c);
+                    sw.Write( c);
                     positionOnLine++;
                 }
             }
@@ -2963,7 +2963,7 @@ namespace Prolog
             {
                 if (quietMode) return;
 
-                sw.Write(value: Environment.NewLine);
+                sw.Write( Environment.NewLine);
                 firstSymbolOnLine = true;
                 positionOnLine = 0;
             }

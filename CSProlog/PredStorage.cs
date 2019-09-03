@@ -105,14 +105,14 @@ namespace Prolog
 
             public void SetActionWhenUndefined(string f, int a, UndefAction u)
             {
-                actionWhenUndefined[BaseTerm.MakeKey(f: f, a: a)] = u;
+                actionWhenUndefined[BaseTerm.MakeKey( f, a: a)] = u;
             }
 
 
             public UndefAction ActionWhenUndefined(string f, int a)
             {
                 UndefAction u;
-                actionWhenUndefined.TryGetValue(BaseTerm.MakeKey(f: f, a: a), value: out u);
+                actionWhenUndefined.TryGetValue(BaseTerm.MakeKey( f, a: a), value: out u);
 
                 return u;
             }
@@ -120,17 +120,17 @@ namespace Prolog
 
             public bool IsPredicate(string functor, int arity)
             {
-                return Contains(BaseTerm.MakeKey(f: functor, a: arity));
+                return Contains(BaseTerm.MakeKey( functor, a: arity));
             }
 
             private PredicateDescr SetClauseList(string f, int a, ClauseNode c)
             {
-                var key = BaseTerm.MakeKey(f: f, a: a);
+                var key = BaseTerm.MakeKey( f, a: a);
                 var pd = this[key: key];
 
                 if (pd == null)
                     this[key: key] = pd =
-                        new PredicateDescr(null, definitionFile: ConsultFileName, functor: f, arity: a, clauseList: c);
+                        new PredicateDescr(null, ConsultFileName, f, a, clauseList: c);
                 else
                     pd.SetClauseListHead(c: c);
 
@@ -200,7 +200,7 @@ namespace Prolog
                 if (pd == null)
                 {
                     Predefineds[key: key] = true; // any value != null will do
-                    SetClauseList(f: head.FunctorToString, a: head.Arity, c: clause); // create a PredicateDescr
+                    SetClauseList( head.FunctorToString, a: head.Arity, c: clause); // create a PredicateDescr
                 }
                 else if (prevIndex != null && key != prevIndex)
                 {
@@ -221,7 +221,7 @@ namespace Prolog
                     IO.Error("Illegal or missing argument '{0}' for discontiguous/1", t);
 
                 // The predicate descriptor does not yet exist (and may even not come at all!)
-                var key = BaseTerm.MakeKey(f: t.Arg(0).FunctorToString, t.Arg(1).To<short>());
+                var key = BaseTerm.MakeKey( t.Arg(0).FunctorToString, t.Arg(1).To<short>());
 
                 //IO.WriteLine ("--- Setting discontiguous for {0} in definitionFile {1}", key, Globals.ConsultFileName);
                 isDiscontiguous[key: key] = "true";
@@ -244,13 +244,13 @@ namespace Prolog
                         ConfigSettings.SetWorkingDirectory(dirName: argument);
                         break;
                     case "fail_if_undefined":
-                        SetActionWhenUndefined(f: argument, a: arity, u: UndefAction.Fail);
+                        SetActionWhenUndefined( argument, a: arity, u: UndefAction.Fail);
                         break;
                     case "cache":
-                        SetCaching(functor: argument, arity: arity, true);
+                        SetCaching( argument, arity, true);
                         break;
                     case "nocache":
-                        SetCaching(functor: argument, arity: arity, false);
+                        SetCaching( argument, arity, false);
                         break;
                     case "cacheall":
                         SetCaching(null, 0, true);
@@ -328,7 +328,7 @@ namespace Prolog
                             IO.Error("Predicate '{0}' is already defined in {1}", index, pd.DefinitionFile);
 
                         definedInCurrFile[key: key] = true;
-                        pd = SetClauseList(f: head.FunctorToString, a: head.Arity,
+                        pd = SetClauseList( head.FunctorToString, a: head.Arity,
                             c: clause); // implicitly erases all previous definitions
                         pd.IsDiscontiguous = isDiscontiguous.ContainsKey( key) || allDiscontiguous;
                         prevIndex = key;
@@ -435,7 +435,7 @@ namespace Prolog
                 var seqNo = 0;
 
                 foreach (var kv in sl)
-                    result = ListClause(pd = kv.Value, functor: pd.Functor, arity: pd.Arity, seqno: ++seqNo) || result;
+                    result = ListClause(pd = kv.Value, pd.Functor, pd.Arity, seqno: ++seqNo) || result;
 
                 return result;
             }
@@ -463,7 +463,7 @@ namespace Prolog
 
                 if (functor == "history")
                 {
-                    IO.Write(s: HistoryHelpText);
+                    IO.Write( HistoryHelpText);
 
                     return true;
                 }
@@ -652,7 +652,7 @@ namespace Prolog
                         if ((pd = kv.Value).Functor == functor)
                         {
                             found = true;
-                            pd.SetSpy(enabled: enabled, functor: pd.Functor, arity: pd.Arity, setPorts: ports,
+                            pd.SetSpy( enabled, pd.Functor, pd.Arity, ports,
                                 warn: !enabled);
                         }
 
@@ -661,7 +661,7 @@ namespace Prolog
                     return found;
                 }
 
-                predTable.TryGetValue(BaseTerm.MakeKey(f: functor, a: arity), value: out pd);
+                predTable.TryGetValue(BaseTerm.MakeKey( functor, a: arity), value: out pd);
 
                 if (pd == null)
                 {
@@ -670,7 +670,7 @@ namespace Prolog
                     return false;
                 }
 
-                pd.SetSpy(enabled: enabled, functor: functor, arity: arity, setPorts: ports, warn: !enabled);
+                pd.SetSpy(enabled, functor, arity, ports, warn: !enabled);
 
                 return true;
             }
@@ -680,7 +680,7 @@ namespace Prolog
                 PredicateDescr pd;
 
                 foreach (var kv in predTable)
-                    (pd = kv.Value).SetSpy(false, functor: pd.Functor, arity: pd.Arity, setPorts: SpyPort.None, false);
+                    (pd = kv.Value).SetSpy(false, pd.Functor, pd.Arity, SpyPort.None, false);
             }
 
             public void ShowSpypoints()
@@ -700,7 +700,7 @@ namespace Prolog
                 PredicateDescr pd;
                 var assertionCopy = assertion.Copy(true);
 
-                if (assertionCopy.HasFunctor(s: PrologParser.IMPLIES))
+                if (assertionCopy.HasFunctor( PrologParser.IMPLIES))
                 {
                     head = assertionCopy.Arg(0);
                     body = assertionCopy.Arg(1).ToGoalList();
@@ -719,11 +719,11 @@ namespace Prolog
                         assertionCopy.Index);
 
                 predTable.TryGetValue(key: key, value: out pd);
-                var newC = new ClauseNode(t: head, body: body);
+                var newC = new ClauseNode( head, body: body);
 
                 if (pd == null) // first head
                 {
-                    SetClauseList(f: head.FunctorToString, a: head.Arity, c: newC);
+                    SetClauseList( head.FunctorToString, a: head.Arity, c: newC);
                     ResolveIndices();
                 }
                 else if (pd.IsCacheable)
@@ -734,7 +734,7 @@ namespace Prolog
                 else if (asserta) // at beginning
                 {
                     newC.NextClause = pd.ClauseList; // pd.ClauseList may be null
-                    SetClauseList(f: head.FunctorToString, a: head.Arity, c: newC);
+                    SetClauseList( head.FunctorToString, a: head.Arity, c: newC);
 #if arg1index
           pd.CreateFirstArgIndex (); // re-create
 #endif
@@ -773,7 +773,7 @@ namespace Prolog
 
                     top = varStack.Count;
 
-                    if (cleanTerm.Unify(t: t, varStack: varStack)) // match found -- remove this term from the chain
+                    if (cleanTerm.Unify( t, varStack: varStack)) // match found -- remove this term from the chain
                     {
                         if (prevc == null) // remove first clause
                         {
@@ -844,7 +844,7 @@ namespace Prolog
                 {
                     var cleanTerm = c.Term.Copy();
 
-                    if (cleanTerm.IsUnifiableWith(t: t, varStack: varStack)
+                    if (cleanTerm.IsUnifiableWith( t, varStack: varStack)
                     ) // match found -- remove this head from the chain
                     {
                         match = true; // to indicate that at least one head was found
@@ -890,7 +890,7 @@ namespace Prolog
 
             public bool Abolish(string functor, int arity)
             {
-                var key = BaseTerm.MakeKey(f: functor, a: arity);
+                var key = BaseTerm.MakeKey( functor, a: arity);
 
                 if (Predefineds.ContainsKey(key))
                     IO.Error("abolish of predefined predicate '{0}/{1}' not allowed", functor, arity);
@@ -996,7 +996,7 @@ namespace Prolog
                             {
                                 PredicateDescr npd;
                                 //IO.WriteLine ("{0} uses {1}", pd.Name, node.PredDescr.Name);
-                                crossRefTable[row: pd, npd = node.PredDescr] = false;
+                                crossRefTable[pd, npd = node.PredDescr] = false;
 
                                 if (npd.Name == "not/1" || npd.Name == "call/1") // add args to cref
                                 {
@@ -1061,7 +1061,7 @@ namespace Prolog
                 {
                     public int Compare(KeyValuePair<int, string> kv0, KeyValuePair<int, string> kv1)
                     {
-                        var result = -kv0.Key.CompareTo(value: kv1.Key); // descending count order
+                        var result = -kv0.Key.CompareTo( kv1.Key); // descending count order
 
                         if (result == 0) return kv0.Value.CompareTo(strB: kv1.Value);
 
@@ -1098,7 +1098,7 @@ namespace Prolog
                 {
                     if (entryCount++ > maxEntry) break;
 
-                    IO.WriteLine(s: format, kv.Value, kv.Key);
+                    IO.WriteLine( format, kv.Value, kv.Key);
                 }
             }
 
@@ -1151,7 +1151,7 @@ namespace Prolog
 
                     var marker = varStack.Count; // register the point to which we must undo unification
 
-                    if (clause.Head.Unify(t: clauseHead, varStack: varStack))
+                    if (clause.Head.Unify( clauseHead, varStack: varStack))
                     {
                         if (bodyNode == null) // a fact
                             ClauseBody = new BoolTerm(true);

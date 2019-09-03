@@ -172,7 +172,7 @@ namespace Prolog
         // Store solutions in an GetAllSolutions class
         public SolutionSet GetAllSolutions(string sourceFileName, string query)
         {
-            return GetAllSolutions(sourceFileName: sourceFileName, query: query, 0);
+            return GetAllSolutions(sourceFileName, query, 0);
         }
 
         public SolutionSet GetAllSolutions(string sourceFileName, string query, int maxSolutionCount)
@@ -217,7 +217,7 @@ namespace Prolog
                             solutions.CreateVarSet();
                         }
 
-                        solutions.AddToVarSet(name: varValue.Name, type: varValue.DataType, varValue.Value.ToString());
+                        solutions.AddToVarSet(varValue.Name, varValue.DataType, varValue.Value.ToString());
                         varFound = true;
                     }
 

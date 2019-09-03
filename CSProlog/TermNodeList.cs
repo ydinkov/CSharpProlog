@@ -163,7 +163,7 @@ namespace Prolog
                     next = next.nextNode;
                 }
 
-                tail.nextNode = new TermNode(term: t, (PredicateDescr) null);
+                tail.nextNode = new TermNode( t, (PredicateDescr) null);
             }
 
 
@@ -197,7 +197,7 @@ namespace Prolog
             {
                 return NextNode == null
                     ? Term // last term of TermNode
-                    : new OperatorTerm(od: CommaOpDescr, a0: Term, NextNode.TermSeq());
+                    : new OperatorTerm( CommaOpDescr, a0: Term, NextNode.TermSeq());
             }
 
 
@@ -318,14 +318,14 @@ namespace Prolog
         // the terms (connected by NextNode) of a single clause
         public class ClauseNode : TermNode
         {
-            public static ClauseNode FAIL = new ClauseNode(t: BaseTerm.FAIL, null);
+            public static ClauseNode FAIL = new ClauseNode( BaseTerm.FAIL, null);
 
             public ClauseNode()
             {
             }
 
             public ClauseNode(BaseTerm t, TermNode body)
-                : base(term: t, nextNode: body)
+                : base( t, nextNode: body)
             {
             }
 
@@ -361,7 +361,7 @@ namespace Prolog
         // CACHEING CURRENTLY NOT USED
         public class CachedClauseNode : ClauseNode
         {
-            public CachedClauseNode(BaseTerm t, TermNode body, bool succeeds) : base(t: t, body: body)
+            public CachedClauseNode(BaseTerm t, TermNode body, bool succeeds) : base( t, body: body)
             {
                 Succeeds = succeeds;
             }

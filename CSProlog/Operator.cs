@@ -334,7 +334,7 @@ namespace Prolog
                 OpDescrTriplet triplet;
 
                 if (TryGetValue(key: name, value: out triplet))
-                    return triplet.HasUnOpDef(od: out od);
+                    return triplet.HasUnOpDef( out od);
 
                 od = null;
 
@@ -347,7 +347,7 @@ namespace Prolog
                 OpDescrTriplet triplet;
 
                 if (TryGetValue(key: name, value: out triplet))
-                    return triplet.HasBinOpDef(od: out od);
+                    return triplet.HasBinOpDef( out od);
 
                 od = null;
 
